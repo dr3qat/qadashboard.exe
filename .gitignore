@@ -45,5 +45,12 @@ desktop.ini
 
 # Claude / RTK internals
 claude/
+.claude/
+.agents/
+caveman/
 ccusage/
 skills-lock.json
+CLAUDE.md.original.md
+
+# Build artifacts
+Gerador_EXE/output/build_temp/

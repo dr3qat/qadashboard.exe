@@ -20,11 +20,7 @@ PROIBIDO usar ferramentas internas (`Read`, `Grep`, `Glob`). USAR RTK via shell:
 - Git: `rtk git status`, `rtk git diff`
 
 > **NOTA:** Edição em `Testes_PDV/` → espelhar em `Gerador_EXE/output/staging/`.
-# ==========================================
 
-# CLAUDE.md — PDV Automação
-
-> Versão: 3.1 | Atualizado: 2026-04-09
 
 ---
 
@@ -371,13 +367,13 @@ tests/negativos/
 
 ```python
 # Servidor
-SERVER_IP   → settings.json "server_ip"      → env TEST_SERVER_IP   → default "***SERVER_IP***"
-SERVER_PORT → settings.json "server_port"    → env TEST_SERVER_PORT → default "***SERVER_PORT***"
+SERVER_IP   → settings.json "server_ip"      → env TEST_SERVER_IP   → default "***"
+SERVER_PORT → settings.json "server_port"    → env TEST_SERVER_PORT → default "***"
 
 # Credenciais
-COMPANY  → "company"   → TEST_COMPANY  → "382"
-USER     → "user"      → TEST_USER     → "SERVER"
-PASSWORD → "password"  → TEST_PASSWORD → "***PASSWORD***"
+COMPANY  → "company"   → TEST_COMPANY  → "***"
+USER     → "user"      → TEST_USER     → "***"
+PASSWORD → "password"  → TEST_PASSWORD → "***"
 
 # Dados de teste
 CUSTOMER_ID          → "customer_id"          → "1" (local) / "3" (CI)
