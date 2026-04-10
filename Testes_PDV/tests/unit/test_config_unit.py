@@ -160,6 +160,11 @@ class TestGetAllConnectedDevices:
 class TestDiscoverTargetApp:
     """Testes para função discover_target_app."""
 
+    def setup_method(self):
+        """Limpa cache entre testes para garantir isolamento."""
+        import config
+        config._discover_cache.clear()
+
     @patch('config.subprocess.check_output')
     def test_encontra_app_conhecido(self, mock_check_output):
         """

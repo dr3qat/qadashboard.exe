@@ -81,7 +81,7 @@ class TrocaPage(BasePage):
         self.clicar_no_primeiro_da_lista_por_id(self.ITEM_LISTA_NOTAS)
 
         logger.info(f"{LogStyle.OK} Primeira nota selecionada (deve ser a venda mais recente)")
-        time.sleep(1)  # Aguarda tela de detalhes carregar
+        time.sleep(1)  # Aguarda popup "Escolha do cliente" ou tela de detalhes carregar
 
     def selecionar_cliente(self, identificador: str):
         """Seleciona cliente pelo identificador."""
@@ -93,7 +93,7 @@ class TrocaPage(BasePage):
     def marcar_item_para_devolucao(self):
         """Marca item para devolução. Checkbox está no início da tela."""
         logger.info(f"{LogStyle.ACAO} Marcando item para devolução...")
-        time.sleep(2)  # Aguarda tela carregar completamente
+        time.sleep(2)  # Aguarda tela de detalhes carregar completamente
         self.clicar_por_id(self.CHECKBOX_ITEM)
 
     def clicar_devolver_itens(self):
@@ -163,8 +163,7 @@ class TrocaPage(BasePage):
         """Adiciona produto pelo código."""
         logger.info(f"{LogStyle.ACAO} Adicionando produto: {LogStyle.valor(codigo)}")
         self.clicar_por_id(self.BTN_ADICIONAR_PRODUTOS)
-        time.sleep(0.5)  # Aguarda campo de busca aparecer
-        self.digitar_por_id(self.EDT_BUSCA_PRODUTO, codigo)
+        self.digitar_por_id(self.EDT_BUSCA_PRODUTO, codigo)  # digitar_por_id aguarda campo aparecer
         self.clicar_por_id(self.IMG_PRODUTO)
         logger.info(f"{LogStyle.OK} Produto {LogStyle.valor(codigo)} adicionado")
 
@@ -211,8 +210,7 @@ class TrocaPage(BasePage):
         """Trata popup de BÔNUS DISPONÍVEL se aparecer."""
         if self.texto_exibido(self.TXT_BONUS_DISPONIVEL, tempo_espera=3):
             logger.info(f"{LogStyle.ACAO} Popup {LogStyle.elemento('BÔNUS DISPONÍVEL')} detectado. Clicando em 'Mais tarde'...")
-            self.clicar_por_id(self.BTN_MAIS_TARDE)
-            time.sleep(1)
+            self.clicar_por_id(self.BTN_MAIS_TARDE)  # clicar_por_id já aguarda elemento
 
     def finalizar_venda(self):
         """
@@ -301,9 +299,13 @@ class TrocaPage(BasePage):
         self.clicar_consultar()
         self.selecionar_primeira_nota()
 
-        # Se aparecer popup de SIM, precisa selecionar cliente
+        # Popup "Escolha do cliente" tem 2 variantes:
+        # 1. "CPF/CNPJ inválido, deseja selecionar cliente?" → SIM → abre busca de cliente
+        # 2. "Deseja realizar troca para o mesmo cliente?" → SIM → cliente já setado (sem busca)
         if self.clicar_texto_se_existir("SIM", tempo_espera=3):
-            self.selecionar_cliente(test_data.CUSTOMER_ID_TROCA)
+            # Só chama selecionar_cliente se o campo de busca aparecer (caso 1)
+            if self.elemento_existe(self.EDT_BUSCA_CLIENTE, tempo_espera=3):
+                self.selecionar_cliente(test_data.CUSTOMER_ID_TROCA)
 
         self.marcar_item_para_devolucao()
         self.clicar_devolver_itens()

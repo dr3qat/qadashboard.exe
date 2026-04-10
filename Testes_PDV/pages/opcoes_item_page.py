@@ -44,7 +44,7 @@ class OpcoesItemPage(BasePage):
         """Abre o menu de ações do item."""
         logger.info(f"{LogStyle.ACAO} Abrindo menu de ações do item...")
         self.clicar_por_id(self.BTN_ACOES_ITEM)
-        time.sleep(1)
+        time.sleep(0.3)  # Pequena pausa para animação do menu
 
     def remover_item(self):
         """Remove item do carrinho."""
@@ -52,7 +52,6 @@ class OpcoesItemPage(BasePage):
 
         self.abrir_menu_acoes()
         self.clicar_por_texto(self.TXT_REMOVER_ITEM)
-        time.sleep(1)
 
         # Valida mensagem de confirmação
         logger.info(f"{LogStyle.VALIDAR} Validando mensagem de confirmação...")
@@ -80,14 +79,12 @@ class OpcoesItemPage(BasePage):
 
         self.abrir_menu_acoes()
         self.clicar_por_texto(self.TXT_ALTERAR_QUANTIDADE)
-        time.sleep(1)
 
         # Digita nova quantidade
         self.digitar_por_xpath(self.EDT_XPATH, nova_quantidade)
         self.clicar_por_texto(self.TXT_CONFIRMAR)
-        time.sleep(1.5)
 
-        # Valida alteração
+        # Valida alteração — encontrar_por_id aguarda até 5s
         quantidade_atualizada = self.encontrar_por_id(self.TXT_QUANTITY, tempo_espera=5).text
         if quantidade_atualizada != nova_quantidade:
             raise AssertionError(f"Quantidade esperada '{nova_quantidade}', mas encontrou '{quantidade_atualizada}'")
@@ -116,14 +113,12 @@ class OpcoesItemPage(BasePage):
 
         self.abrir_menu_acoes()
         self.clicar_por_texto(self.TXT_ALTERAR_PRECO)
-        time.sleep(1)
 
         # Digita novo preço
         self.digitar_por_xpath(self.EDT_XPATH, novo_preco)
         self.clicar_por_texto(self.TXT_CONFIRMAR)
-        time.sleep(1.5)
 
-        # Valida alteração
+        # Valida alteração — encontrar_por_id aguarda até 5s
         preco_novo = self.encontrar_por_id(self.TXT_PRICE_VALUE, tempo_espera=5).text
         if preco_novo == preco_antigo:
             raise AssertionError(f"Preço não foi alterado! Continua: {preco_antigo}")
@@ -153,9 +148,8 @@ class OpcoesItemPage(BasePage):
 
         self.abrir_menu_acoes()
         self.clicar_por_texto(self.TXT_ALTERAR_TAMANHO)
-        time.sleep(1)
 
-        # Seleciona tamanho diferente
+        # Seleciona tamanho diferente — encontrar_todos aguarda lista aparecer
         opcoes = self.encontrar_todos_por_id(self.LISTA_OPCAO, tempo_espera=5)
         tamanho_escolhido = None
 
@@ -169,9 +163,7 @@ class OpcoesItemPage(BasePage):
         if not tamanho_escolhido:
             raise Exception("Não havia outras opções de tamanho disponíveis")
 
-        time.sleep(1.5)
-
-        # Valida alteração
+        # Valida alteração — encontrar_por_id aguarda até 5s
         tamanho_novo = self.encontrar_por_id(self.TXT_SIZE_VALUE, tempo_espera=5).text
         if tamanho_novo != tamanho_escolhido:
             raise AssertionError(f"Esperava tamanho '{tamanho_escolhido}', mas encontrou '{tamanho_novo}'")
@@ -201,9 +193,8 @@ class OpcoesItemPage(BasePage):
 
         self.abrir_menu_acoes()
         self.clicar_por_texto(self.TXT_ALTERAR_VENDEDOR)
-        time.sleep(1)
 
-        # Seleciona vendedor diferente
+        # Seleciona vendedor diferente — encontrar_todos aguarda lista aparecer
         opcoes = self.encontrar_todos_por_id(self.LISTA_VENDEDOR, tempo_espera=5)
         vendedor_escolhido = None
 
@@ -217,9 +208,7 @@ class OpcoesItemPage(BasePage):
         if not vendedor_escolhido:
             raise Exception("Não havia outros vendedores disponíveis")
 
-        time.sleep(1.5)
-
-        # Valida alteração
+        # Valida alteração — encontrar_por_id aguarda até 5s
         vendedor_novo = self.encontrar_por_id(self.TXT_VENDEDOR_ITEM, tempo_espera=5).text
         if vendedor_novo != vendedor_escolhido:
             raise AssertionError(f"Esperava vendedor '{vendedor_escolhido}', mas encontrou '{vendedor_novo}'")
@@ -257,7 +246,6 @@ class OpcoesItemPage(BasePage):
         # Volta para carrinho
         logger.info(f"{LogStyle.ACAO} Voltando para o carrinho...")
         self.voltar_tela()
-        time.sleep(1)
 
         return {
             "nome": nome_produto,

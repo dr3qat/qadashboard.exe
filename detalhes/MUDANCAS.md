@@ -4,6 +4,67 @@ Registro diário de alterações, correções e melhorias realizadas no projeto.
 
 ---
 
+## 2026-04-10 — Refatoração de Performance e Estrutura
+
+### Ganho estimado: ~90s por suite E2E completa
+
+---
+
+### F1 — requirements.txt: removidos pacotes CI/inúteis
+**Removidos:** `pytest-xdist`, `execnet`, `playwright`, `pytest-playwright`, `pytest-base-url`, `python-telegram-bot`, `pyee`
+**Motivo:** CI nunca será usado. Pacotes playwright/telegram não são referenciados em nenhum teste.
+**Impacto:** instalação mais rápida, menos conflitos de dependência.
+
+---
+
+### F1 — config.py: cache em `discover_target_app()`
+**Mudança:** dict global `_discover_cache` — segunda chamada por device_id retorna do cache sem ADB.
+**Ganho:** ~3-5s por sessão (evita `adb pm list packages` duplicado no startup).
+
+---
+
+### F1 — app_runner.py: mascarar credenciais em logs
+**Mudança:** `_CHAVES_SENSIVEIS` filtra `TEST_PASSWORD`, `TEST_USER`, `TEST_COMPANY`, `TEST_SERVER_IP` do dict de env antes de qualquer log.
+**Motivo:** segurança — senha não aparece mais em `execucao_tecnica.log`.
+
+---
+
+### F2 — Sleeps → waits explícitos (6 arquivos de page objects)
+
+| Arquivo | Sleeps removidos/reduzidos | Ganho |
+|---|---|---|
+| `estoque_page.py` | 7 sleeps (1-3s) removidos | ~10s |
+| `opcoes_item_page.py` | 8 sleeps (1-1.5s) removidos, 4 reduzidos | ~9s |
+| `venda_futura_page.py` | 4 sleeps (1-3s) removidos/reduzidos | ~8s |
+| `troca_page.py` | 4 sleeps (0.5-2s) removidos/reduzidos | ~6s |
+| `consulta_pedido_page.py` | 4 sleeps (2-5s) → waits explícitos | ~14s |
+| `base_page.py` | 3 sleeps(0.3s) removidos, 2 reduzidos 0.3→0.1 | ~4s |
+
+**Regra aplicada:** sleeps antes de métodos com `tempo_espera` interno → removidos. Sleeps proteção de animação/servidor → mantidos.
+
+---
+
+### F3 — conftest.py: limpeza e unificação
+
+1. **`_NO_WINDOW`**: removida definição local duplicada, importado de `config.py`
+2. **`IS_CI`**: removido — projeto é 100% local
+3. **`_criar_ambiente_allure`**: `Ambiente=Local` fixo, removidas linhas GitHub env vars
+4. **`_criar_driver_appium()`**: helper criado com toda lógica comum de driver
+5. **`driver` / `driver_limpo`**: refatorados para usar `_criar_driver_appium()`
+6. **`pytest_collection_modifyitems`**: warning automático se teste em `ORDEM_TESTES` não for coletado
+7. **`import sys`**: removido (não usado após remoção de `_NO_WINDOW` local)
+
+---
+
+### Testes unitários corrigidos
+- `test_config_unit.py`: `setup_method` limpa `_discover_cache` entre testes (isolamento)
+- `test_troca_page_unit.py`: mock de `encontrar_por_id` adicionado ao test de `selecionar_primeira_nota`
+- `test_venda_futura_page_unit.py`: expected `tempo_espera` atualizado de 2 → 4
+
+**Resultado final:** 236/236 unitários passando.
+
+---
+
 ## 2026-03-10 (Segunda-feira)
 
 ### ✅ Correção dos Testes de Troca

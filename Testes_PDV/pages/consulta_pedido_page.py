@@ -115,12 +115,11 @@ class ConsultaPedidoPage(BasePage):
         """Acessa a tela de consulta de pedidos."""
         logger.info(f"{LogStyle.ACAO} Acessando {LogStyle.elemento('Cons. Pedido')}...")
         self.ver_e_clicar_texto("Cons. Pedido")
-        time.sleep(2)
+        # Lista carregada em selecionar_ultimo_pedido via encontrar_todos_por_id
 
     def selecionar_ultimo_pedido(self):
         """Seleciona o pedido mais recente (último da lista, novos vão pro fundo)."""
         logger.info(f"{LogStyle.ACAO} Selecionando pedido mais recente (último da lista)...")
-        time.sleep(2)  # Aguarda lista carregar
 
         # Scroll até o final para revelar os pedidos mais recentes
         logger.info(f"   {LogStyle.SCROLL} Rolando até o final da lista...")
@@ -145,7 +144,7 @@ class ConsultaPedidoPage(BasePage):
         numero_pedido = ultimo.text.strip()
         logger.info(f"   {LogStyle.CLICK} Clicando no pedido Nº {numero_pedido} (maior número)")
         ultimo.click()
-        time.sleep(5)  # Aguarda BottomSheet carregar
+        # Aguarda BottomSheet aparecer via clicar_finalizar_pedido(tempo_espera=15)
         logger.info(f"   {LogStyle.OK} Pedido Nº {numero_pedido} selecionado")
         return True
 
@@ -153,6 +152,7 @@ class ConsultaPedidoPage(BasePage):
         """Clica em 'Finalizar Pedido' no BottomSheet."""
         logger.info(f"{LogStyle.ACAO} Clicando em {LogStyle.elemento('Finalizar Pedido')}...")
         # NÃO usar ver_e_clicar_texto: scroll fecha o BottomSheet.
+        # tempo_espera=15 aguarda BottomSheet aparecer (substitui sleep(5) anterior)
         self.clicar_por_texto("Finalizar Pedido", tempo_espera=15)
 
     def tratar_popup_bonus(self):
@@ -240,8 +240,8 @@ class ConsultaPedidoPage(BasePage):
         self.tratar_popup_bonus()
         self.tratar_alerta_cashback()
         self.tratar_popup_bonus()  # Bonus pode aparecer APOS cashback ser fechado
-        # CRÍTICO: tela de pagamento demora carregar após processar pedido no servidor
-        time.sleep(5)
+        # Aguarda tela de pagamento carregar (servidor processa pedido)
+        self.encontrar_clicavel_por_id(self.BTN_FINALIZAR, tempo_espera=15)
         self.ver_e_clicar(self.BTN_FINALIZAR)
 
         # IMPRESSÃO 1: Cupom de Venda (diálogo automático)

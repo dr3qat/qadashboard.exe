@@ -93,13 +93,10 @@ class EstoquePage(BasePage):
 
                 logger.info(f"   {LogStyle.ACAO} Mudando filtro para: {opcao_desejada}")
                 self.clicar_por_id(self.BTN_FILTRO)
-                time.sleep(1)
-                self.clicar_por_texto(opcao_desejada)
-                time.sleep(1)
+                self.clicar_por_texto(opcao_desejada)  # clicar_por_texto aguarda elemento aparecer
             else:
                 # Fallback cego se não conseguir ler o texto
                 self.clicar_por_id(self.BTN_FILTRO)
-                time.sleep(1)
                 self.clicar_por_texto(opcao_desejada)
         except:
             pass
@@ -107,11 +104,9 @@ class EstoquePage(BasePage):
     # --- Busca ---
     def buscar_produto_por_codigo(self, codigo: str):
         logger.info(f"{LogStyle.ACAO} Buscando CODIGO: {codigo}")
-        time.sleep(1)
 
         # 1. Clica lupa
         self.clicar_pesquisar()
-        time.sleep(1)
 
         # 2. Garante filtro
         self.garantir_filtro(self.OPCAO_CODIGO)
@@ -120,16 +115,13 @@ class EstoquePage(BasePage):
         try: self.digitar_por_id(self.EDT_BUSCA_PRODUTO, codigo)
         except: self.digitar_por_id(self.EDT_CODIGO_PRODUTO, codigo)
 
-        # 4. Pesquisa
+        # 4. Pesquisa — resultado aguardado por obter_detalhes_completos/produto_encontrado
         self.pressionar_pesquisar()
-        time.sleep(3) # Tempo para carregar detalhes
 
     def buscar_produto_por_nome(self, nome: str):
         logger.info(f"{LogStyle.ACAO} Buscando NOME: {nome}")
-        time.sleep(1)
 
         self.clicar_pesquisar()
-        time.sleep(1)
 
         self.garantir_filtro(self.OPCAO_DESCRICAO)
 
@@ -137,7 +129,6 @@ class EstoquePage(BasePage):
         except: self.digitar_por_id(self.EDT_CODIGO_PRODUTO, nome)
 
         self.pressionar_pesquisar()
-        time.sleep(3)
 
     def clicar_pesquisar(self):
         try: self.clicar_por_id(self.BTN_PESQUISAR)

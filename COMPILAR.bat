@@ -13,11 +13,10 @@ set "REQ_BUILD=%BUILD_DIR%\requirements_build.txt"
 :: ============================================================
 :: PASSO 1: INSTALAR / ATUALIZAR DEPENDENCIAS DE BUILD
 :: ============================================================
-echo [1/2] Instalando/atualizando dependencias de build...
+echo [1/2] Verificando dependencias de build...
 echo       (requirements_build.txt)
 echo.
-python -m pip install --upgrade pip --quiet
-python -m pip install -r "%REQ_BUILD%" --upgrade --quiet
+python -m pip install -r "%REQ_BUILD%" --quiet
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
@@ -28,7 +27,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [OK] Dependencias instaladas.
+echo [OK] Dependencias verificadas.
 echo.
 
 :: ============================================================

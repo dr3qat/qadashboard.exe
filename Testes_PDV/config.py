@@ -318,6 +318,9 @@ def get_all_connected_devices():
     except:
         return []
 
+# Cache de detecção de app por device_id (evita chamar adb pm list packages 2× por sessão)
+_discover_cache: dict = {}
+
 APP_TARGETS = {
     "REDEL400": {
         "QA":   {"package": "com.serverinfo.bshoppdv.redel400.qa", "activity": "com.serverinfo.bshoppdv.activities.LoginPDVActivity"},
@@ -352,10 +355,17 @@ APP_TARGETS = {
 def discover_target_app(device_id: str = None):
     """
     Detecta o app alvo instalado no dispositivo.
+    Resultado é cacheado por device_id para evitar chamadas ADB repetidas.
 
     Args:
         device_id: ID do dispositivo. Se None, usa o primeiro disponivel.
     """
+    cache_key = device_id or "__default__"
+    if cache_key in _discover_cache:
+        cached = _discover_cache[cache_key]
+        print(f"   [CACHE] App para {cache_key}: {cached[0]}")
+        return cached
+
     print(f"-> Procurando por aplicativos de teste no dispositivo {device_id or 'padrao'}...")
     try:
         # Monta comando adb com ou sem device_id
@@ -372,14 +382,17 @@ def discover_target_app(device_id: str = None):
         if len(apps_encontrados) == 1:
             app_encontrado = apps_encontrados[0]
             print(f"   [OK] App alvo detectado: {app_encontrado['package']}")
-            return app_encontrado["package"], app_encontrado["activity"]
+            result = (app_encontrado["package"], app_encontrado["activity"])
         elif len(apps_encontrados) == 0:
             raise RuntimeError("ERRO: Nenhum dos apps cadastrados em APP_TARGETS foi encontrado no dispositivo.")
         else:
             # Com multiplos apps, usa o primeiro (QA tem prioridade)
             app_encontrado = apps_encontrados[0]
             print(f"   [INFO] Multiplos apps encontrados. Usando: {app_encontrado['package']}")
-            return app_encontrado["package"], app_encontrado["activity"]
+            result = (app_encontrado["package"], app_encontrado["activity"])
+
+        _discover_cache[cache_key] = result
+        return result
     except subprocess.TimeoutExpired:
         raise RuntimeError("ERRO: Timeout ao listar pacotes do dispositivo.")
     except Exception as e:

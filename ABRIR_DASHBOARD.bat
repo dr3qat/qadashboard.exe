@@ -18,52 +18,27 @@ set "SOURCE_DIR=%ROOT_DIR%Testes_PDV"
 
 :: ============================================================
 :: SINCRONIZAÇÃO DE ARQUIVOS
-:: Copia arquivos atualizados para staging (simula ambiente do EXE)
+:: Robocopy /MIR: espelho completo e recursivo (só copia o que mudou)
+:: /XF settings.json → preserva settings.json do staging
+:: /XD __pycache__ .git → ignora caches e git
+:: /NFL /NDL /NJH /NJS → log silencioso
 :: ============================================================
 
-:: Cria diretórios se não existirem
-if not exist "%STAGING_DIR%" mkdir "%STAGING_DIR%"
-if not exist "%STAGING_DIR%\pages" mkdir "%STAGING_DIR%\pages"
-if not exist "%STAGING_DIR%\tests" mkdir "%STAGING_DIR%\tests"
-if not exist "%STAGING_DIR%\tests\e2e" mkdir "%STAGING_DIR%\tests\e2e"
-if not exist "%STAGING_DIR%\tests\smoke" mkdir "%STAGING_DIR%\tests\smoke"
-if not exist "%STAGING_DIR%\tests\unit" mkdir "%STAGING_DIR%\tests\unit"
+echo [1/1] Sincronizando Testes_PDV para staging...
+:: /E = recursivo sem deletar extras do staging (preserva settings.json, scripts, runner files)
+:: /XD __pycache__ .git = ignora caches
+:: /XF *.pyc = ignora bytecode
+:: /NFL /NDL /NJH /NJS = log silencioso (sem listagem de arquivos/dirs)
+robocopy "%SOURCE_DIR%" "%STAGING_DIR%" /E /XD __pycache__ .git /XF *.pyc /NFL /NDL /NJH /NJS /NC /NS
 
-:: Copia TODOS os arquivos .py da raiz (config, test_data, framework, conftest, test_encoding, etc)
-echo [1/6] Copiando arquivos principais da raiz...
-for %%f in ("%SOURCE_DIR%\*.py") do (
-    copy /Y "%%f" "%STAGING_DIR%\" >nul 2>&1
+:: Robocopy: 0-7 = sucesso (bit flags). 8+ = erro real.
+if %ERRORLEVEL% GEQ 8 (
+    echo.
+    echo [ERRO] Falha na sincronizacao! Robocopy retornou: %ERRORLEVEL%
+    pause
+    exit /b 1
 )
-echo    [OK] Arquivos principais copiados.
-
-:: Copia Page Objects
-echo [2/6] Copiando Page Objects...
-xcopy /Y /Q "%SOURCE_DIR%\pages\*.py" "%STAGING_DIR%\pages\" >nul 2>&1
-echo    [OK] Page Objects copiados.
-
-:: Copia Testes E2E
-echo [3/6] Copiando Testes E2E...
-xcopy /Y /Q "%SOURCE_DIR%\tests\e2e\*.py" "%STAGING_DIR%\tests\e2e\" >nul 2>&1
-echo    [OK] Testes E2E copiados.
-
-:: Copia Testes Smoke
-echo [4/6] Copiando Testes Smoke...
-xcopy /Y /Q "%SOURCE_DIR%\tests\smoke\*.py" "%STAGING_DIR%\tests\smoke\" >nul 2>&1
-echo    [OK] Testes Smoke copiados.
-
-:: Copia Testes Unitários
-echo [5/6] Copiando Testes Unitarios...
-xcopy /Y /Q "%SOURCE_DIR%\tests\unit\*.py" "%STAGING_DIR%\tests\unit\" >nul 2>&1
-echo    [OK] Testes Unitarios copiados.
-
-:: Copia __init__.py
-echo [6/6] Copiando arquivos de inicializacao...
-copy /Y "%SOURCE_DIR%\pages\__init__.py" "%STAGING_DIR%\pages\__init__.py" >nul 2>&1
-copy /Y "%SOURCE_DIR%\tests\__init__.py" "%STAGING_DIR%\tests\__init__.py" >nul 2>&1
-copy /Y "%SOURCE_DIR%\tests\e2e\__init__.py" "%STAGING_DIR%\tests\e2e\__init__.py" >nul 2>&1
-copy /Y "%SOURCE_DIR%\tests\smoke\__init__.py" "%STAGING_DIR%\tests\smoke\__init__.py" >nul 2>&1
-copy /Y "%SOURCE_DIR%\tests\unit\__init__.py" "%STAGING_DIR%\tests\unit\__init__.py" >nul 2>&1
-echo    [OK] Arquivos de inicializacao copiados.
+echo    [OK] Sincronizacao completa ^(pages, tests, subdirs, configs^).
 
 echo.
 :: ============================================================

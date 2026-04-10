@@ -19,19 +19,33 @@
     },
     "tests": {
       "pattern": "test_*.py",
-      "recursive": false,
+      "recursive": true,
       "required": true,
-      "description": "Testes E2E principais"
+      "description": "Testes raiz (builder usa rglob, inclui subdirs automaticamente)"
     },
     "tests/e2e": {
       "pattern": "test_*.py",
+      "recursive": true,
       "required": false,
-      "description": "Testes E2E organizados"
+      "description": "Testes E2E: vendas, descontos, pedidos, trocas, validar, venda_futura, cliente, consultas, login"
     },
     "tests/smoke": {
       "pattern": "test_*.py",
+      "recursive": true,
       "required": false,
-      "description": "Testes de sanidade"
+      "description": "Smoke tests (11 cenarios)"
+    },
+    "tests/negativos": {
+      "pattern": "test_*.py",
+      "recursive": true,
+      "required": false,
+      "description": "Testes negativos / edge-case"
+    },
+    "tests/regression": {
+      "pattern": "test_*.py",
+      "recursive": true,
+      "required": false,
+      "description": "Testes de regressao"
     }
   },
 

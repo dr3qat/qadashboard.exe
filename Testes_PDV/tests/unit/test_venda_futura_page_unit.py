@@ -263,7 +263,7 @@ class TestVendaFuturaPageTratarPopupBonus:
         page.tratar_popup_bonus()
 
         # Assert
-        page.clicar_se_existir.assert_called_once_with(VendaFuturaPage.BTN_MAIS_TARDE, tempo_espera=2)
+        page.clicar_se_existir.assert_called_once_with(VendaFuturaPage.BTN_MAIS_TARDE, tempo_espera=4)
 
     @patch('pages.venda_futura_page.BasePage.__init__', return_value=None)
     @patch('pages.venda_futura_page.logger')

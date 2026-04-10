@@ -180,6 +180,11 @@ _elemento_realmente_visivel(elemento) → bool         # verifica Y, width, heig
 
 ### Locators Críticos
 
+> **REGRA LOCATORS:** Sempre usar **só o ID curto**, sem package e sem `:id/`.
+> `com.serverinfo.bshoppdv.reden960k.qa:id/textView148` → `"textView148"` ✅
+> Funciona em todos os flavors (Stone, REDEL400, CieloDX800, Pagseguro, N960K, Safra, Playstore).
+> BasePage monta o resource-id completo com `self.app_package` internamente.
+
 **VendaPage:**
 ```python
 BTN_BUSCAR_CLIENTE = "btn_select_customer"
@@ -469,7 +474,7 @@ Até 5 diálogos/botões após venda:
 
 ---
 
-## 10. BUGS CONHECIDOS (2026-04-07)
+## 10. BUGS CONHECIDOS (atualizado 2026-04-10)
 
 ### 1. `AttributeError: self.voltar()` — NUNCA use `voltar()`
 **Causa:** Método não existe em BasePage. **Fix:** `self.voltar_tela()`.
@@ -486,8 +491,8 @@ Até 5 diálogos/botões após venda:
 ### 5. `rolar_ate_texto("Período")` falha em alguns devices
 **Causa:** Campo já visível ou scroll direção errada. **Fix:** `try/except`.
 
-### 6. `rolar_ate_id("btnFinalizar")` falha no consulta_pedido
-**Causa:** Tela de pagamento demora carregar. **Fix:** `time.sleep(5)` antes do `rolar_ate_id`.
+### 6. ~~`time.sleep(5)` antes de `btnFinalizar` no consulta_pedido~~ ✅ RESOLVIDO
+**Fix aplicado:** `self.encontrar_clicavel_por_id(self.BTN_FINALIZAR, tempo_espera=15)` — wait explícito.
 
 ### 7. `assert dados['nome_vale']` falha em vale presente
 **Causa:** `nome_vale` legitimamente vazio. **Fix:** Remover assertion.
@@ -539,6 +544,10 @@ class NomePage(BasePage):
     """Page Object para tela de nome."""
 
     # --- Locators (UPPER_CASE) ---
+    # REGRA: usar APENAS o ID curto, SEM package prefix e SEM ":id/"
+    # ✅ CORRETO: BTN_ACAO = "textView148"
+    # ❌ ERRADO:  BTN_ACAO = "com.serverinfo.bshoppdv.reden960k.qa:id/textView148"
+    # BasePage monta o resource-id completo internamente via self.app_package
     BTN_ACAO = "id_do_botao"
     EDT_CAMPO = "id_do_campo"
 
@@ -619,10 +628,29 @@ LogStyle.secao("txt")    # → "─── txt ───" em verde
 | Scroll falha em alguns devices | Campo já visível | Envolver em `try/except` |
 | Assert falha em campo opcional | Campo legitimamente vazio | Não assert em campos opcionais |
 | Dialog button2 = SIM no P2-B | Device inverte botões | Use texto ("NÃO") ao invés de ID |
-| `btnFinalizar` não encontrado | Tela ainda carregando | `sleep(5)` antes do scroll |
+| `btnFinalizar` não encontrado em consulta_pedido | Tela ainda carregando | `encontrar_clicavel_por_id(BTN_FINALIZAR, tempo_espera=15)` já aplicado |
 | Bônus já usado na troca | Pegou nota antiga | Usar primeira da lista (índice 0) |
 | Elemento encontrado mas "não visível" | Fora da tela | `_elemento_realmente_visivel()` já verifica |
 | `rolar_ate_texto` bloqueia | 10 scrolls × 4s = 40s perdidos | Envolver em `try/except` quando opcional |
+
+---
+
+## 12.1 PERFORMANCE — SLEEPS vs WAITS (2026-04-10)
+
+Regra aplicada em todos os page objects:
+
+| Situação | Fazer |
+|---|---|
+| Antes de método com `tempo_espera` interno | REMOVER sleep — método já aguarda |
+| Aguardar elemento aparecer após ação | `encontrar_por_id(LOCATOR, tempo_espera=N)` |
+| Aguardar clicável (botão de ação) | `encontrar_clicavel_por_id(LOCATOR, tempo_espera=N)` |
+| Animação/popup fechar | MANTER sleep pequeno (0.5-1s) |
+| Recálculo no servidor (ex: plano de venda) | MANTER sleep (1.5s) — sem locator confiável |
+| Loop de scroll entre iterações | MANTER sleep(0.3) — estabilização |
+
+**Cache `discover_target_app()`:** resultado cacheado por device_id em `_discover_cache`. Segunda chamada na mesma sessão retorna sem ADB. Para forçar redescoberta: `import config; config._discover_cache.clear()`.
+
+**Fixtures de driver:** `_criar_driver_appium(request, limpar_dados)` é o helper comum. `driver` e `driver_limpo` apenas delegam para ele. Ao debugar problemas de fixture, editar `_criar_driver_appium`.
 
 ---
 

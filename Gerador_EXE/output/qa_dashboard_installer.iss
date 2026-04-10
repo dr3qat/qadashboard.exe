@@ -3,7 +3,7 @@
 ; Gerado automaticamente por builder_pro.py em 2026_04_10
 
 #define MyAppName "QA Dashboard"
-#define MyAppVersion "2.0.108"
+#define MyAppVersion "2.0.114"
 #define MyAppPublisher "QA Team"
 #define MyAppExeName "QA_Dashboard.exe"
 #define MyAppDate "2026_04_10"

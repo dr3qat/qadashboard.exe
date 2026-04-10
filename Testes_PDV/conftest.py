@@ -5,7 +5,6 @@ Configuracao avancada do Allure para relatorios detalhados.
 Compativel com CI/CD (GitHub Actions, Jenkins, etc).
 """
 import subprocess
-import sys
 import pytest
 import allure
 import os
@@ -23,14 +22,7 @@ logging.getLogger('faker').setLevel(logging.WARNING)
 for _lib in ('selenium.webdriver', 'urllib3', 'appium', 'asyncio'):
     logging.getLogger(_lib).setLevel(logging.WARNING)
 
-# Kwargs para suprimir janelas CMD ao chamar subprocessos (adb, etc.)
-if sys.platform == 'win32':
-    _si = subprocess.STARTUPINFO()
-    _si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    _si.wShowWindow = subprocess.SW_HIDE
-    _NO_WINDOW = {'startupinfo': _si, 'creationflags': subprocess.CREATE_NO_WINDOW}
-else:
-    _NO_WINDOW = {}
+# _NO_WINDOW definido em config.py — importado de lá
 
 
 # ============================================================================
@@ -165,7 +157,8 @@ from config import (
     SCREENSHOTS_DIR,
     APP_PACKAGE,
     logger,
-    configurar_logger_modo
+    configurar_logger_modo,
+    _NO_WINDOW,
 )
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
@@ -174,10 +167,6 @@ from test_data import test_data
 
 # Diretorio para resultados Allure
 ALLURE_RESULTS_DIR = Path(__file__).parent / "allure-results"
-
-# Detecta se está rodando em CI
-IS_CI = os.getenv("CI", "false").lower() == "true" or os.getenv("GITHUB_ACTIONS", "false").lower() == "true"
-
 
 # --- Opcoes de linha de comando para multiplos dispositivos ---
 def pytest_addoption(parser):
@@ -239,18 +228,23 @@ def pytest_collection_modifyitems(session, config, items):
     e2e_order_mode = os.getenv("E2E_ORDER_MODE", "false").lower() == "true"
 
     if not e2e_order_mode:
-        # Modo normal: usa a lista ORDEM_TESTES hardcoded
+        # Modo normal: ordena pela ORDEM_TESTES; itens fora da lista vão pro final
         def obter_ordem(item):
             nome = item.name
             try:
                 return ORDEM_TESTES.index(nome)
             except ValueError:
-                # Teste nao esta na lista, vai pro final
                 return len(ORDEM_TESTES) + 1
 
         items.sort(key=obter_ordem)
+    else:
+        # Modo E2E Full: avisa se algum teste esperado não foi coletado
+        nomes_coletados = {item.name for item in items}
+        for nome in ORDEM_TESTES:
+            if nome not in nomes_coletados:
+                logger.warning(f"[AVISO] '{nome}' em ORDEM_TESTES mas não coletado!")
 
-    # Log da ordem final
+    # Log da ordem final (lista apenas o que vai rodar)
     logger.info("=" * 50)
     if e2e_order_mode:
         logger.info("ORDEM DE EXECUCAO DOS TESTES (Modo E2E Full - via JSON):")
@@ -304,11 +298,7 @@ def _criar_ambiente_allure(config):
 
         # === EXECUCAO ===
         linhas.append("Data_Execucao=" + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        linhas.append("Ambiente=" + ('CI/CD' if IS_CI else 'Local'))
-        if IS_CI:
-            linhas.append("GitHub_Run_ID=" + os.getenv('GITHUB_RUN_ID', 'N/A'))
-            linhas.append("GitHub_Branch=" + os.getenv('GITHUB_REF_NAME', 'N/A'))
-            linhas.append("GitHub_Actor=" + os.getenv('GITHUB_ACTOR', 'N/A'))
+        linhas.append("Ambiente=Local")
 
         # === APLICATIVO ===
         linhas.append("App_Package=" + (APP_PACKAGE or "N/A"))
@@ -552,6 +542,43 @@ def configurar_modo_log():
     yield
 
 
+def _criar_driver_appium(request, limpar_dados: bool):
+    """Cria driver Appium com logging e tags Allure. Usado por driver e driver_limpo."""
+    device_id = request.config.getoption("--device-id")
+    appium_port = request.config.getoption("--appium-port")
+
+    logger.info("=" * 50)
+    logger.info(f"INICIANDO TESTE: {request.node.name}")
+    logger.info(f"Dispositivo SOLICITADO: {device_id or 'auto-detectar'}")
+    logger.info(f"Porta Appium: {appium_port}")
+    logger.info(f"Limpar dados do app: {limpar_dados}")
+    logger.info("=" * 50)
+
+    appium_url = f"http://127.0.0.1:{appium_port}"
+    options = get_appium_options(limpar_dados_app=limpar_dados, device_id=device_id)
+
+    logger.info(f"[DEBUG] UDID nas capabilities: {options.get_capability('udid')}")
+    logger.info(f"[DEBUG] App package: {options.app_package}")
+
+    drv = webdriver.Remote(command_executor=appium_url, options=options)
+
+    try:
+        session_caps = drv.capabilities
+        device_real = session_caps.get('udid') or session_caps.get('deviceUDID') or session_caps.get('deviceName')
+        device_model = session_caps.get('deviceModel') or device_real or 'Desconhecido'
+        logger.info(f"[DEBUG] Device REAL conectado: {device_real}")
+        logger.info(f"[DEBUG] Modelo: {device_model}")
+        allure.dynamic.parameter("device_id", device_real)
+        allure.dynamic.parameter("device_model", device_model)
+        allure.dynamic.tag(f"device:{device_model}")
+        if limpar_dados:
+            allure.dynamic.tag("app-limpo")
+    except Exception as e:
+        logger.warning(f"Erro ao obter info do device: {e}")
+
+    return drv
+
+
 @pytest.fixture(scope="function")
 def driver(request):
     """
@@ -565,53 +592,11 @@ def driver(request):
     Linha de comando:
         pytest --device-id=XXXXX --appium-port=4723
     """
-    # Parametros de linha de comando
-    device_id = request.config.getoption("--device-id")
-    appium_port = request.config.getoption("--appium-port")
-
-    # Verifica se teste quer limpar dados do app
     param = getattr(request, "param", None)
-    if isinstance(param, dict):
-        limpar_dados = param.get("limpar_dados", False)
-    else:
-        limpar_dados = False
+    limpar_dados = param.get("limpar_dados", False) if isinstance(param, dict) else False
 
-    logger.info("=" * 50)
-    logger.info(f"INICIANDO TESTE: {request.node.name}")
-    logger.info(f"Dispositivo SOLICITADO: {device_id or 'auto-detectar'}")
-    logger.info(f"Porta Appium: {appium_port}")
-    logger.info(f"Limpar dados do app: {limpar_dados}")
-    logger.info("=" * 50)
-
-    # Monta URL do Appium
-    appium_url = f"http://127.0.0.1:{appium_port}"
-
-    # Obtem options com device_id especifico se fornecido
-    options = get_appium_options(limpar_dados_app=limpar_dados, device_id=device_id)
-
-    # Log das capabilities para debug
-    logger.info(f"[DEBUG] UDID nas capabilities: {options.get_capability('udid')}")
-    logger.info(f"[DEBUG] App package: {options.app_package}")
-
-    drv = webdriver.Remote(command_executor=appium_url, options=options)
-
-    # Verifica em qual device realmente conectou e adiciona ao Allure
-    try:
-        session_caps = drv.capabilities
-        device_real = session_caps.get('udid') or session_caps.get('deviceUDID') or session_caps.get('deviceName')
-        device_model = session_caps.get('deviceModel') or device_real or 'Desconhecido'
-        logger.info(f"[DEBUG] Device REAL conectado: {device_real}")
-        logger.info(f"[DEBUG] Modelo: {device_model}")
-
-        # Adiciona info do device ao Allure
-        allure.dynamic.parameter("device_id", device_real)
-        allure.dynamic.parameter("device_model", device_model)
-        allure.dynamic.tag(f"device:{device_model}")
-    except Exception as e:
-        logger.warning(f"Erro ao obter info do device: {e}")
-
+    drv = _criar_driver_appium(request, limpar_dados)
     yield drv
-
     logger.info("Encerrando driver...")
     drv.quit()
 
@@ -628,7 +613,6 @@ def driver_logado(driver):
     login_page = LoginPage(driver)
     home_page = HomePage(driver)
 
-    # Usa garantir_login que lida com app ja configurado
     login_page.garantir_login(
         ip=test_data.SERVER_IP,
         porta=test_data.SERVER_PORT,
@@ -637,9 +621,7 @@ def driver_logado(driver):
         senha=test_data.PASSWORD
     )
 
-    # Aguarda tela inicial carregar
     assert home_page.tela_inicial_exibida(timeout=30), "Falha ao fazer login"
-
     logger.info("Usuario logado com sucesso.")
     return driver
 
@@ -651,28 +633,8 @@ def driver_limpo(request):
     Limpa dados do app (no_reset=False) para garantir tela de login limpa,
     eliminando sessoes salvas pelo botao 'Manter Conectado'.
     """
-    device_id = request.config.getoption("--device-id")
-    appium_port = request.config.getoption("--appium-port")
-
-    logger.info("=" * 50)
-    logger.info(f"INICIANDO TESTE (app limpo): {request.node.name}")
-    logger.info("=" * 50)
-
-    appium_url = f"http://127.0.0.1:{appium_port}"
-    options = get_appium_options(limpar_dados_app=True, device_id=device_id)
-
-    drv = webdriver.Remote(command_executor=appium_url, options=options)
-
-    try:
-        session_caps = drv.capabilities
-        device_real = session_caps.get('udid') or session_caps.get('deviceName')
-        allure.dynamic.parameter("device_id", device_real)
-        allure.dynamic.tag("app-limpo")
-    except Exception:
-        pass
-
+    drv = _criar_driver_appium(request, limpar_dados=True)
     yield drv
-
     logger.info("Encerrando driver (app limpo)...")
     drv.quit()
 

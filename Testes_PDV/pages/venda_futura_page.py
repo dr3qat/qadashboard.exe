@@ -82,13 +82,11 @@ class VendaFuturaPage(BasePage):
     def selecionar_pagamento_avista(self):
         """Seleciona pagamento: Movimento de Caixa A VISTA + Plano de Venda A VISTA."""
         log_tecnico("-> Selecionando pagamento à vista...", "info")
-        time.sleep(3)
 
-        # 1. Clica em pagamento personalizado
+        # 1. Clica em pagamento personalizado — clicar_por_id aguarda via encontrar_clicavel_por_id
         self.clicar_por_id(self.TXT_PAGAMENTO_TITULO)
-        time.sleep(2)  # Aguarda opções de Movimento de Caixa carregarem
 
-        # 2. Movimento de Caixa: A VISTA (primeiro elemento com texto "A VISTA")
+        # 2. Movimento de Caixa: A VISTA — clicar_no_enesimo_texto aguarda 5s pela opção
         log_tecnico("   -> Movimento de Caixa: selecionando 1º A VISTA...", "info")
         count_antes = self.contar_elementos_visiveis_por_texto("A VISTA")
         log_tecnico(f"   [DEBUG] Elementos 'A VISTA' visíveis antes do clique: {count_antes}", "info")
@@ -104,7 +102,7 @@ class VendaFuturaPage(BasePage):
             self.clicar_por_texto("A VISTA")
             log_tecnico("   [OK] Movimento de Caixa A VISTA selecionado (via scroll)", "info")
 
-        time.sleep(3)  # Aguarda Plano de Venda ser liberado e Movimento de Caixa fechar
+        time.sleep(1.5)  # Aguarda Plano de Venda ser liberado (recálculo servidor)
 
         # 3. Plano de Venda: A VISTA (segundo elemento, ou único se dropdown fechou)
         log_tecnico("   -> Plano de Venda: selecionando A VISTA...", "info")
@@ -126,8 +124,7 @@ class VendaFuturaPage(BasePage):
             log_tecnico(f"   [ERRO] Falha ao selecionar Plano de Venda: {e}", "error")
             raise
 
-        # 4. Avança
-        time.sleep(1)
+        # 4. Avança — clicar_por_id aguarda via encontrar_clicavel_por_id
         log_tecnico("   -> Clicando em Avançar (btn_proceed)...", "info")
         self.clicar_por_id(self.BTN_AVANCAR)
 
@@ -145,11 +142,10 @@ class VendaFuturaPage(BasePage):
     def tratar_popup_bonus(self):
         """Trata popup de bônus se aparecer."""
         log_tecnico("-> Verificando popup de bônus...", "info")
-        time.sleep(3)
 
-        if self.clicar_se_existir(self.BTN_MAIS_TARDE, tempo_espera=2):
+        if self.clicar_se_existir(self.BTN_MAIS_TARDE, tempo_espera=4):  # 4s para popup aparecer
             log_tecnico("   [OK] Popup de bônus fechado", "info")
-            time.sleep(2)
+            time.sleep(2)  # Aguarda popup desaparecer completamente
         else:
             log_tecnico("   [INFO] Nenhum popup de bônus", "info")
 

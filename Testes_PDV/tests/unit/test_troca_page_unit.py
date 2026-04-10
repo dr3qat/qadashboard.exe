@@ -110,6 +110,7 @@ class TestTrocaPageSelecionarPrimeiraNota:
         page = TrocaPage.__new__(TrocaPage)
         page.driver = MagicMock()
         page.clicar_no_primeiro_da_lista_por_id = MagicMock()
+        page.encontrar_por_id = MagicMock()
 
         # Act
         page.selecionar_primeira_nota()

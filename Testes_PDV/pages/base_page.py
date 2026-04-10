@@ -192,7 +192,6 @@ class BasePage:
                 elemento = self.encontrar_clicavel_por_id(element_id, tempo_espera=5)
                 log_tecnico(f"   {LogStyle.CLICK} Clicando em {LogStyle.elemento(element_id)}...", "info")
                 elemento.click()
-                time.sleep(0.3)
 
                 # Verifica se a tela mudou (clique teve efeito)
                 tela_depois = self._capturar_tela_atual()
@@ -247,7 +246,6 @@ class BasePage:
         if not self._elemento_realmente_visivel(elemento):
             raise Exception(f"Texto '{texto}' encontrado mas NAO esta visivel na tela")
 
-        time.sleep(0.3)
         elemento.click()
 
         log_tecnico(f"   {LogStyle.OK} Clicado em {LogStyle.elemento(texto)}", "info")
@@ -328,7 +326,6 @@ class BasePage:
 
             elemento_alvo = elementos_visiveis[indice]
             log_tecnico(f"   {LogStyle.CLICK} Clicando no elemento {indice + 1}º com texto {LogStyle.elemento(texto)}...", "info")
-            time.sleep(0.3)
             elemento_alvo.click()
             log_tecnico(f"   {LogStyle.OK} Clicado no {indice + 1}º '{texto}'", "info")
             return True
@@ -636,7 +633,7 @@ class BasePage:
             if tentativa < max_scrolls:
                 log_tecnico(f"   {LogStyle.SCROLL} '{element_id}' nao visivel, rolando para baixo ({tentativa + 1}/{max_scrolls})...", "info")
                 self.realizar_scroll_para_baixo()
-                time.sleep(0.3)
+                time.sleep(0.1)
         return self.clicar_por_id(element_id)
 
     def ver_e_clicar_texto(self, texto: str, max_scrolls: int = 5):
@@ -652,7 +649,7 @@ class BasePage:
             if tentativa < max_scrolls:
                 log_tecnico(f"   {LogStyle.SCROLL} '{texto}' nao visivel, rolando para baixo ({tentativa + 1}/{max_scrolls})...", "info")
                 self.realizar_scroll_para_baixo()
-                time.sleep(0.3)
+                time.sleep(0.1)
         return self.clicar_por_texto(texto)
 
     # --- Navegação ---

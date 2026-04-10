@@ -1,6 +1,7 @@
 """
 Consulta Documentos - Filtro por Período - Teste de consulta de documentos fiscais.
 """
+import time
 import pytest
 import allure
 from pages.documentos_page import DocumentosPage
@@ -14,43 +15,44 @@ class TestConsultaDocumentos:
     """Testes de consulta de documentos fiscais."""
 
     @allure.title("Consulta Documentos - Filtro por Período")
-    @allure.description("""Cenario: Consulta de Documentos Fiscais
-
-Pre-condicoes:
-- Usuario logado no sistema
-
-Dado que estou na tela inicial do PDV
-E clicar no menu Documentos
-E rolar até encontrar o texto 'Período'
-E preencher Data Inicial com a data atual
-E preencher Data Final com a data atual
-E clicar no botão Consultar
-E verificar que os documentos foram listados
-E CLicar em Detalhes do documento
-E verificar que os detalhes do documento estão corretos
-E voltar para a tela de documentos""")
     @allure.severity(allure.severity_level.NORMAL)
     @allure.tag("consulta", "documentos", "nf")
     def test_consulta_documentos_sucesso(self, driver_logado):
         """
         Cenario: Consulta de Documentos Fiscais
-
         Dado que estou logado no app
-        Quando acesso o menu de consulta de documentos
-        E filtro por periodo
-        Entao os documentos sao listados corretamente
+        Quando acesso documentos, filtro por periodo e abro o primeiro doc
+        Entao consigo ver os detalhes do documento
         """
         driver = driver_logado
-
-        # Arrange
         pagina_documentos = DocumentosPage(driver)
 
-        # Act
-        with allure.step("1. Executar fluxo: Documentos"):
-            pagina_documentos.executar_documentos()
+        with allure.step("1. Acessar Documentos e preencher período"):
+            pagina_documentos.clicar_menu_documentos()
+            if 'playstore' not in (pagina_documentos.app_package or '').lower():
+                pagina_documentos.rolar_até_encontrar_texto()
+            pagina_documentos.preencher_data_inicial_com()
+            pagina_documentos.fechar_teclado()
+            pagina_documentos.preencher_data_final_com()
+            pagina_documentos.fechar_teclado()
+            pagina_documentos.clicar_botão_consultar()
+            time.sleep(5)
 
+        with allure.step("2. Clicar no primeiro documento da lista"):
+            pagina_documentos.clicar_primeiro_documento()
+            time.sleep(2)
 
-        # Assert
-        # Para testes de consulta, o fluxo completo já é a validação
-        # Se executou sem erro, o teste passou
-        # (O legado não tem assertion explícita no final)
+        with allure.step("3. Clicar em Detalhes (1ª opção do bottom sheet)"):
+            pagina_documentos.clicar_detalhes_documento()
+
+        with allure.step("4. Aguardar dados do documento carregarem"):
+            assert pagina_documentos.elemento_existe("txtCliente", tempo_espera=10) or \
+                   pagina_documentos.texto_exibido("Detalhes Documento", tempo_espera=10), \
+                   "Tela Detalhes Documento não carregou"
+
+        with allure.step("5. Voltar para home"):
+            pagina_documentos.voltar_tela_documentos()
+            time.sleep(0.5)
+            pagina_documentos.voltar_tela_documentos()
+            time.sleep(0.5)
+            pagina_documentos.voltar_tela_documentos()
