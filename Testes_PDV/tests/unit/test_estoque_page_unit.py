@@ -140,52 +140,41 @@ class TestEstoquePageObterDados:
 
     @patch('pages.estoque_page.BasePage.__init__', return_value=None)
     @patch('pages.estoque_page.logger')
-    @patch('pages.estoque_page.time') # Add time mock
-    def test_obter_quantidade_estoque(self, mock_time, mock_logger, mock_base_init): # Add time mock param
+    def test_obter_quantidade_estoque(self, mock_logger, mock_base_init):
         """
-        Deve retornar a quantidade do elemento encontrado.
-        Refatorado para o novo metodo de obter_quantidade_estoque.
+        Deve retornar 'Disponivel' quando produto esta na tela.
         """
         # Arrange
         estoque_page = EstoquePage.__new__(EstoquePage)
         estoque_page.driver = MagicMock()
-        estoque_page._app_package = DUMMY_APP_PACKAGE # Set dummy app_package
-        
-        # Mock para driver.find_element que é chamado por _get_text
-        mock_el_preco = MagicMock()
-        mock_el_preco.text = "R$ 50,00"
-        estoque_page.driver.find_element.return_value = mock_el_preco
+        estoque_page._app_package = DUMMY_APP_PACKAGE
+        estoque_page.elemento_existe = MagicMock(return_value=True)
 
         # Act
         resultado = estoque_page.obter_quantidade_estoque()
 
         # Assert
-        assert resultado == "Disponível (Tabela)"
-        estoque_page.driver.find_element.assert_called_once_with("xpath", EstoquePage.XPATH_PRECO_VALOR)
+        assert resultado == "Disponível"
+        estoque_page.elemento_existe.assert_called_once_with(EstoquePage.TXT_NOME_PRODUTO, 5)
 
 
     @patch('pages.estoque_page.BasePage.__init__', return_value=None)
     @patch('pages.estoque_page.logger')
-    @patch('pages.estoque_page.time') # Add time mock
-    def test_obter_quantidade_estoque_retorna_vazio_quando_erro(self, mock_time, mock_logger, mock_base_init): # Add time mock param
+    def test_obter_quantidade_estoque_retorna_vazio_quando_erro(self, mock_logger, mock_base_init):
         """
-        Deve retornar string vazia quando ocorre erro.
-        Refatorado para o novo metodo de obter_quantidade_estoque.
+        Deve retornar string vazia quando elemento nao encontrado.
         """
         # Arrange
         estoque_page = EstoquePage.__new__(EstoquePage)
         estoque_page.driver = MagicMock()
-        estoque_page._app_package = DUMMY_APP_PACKAGE # Set dummy app_package
-        
-        # Simula que find_element levanta excecao (nao encontra o preco)
-        estoque_page.driver.find_element.side_effect = Exception("Elemento de preco nao encontrado")
+        estoque_page._app_package = DUMMY_APP_PACKAGE
+        estoque_page.elemento_existe = MagicMock(side_effect=Exception("nao encontrado"))
 
         # Act
         resultado = estoque_page.obter_quantidade_estoque()
 
         # Assert
         assert resultado == ""
-        estoque_page.driver.find_element.assert_called_once_with("xpath", EstoquePage.XPATH_PRECO_VALOR)
 
 
     @patch('pages.estoque_page.BasePage.__init__', return_value=None)

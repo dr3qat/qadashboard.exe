@@ -382,7 +382,8 @@ class TestValePresentePageExecutarFluxoCompletoValePresente:
     @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
     @patch('pages.vale_presente_page.logger')
     @patch('pages.vale_presente_page.time')
-    def test_executar_fluxo_completo_executa_todas_acoes(self, mock_time, mock_logger, mock_base_init):
+    @patch('pages.venda_sucesso_page.VendaSucessoPage')
+    def test_executar_fluxo_completo_executa_todas_acoes(self, mock_sucesso_cls, mock_time, mock_logger, mock_base_init):
         """
         Deve executar todas as ações do fluxo completo.
         """
@@ -407,7 +408,6 @@ class TestValePresentePageExecutarFluxoCompletoValePresente:
         page.finalizar_pagamento = MagicMock()
         page.responder_impressao = MagicMock()
         page.venda_sucesso_exibida = MagicMock(return_value=True)
-        page.concluir_venda = MagicMock()
 
         # Act
         dados = page.executar_fluxo_completo_vale_presente()
@@ -424,5 +424,7 @@ class TestValePresentePageExecutarFluxoCompletoValePresente:
         page.finalizar_pagamento.assert_called_once()
         page.responder_impressao.assert_called_once()
         page.venda_sucesso_exibida.assert_called_once()
-        page.concluir_venda.assert_called_once()
+        # concluir_venda e processar_todas_impressoes sao chamados em sucesso (VendaSucessoPage mockado)
+        mock_sucesso_cls.return_value.processar_todas_impressoes.assert_called_once()
+        mock_sucesso_cls.return_value.concluir_venda.assert_called_once()
         assert dados["cliente"] == "CONSUMIDOR"

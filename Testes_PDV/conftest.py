@@ -19,6 +19,10 @@ from appium import webdriver
 # Desabilitar logs DEBUG do Faker (limpa saída dos testes)
 logging.getLogger('faker').setLevel(logging.WARNING)
 
+# Filtrar logs de bibliotecas externas (só WARNING+)
+for _lib in ('selenium.webdriver', 'urllib3', 'appium', 'asyncio'):
+    logging.getLogger(_lib).setLevel(logging.WARNING)
+
 # Kwargs para suprimir janelas CMD ao chamar subprocessos (adb, etc.)
 if sys.platform == 'win32':
     _si = subprocess.STARTUPINFO()
@@ -377,58 +381,6 @@ def _obter_nome_device(driver) -> str:
         return 'device'
 
 
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """
-    Hook para:
-    1. Capturar screenshots e page source em falhas
-    2. Adicionar logs ao relatório HTML
-    """
-    outcome = yield
-    report = outcome.get_result()
-
-    # ===== CAPTURA DE LOGS PARA HTML =====
-    # Adiciona logs capturados ao report (pytest-html vai exibir)
-    if report.when == "call":
-        # Captura stdout/stderr do teste
-        if hasattr(report, 'caplog') and report.caplog:
-            report.sections.append(('Captured Log', report.caplog))
-
-    # ===== CAPTURA DE SCREENSHOTS E PAGE SOURCE EM FALHAS =====
-    if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver") or item.funcargs.get("driver_logado")
-        if driver:
-            try:
-                # Obtém nome do device
-                device_name = _obter_nome_device(driver)
-
-                # Screenshot com nome do device
-                screenshot_name = f"FALHA_{device_name}_{item.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-                screenshot_path = SCREENSHOTS_DIR / screenshot_name
-                driver.get_screenshot_as_file(str(screenshot_path))
-
-                allure.attach.file(
-                    str(screenshot_path),
-                    name=f"Screenshot da Falha ({device_name})",
-                    attachment_type=allure.attachment_type.PNG
-                )
-                logger.error(f"Screenshot salvo: {screenshot_path}")
-
-                # Page Source (XML da tela)
-                try:
-                    page_source = driver.page_source
-                    allure.attach(
-                        page_source,
-                        name="Page Source (XML)",
-                        attachment_type=allure.attachment_type.XML
-                    )
-                except:
-                    pass
-
-            except Exception as e:
-                logger.warning(f"Falha ao capturar screenshot: {e}")
-
-
 
 
 # ============================================================================
@@ -475,7 +427,7 @@ def pytest_runtest_teardown(item):
     logger.removeHandler(_html_handler)
 
 
-@pytest.hookimpl(hookwrapper=True)
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
     Hook para:
