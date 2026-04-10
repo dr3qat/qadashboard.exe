@@ -1,0 +1,64 @@
+{
+  "description": "Lista de arquivos a importar do Projeto QA Dev para o build",
+  "version": "1.0.0",
+
+  "core_files": [
+    "config.py",
+    "conftest.py",
+    "framework.py",
+    "test_data.py",
+    "pytest.ini",
+    "requirements.txt"
+  ],
+
+  "directories": {
+    "pages": {
+      "pattern": "*.py",
+      "required": true,
+      "description": "Page Objects"
+    },
+    "tests": {
+      "pattern": "test_*.py",
+      "recursive": false,
+      "required": true,
+      "description": "Testes E2E principais"
+    },
+    "tests/e2e": {
+      "pattern": "test_*.py",
+      "required": false,
+      "description": "Testes E2E organizados"
+    },
+    "tests/smoke": {
+      "pattern": "test_*.py",
+      "required": false,
+      "description": "Testes de sanidade"
+    }
+  },
+
+  "exclude_patterns": [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".env",
+    "venv",
+    "*.log",
+    "*.tmp",
+    "tests/unit/*"
+  ],
+
+  "runner_files": [
+    "runner/app_runner.py",
+    "runner/config_manager.py",
+    "runner/log_filter.py",
+    "runner/test_parser.py",
+    "runner/ui_components.py"
+  ],
+
+  "assets": [
+    "assets/icon.ico"
+  ],
+
+  "templates": [
+    "templates/settings.default.json"
+  ]
+}

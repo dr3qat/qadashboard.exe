@@ -1,0 +1,33 @@
+# Pacotes necessários para compilar o QA Dashboard com PyInstaller
+# Instale com: pip install -r requirements_build.txt
+
+# Build
+pyinstaller>=6.0.0
+
+# Core pytest (precisa estar INSTALADO para o PyInstaller embutir)
+pytest>=8.0.0
+pytest-html>=4.0.0
+pytest-metadata>=3.0.0
+pluggy>=1.5.0
+iniconfig>=2.0.0
+
+# Allure reporting
+allure-pytest>=2.13.0
+allure-python-commons>=2.13.0
+allure-combine>=1.0.0
+
+# Mobile automation
+Appium-Python-Client>=4.0.0
+selenium>=4.0.0
+
+# Dados de teste (usado em testes de cadastro de cliente)
+Faker>=24.0.0
+
+# HTTP / rede
+requests>=2.28.0
+urllib3>=2.0.0
+certifi>=2023.0.0
+
+# Misc
+colorama>=0.4.6
+packaging>=23.0.0

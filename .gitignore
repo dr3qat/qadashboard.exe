@@ -1,0 +1,46 @@
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Logs e screenshots
+logs/
+*.log
+*.png
+*.jpg
+
+# Build / dist
+Gerador_EXE/output/dist/
+Gerador_EXE/output/staging/
+Gerador_EXE/build/__pycache__/
+*.spec
+dist/
+
+# Settings com dados sensíveis
+settings.json
+settings_EXEMPLO.json
+
+# Allure
+allure-results/
+allure-report/
+
+# Pytest cache
+.pytest_cache/
+.cache/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Windows
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Claude / RTK internals
+claude/
+ccusage/
+skills-lock.json
