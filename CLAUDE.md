@@ -719,3 +719,22 @@ RTK p/ evitar logs massivos Appium/ADB/Pytest.
 - Pastas: `rtk ls <diretorio>`
 
 **Exceção:** `Read` interno OK p/ arquivos curtos (`test_data.py`, `config.py`, `.bat`).
+
+---
+
+## 18. GIT — REPOSITÓRIO REMOTO
+
+**Repo:** https://github.com/dr3qat/qadashboard.exe
+
+```bash
+# Puxar mudanças (outro PC ou colaborador)
+cd E:\PDV_AUTOMACAO && rtk git pull
+
+# Subir depois de editar
+rtk git add Testes_PDV/ Gerador_EXE/runner/ && rtk git commit -m "fix: descrição" && rtk git push
+
+# Clonar em outro PC
+git clone https://github.com/dr3qat/qadashboard.exe.git E:\PDV_AUTOMACAO
+```
+
+**.gitignore ignora:** `logs/`, `*.png`, `settings.json`, `Gerador_EXE/output/` (dist + staging).
