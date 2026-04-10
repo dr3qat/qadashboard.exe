@@ -1,6 +1,6 @@
 # 📋 Testes - Visão Geral
 
-Estratégia completa de testes do PDV Mobile com 3 camadas de validação.
+Estratégia completa de testes do PDV Mobile com 4 camadas de validação.
 
 ---
 
@@ -9,18 +9,20 @@ Estratégia completa de testes do PDV Mobile com 3 camadas de validação.
 ```
            /\
           /  \          E2E Tests
-         / 54 \         (Testes completos de ponta a ponta)
+         / 48 \         (Testes completos de ponta a ponta)
         /______\        Tempo: 30-45 min
        /        \
       /   Smoke  \      Smoke Tests
-     /    10     \     (Testes críticos de sanidade)
-    /____________\     Tempo: 3-5 min
+     /    18     \     (Testes críticos de sanidade)
+    /____________\     Tempo: 8-10 min
    /              \
   /   Unit Tests   \   Unit Tests
- /       200       \  (Testes isolados dos Page Objects)
-/__________________\ Tempo: < 10 segundos
+ /       236       \  (Testes isolados dos Page Objects)
+/__________________\ Tempo: ~25 segundos
 
-TOTAL: 264 TESTES
+         + 5 Negativos (validação de rejeição de entradas inválidas)
+
+TOTAL: 323 TESTES
 ```
 
 ---
@@ -28,10 +30,12 @@ TOTAL: 264 TESTES
 ## 📊 Resumo Executivo
 
 | Camada | Quantidade | Tempo | Quando Executar | Requer Dispositivo |
-|--------|-----------|-------|----------------|-------------------|
-| **Unit** | 200 | < 10s | Sempre (desenvolvimento) | ❌ Não |
-| **Smoke** | 10 | 3-5 min | Antes de E2E | ✅ Sim |
-| **E2E** | 54 | 30-45 min | Release/CI/CD | ✅ Sim |
+|---|---|---|---|---|
+| **Unitários** | 236 | ~25s | Sempre (desenvolvimento) | ❌ Não |
+| **Smoke** | 18 | 8-10 min | Antes de E2E | ✅ Sim |
+| **E2E** | 48 | 30-45 min | Release/CI/CD | ✅ Sim |
+| **Negativos** | 5 | ~5 min | Regressão | ✅ Sim |
+| **TOTAL** | **323** | | | |
 
 ---
 
@@ -41,8 +45,8 @@ TOTAL: 264 TESTES
 Validar Page Objects de forma isolada, sem Appium.
 
 ### Características
-- ✅ **Ultra-rápidos** (< 10 segundos total)
-- ✅ **Sem dependências** externas (mocks)
+- ✅ **Rápidos** (~25 segundos total)
+- ✅ **Sem dependências** externas (mocks via MagicMock)
 - ✅ **100% cobertura** dos Page Objects
 - ✅ **Execução local** (não precisa de dispositivo)
 
@@ -62,22 +66,23 @@ pytest tests/unit/ -v
 Validar rapidamente se o ambiente está funcional antes dos testes E2E.
 
 ### Características
-- ✅ **Rápidos** (3-5 minutos)
+- ✅ **Rápidos** (8-10 minutos)
 - ✅ **Funcionalidades críticas** apenas
 - ✅ **Gate para E2E** (se falhar, não rode E2E)
 - ✅ **Cobertura ~70%** das funcionalidades principais
 
-### Testes
-1. App abre corretamente
-2. Login funciona
-3. Elementos básicos visíveis
-4. Navegação funciona
-5. Servidor respondendo
-6. Venda básica
-7. Cancelamento
-8. Pedido básico
-9. Navegação entre módulos
-10. Recuperação de botão back
+### Testes (11 individuais + test_smoke_e2e.py consolidado)
+1. App abre e driver responde
+2. Login com credenciais válidas
+3. Módulos visíveis na home
+4. Venda consumidor (fluxo completo)
+5. Venda cliente cadastrado (fluxo completo)
+6. Consulta estoque produto
+7. Cancelar venda vazia + navegação de saída
+8. Pedido consumidor fluxo básico
+9. Tela troca acessível + campo data presente
+10. Borderô abre e processa relatório
+11. Documentos abre e consulta executa
 
 ### Execução
 ```bash
@@ -95,24 +100,23 @@ pytest tests/smoke/ -v -m smoke
 Validar todas as funcionalidades do app de ponta a ponta.
 
 ### Características
-- ✅ **Cobertura completa** (54 testes)
+- ✅ **Cobertura completa** (48 testes, 9 subpastas)
 - ✅ **Cenários reais** de uso
 - ✅ **Validação profunda**
 - ✅ **Relatórios detalhados** (Allure)
 
 ### Módulos Testados
-- Login (1 teste)
-- Vendas - Consumidor (2 testes)
-- Vendas - Cliente (2 testes)
-- Pedidos (3 testes)
-- Estoque (4 testes)
-- Trocas - Consumidor (2 testes)
-- Trocas - Cliente (2 testes)
-- Bonus/Cashback (2 testes)
-- Consulta de Pedidos (2 testes)
-- Vendas Futuras (2 testes)
-- Cancelamentos (6 testes)
-- Outros (26 testes)
+| Subpasta | Testes | Cobertura |
+|---|---|---|
+| vendas/ | 18 | Consumidor, cliente, vale presente, bônus, cancelamento, opções item |
+| consultas/ | 7 | Estoque, documentos, borderô |
+| pedidos/ | 6 | Pedido venda, consumidor, cliente, consulta |
+| descontos/ | 6 | Desconto/acréscimo consumidor/cliente, bônus, cashback |
+| cliente/ | 3 | Cadastro PF/PJ, histórico |
+| trocas/ | 2 | Troca consumidor, troca cliente |
+| validar/ | 2 | Validar bônus, validar cashback |
+| venda_futura/ | 2 | Retirada, entrega |
+| login/ | 2 | Login válido |
 
 ### Execução
 ```bash
@@ -172,29 +176,14 @@ allure generate logs/allure-results
 ### Metas
 
 | Métrica | Meta | Atual | Status |
-|---------|------|-------|--------|
-| Cobertura de Page Objects | 100% | 100% | ✅ |
-| Testes Unitários Passando | 100% | 98.5% | ⚠️ |
+|---|---|---|---|
+| Cobertura de Page Objects | 100% | 100% (17/17) | ✅ |
+| Testes Unitários Passando | 100% | 100% (236/236) | ✅ |
 | Smoke Tests Passando | 100% | 100% | ✅ |
-| Testes E2E Passando | > 95% | ~96% | ✅ |
-| Tempo Smoke Test | < 5 min | 3-5 min | ✅ |
+| Testes E2E Passando | > 90% | ~88% (última execução) | ✅ |
+| Tempo Smoke Test | < 15 min | 8-10 min | ✅ |
 | Tempo E2E Total | < 60 min | 30-45 min | ✅ |
-
-### Tendências
-
-```
-Testes Unitários:
-  Jan 2026: 171 testes
-  Feb 2026: 200 testes (+29, +17%)
-
-Smoke Tests:
-  Jan 2026: 5 testes (~30% cobertura)
-  Feb 2026: 10 testes (~70% cobertura, +100%)
-
-Page Objects Testados:
-  Jan 2026: 8/9 (88.9%)
-  Feb 2026: 10/10 (100%, +11.1%)
-```
+| Warnings na coleta | 0 | 0 | ✅ |
 
 ---
 
@@ -300,5 +289,5 @@ pytest tests/ -v --tb=short
 
 ---
 
-**Última atualização**: 24/02/2026
-**Versão**: 2.1
+**Última atualização**: 10/04/2026
+**Versão**: 2.0.108

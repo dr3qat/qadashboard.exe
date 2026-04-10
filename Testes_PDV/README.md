@@ -1,9 +1,10 @@
 # 🧪 Testes Automatizados - PDV Mobile
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![Python](https://img.shields.io/badge/Python-3.13-blue)
 ![Appium](https://img.shields.io/badge/Appium-2.0-green)
 ![Pytest](https://img.shields.io/badge/Pytest-9.0-orange)
 ![Status](https://img.shields.io/badge/Status-Ativo-success)
+![Testes](https://img.shields.io/badge/Testes-323-brightgreen)
 
 Framework de testes automatizados para o aplicativo PDV Mobile (Android), utilizando Appium, Python e o padrão Page Object Model (POM).
 
@@ -22,23 +23,31 @@ Framework de testes automatizados para o aplicativo PDV Mobile (Android), utiliz
 
 ## 🎯 Sobre o Projeto
 
-Este projeto contém a suite completa de testes automatizados para o aplicativo PDV Mobile, cobrindo:
+Suite completa de testes automatizados para o aplicativo PDV Mobile, cobrindo:
 
 - **Testes Unitários**: Validação isolada dos Page Objects sem interação com o Appium
-- **Smoke Tests**: Validação rápida de sanidade do ambiente (3-5 min)
+- **Smoke Tests**: Validação rápida de sanidade do ambiente (~8-10 min)
 - **Testes E2E**: Testes completos de ponta a ponta de todas as funcionalidades
+- **Testes Negativos**: Validação de rejeição de entradas inválidas
 
 ### Funcionalidades Testadas
 
 - ✅ Login e Autenticação
 - ✅ Vendas (Consumidor e Cliente)
+- ✅ Vendas com Desconto e Acréscimo
 - ✅ Pedidos de Venda
 - ✅ Consulta de Estoque
 - ✅ Trocas e Devoluções
 - ✅ Consulta de Pedidos
-- ✅ Vendas Futuras
-- ✅ Bonus/Cashback
+- ✅ Vendas Futuras (Retirada e Entrega)
+- ✅ Bônus/Cashback
 - ✅ Cancelamentos
+- ✅ Cadastro de Clientes (PF/PJ)
+- ✅ Histórico de Clientes
+- ✅ Documentos Fiscais
+- ✅ Vale Presente
+- ✅ Borderô
+- ✅ Opções de Item no Carrinho
 
 ---
 
@@ -46,29 +55,35 @@ Este projeto contém a suite completa de testes automatizados para o aplicativo 
 
 ### Cobertura de Testes
 
-| Tipo de Teste | Quantidade | Tempo Estimado | Status |
-|--------------|-----------|---------------|--------|
-| **Testes Unitários** | 200 | < 10 segundos | ✅ 197/200 passando |
-| **Smoke Tests** | 10 | 3-5 minutos | ✅ Funcional |
-| **Testes E2E** | 54 | 30-45 minutos | ✅ Funcional |
-| **TOTAL** | **264** | **~40 minutos** | ✅ |
+| Tipo de Teste | Arquivos | Testes | Tempo Estimado | Status |
+|---|---|---|---|---|
+| **Unitários** | 14 | **236** | ~25 segundos | ✅ 236/236 passando |
+| **Smoke** | 12 | **18** | ~8-10 minutos | ✅ Funcional |
+| **E2E** | 29 | **48** | ~30-45 minutos | ✅ Funcional |
+| **Negativos** | 3 | **5** | ~5 minutos | ✅ Funcional |
+| **TOTAL** | **58** | **323** | | ✅ 0 warnings na coleta |
 
-### Page Objects
+### Page Objects (17)
 
-| Page Object | Testes Unitários | Testes E2E | Status |
-|------------|-----------------|-----------|--------|
-| BasePage | 23 | - | ✅ 100% |
-| LoginPage | 7 | 1 | ✅ 100% |
-| HomePage | 7 | - | ✅ 100% |
-| VendaPage | 15 | 2 | ✅ 100% |
-| PedidoPage | 10 | 4 | ✅ 100% |
-| EstoquePage | 23 | 4 | ✅ 100% |
-| TrocaPage | 19 | 4 | ✅ 100% |
-| BonusPage | 29 | 2 | ✅ 100% |
-| ConsultaPedidoPage | 7 | 4 | ✅ 100% |
-| VendaFuturaPage | 20 | 2 | ✅ 100% |
-| VendaSucessoPage | - | - | ✅ 100% |
-| **TOTAL** | **160** | **23** | **11/11 (100%)** |
+| Page Object | Responsabilidade |
+|---|---|
+| `BasePage` | 50+ métodos comuns (busca, clique, scroll, digitação) |
+| `LoginPage` | Login + configuração de servidor |
+| `HomePage` | Tela inicial + navegação entre módulos |
+| `VendaPage` | Vendas consumidor e cliente |
+| `VendaSucessoPage` | Tela de sucesso + impressões (NFC-E, DANFE, cupom) |
+| `PedidoPage` | Pedidos de venda |
+| `EstoquePage` | Consulta de estoque |
+| `TrocaPage` | Trocas e devoluções |
+| `BonusPage` | Bônus/cashback |
+| `ConsultaPedidoPage` | Consulta e finalização de pedidos |
+| `VendaFuturaPage` | Vendas futuras (retirada e entrega) |
+| `BorderoPage` | Relatório de borderô |
+| `ClientePage` | Cadastro PF/PJ (usa Faker) |
+| `HistoricoClientePage` | Histórico de compras do cliente |
+| `DocumentosPage` | Consulta de documentos fiscais |
+| `ValePresentePage` | Venda de vale presente |
+| `OpcoesItemPage` | Opções do item no carrinho |
 
 ---
 
@@ -76,394 +91,158 @@ Este projeto contém a suite completa de testes automatizados para o aplicativo 
 
 ```
 Testes_PDV/
-├── 📂 pages/                    # Page Objects (POM)
-│   ├── base_page.py            # Classe base com métodos comuns
+├── pages/                      # 17 Page Objects (POM)
+│   ├── base_page.py
 │   ├── login_page.py
 │   ├── home_page.py
 │   ├── venda_page.py
-│   ├── venda_sucesso_page.py   # ⭐ NOVO - Tela de sucesso
+│   ├── venda_sucesso_page.py
 │   ├── pedido_page.py
 │   ├── estoque_page.py
 │   ├── troca_page.py
 │   ├── bonus_page.py
 │   ├── consulta_pedido_page.py
-│   └── venda_futura_page.py
+│   ├── venda_futura_page.py
+│   ├── bordero_page.py
+│   ├── cliente_page.py
+│   ├── historico_cliente_page.py
+│   ├── documentos_page.py
+│   ├── vale_presente_page.py
+│   └── opcoes_item_page.py
 │
-├── 📂 tests/                    # Testes
-│   ├── 📂 unit/                # Testes unitários (200 testes)
+├── tests/
+│   ├── unit/                   # 236 testes unitários (14 arquivos)
 │   │   ├── test_base_page_unit.py
-│   │   ├── test_bonus_page_unit.py (✨ NOVO - 29 testes)
+│   │   ├── test_bonus_page_unit.py
+│   │   ├── test_config_unit.py
+│   │   ├── test_consulta_pedido_page_unit.py
+│   │   ├── test_documentos_page_unit.py
 │   │   ├── test_estoque_page_unit.py
+│   │   ├── test_home_page_unit.py
+│   │   ├── test_locators_unit.py
 │   │   ├── test_login_page_unit.py
-│   │   ├── test_venda_page_unit.py
-│   │   └── ...
+│   │   ├── test_pedido_page_unit.py
+│   │   ├── test_troca_page_unit.py
+│   │   ├── test_vale_presente_page_unit.py
+│   │   ├── test_venda_futura_page_unit.py
+│   │   └── test_venda_page_unit.py
 │   │
-│   ├── 📂 smoke/               # Smoke tests (10 testes)
-│   │   └── test_smoke_e2e.py  (✨ EXPANDIDO - 5→10 testes)
+│   ├── smoke/                  # 18 testes (12 arquivos)
+│   │   ├── test_01_app_abre.py
+│   │   ├── test_02_login.py
+│   │   ├── test_03_home_modulos.py
+│   │   ├── test_04_venda_consumidor.py
+│   │   ├── test_05_venda_cliente.py
+│   │   ├── test_06_consultar_estoque.py
+│   │   ├── test_07_cancelar_venda.py
+│   │   ├── test_08_pedido.py
+│   │   ├── test_09_troca.py
+│   │   ├── test_10_bordero.py
+│   │   ├── test_11_documentos.py
+│   │   └── test_smoke_e2e.py   # consolidado (7 testes)
 │   │
-│   └── 📂 e2e/                 # Testes E2E (14 arquivos)
-│       ├── test_login.py
-│       ├── test_venda_consumidor.py
-│       ├── test_venda_cliente.py
-│       ├── test_pedido_vendaConsumidor.py  # ⭐ SEPARADO
-│       ├── test_pedido_vendaCliente.py     # ⭐ SEPARADO
-│       ├── test_estoque.py
-│       ├── test_troca_consumidor.py
-│       ├── test_troca_cliente.py
-│       ├── test_bonus.py
-│       ├── test_consulta_pedidoConsumidor.py  # ⭐ SEPARADO
-│       ├── test_consulta_pedidoCliente.py     # ⭐ SEPARADO
-│       ├── test_venda_futura.py
-│       ├── test_venda_futura_domicilio.py
-│       └── test_cancelamento.py
+│   ├── e2e/                    # 48 testes (29 arquivos, 9 subpastas)
+│   │   ├── cliente/            # 3 testes
+│   │   ├── consultas/          # 7 testes
+│   │   ├── descontos/          # 6 testes
+│   │   ├── login/              # 2 testes
+│   │   ├── pedidos/            # 6 testes
+│   │   ├── trocas/             # 2 testes
+│   │   ├── validar/            # 2 testes
+│   │   ├── venda_futura/       # 2 testes
+│   │   └── vendas/             # 18 testes
+│   │
+│   └── negativos/              # 5 testes (3 arquivos)
+│       ├── test_login_invalido.py
+│       ├── test_busca_invalida.py
+│       └── test_troca_sem_resultado.py
 │
-├── 📂 logs/                     # Logs de execução
-│   └── allure-results/         # Resultados Allure
-│
-├── 📂 docs/                     # Documentação
-│   ├── GETTING_STARTED.md      # Guia de início rápido
-│   ├── ARCHITECTURE.md         # Arquitetura do projeto
-│   ├── TESTS.md                # Visão geral dos testes
-│   ├── UNIT_TESTS.md           # Documentação dos testes unitários
-│   ├── SMOKE_TESTS.md          # Documentação dos smoke tests
-│   ├── E2E_TESTS.md            # Documentação dos testes E2E
-│   └── PAGE_OBJECTS.md         # Documentação dos Page Objects
-│
-├── config.py                   # Configurações globais
-├── conftest.py                 # Fixtures do pytest
-├── test_data.py                # Dados de teste
-├── framework.py                # Framework Appium
+├── config.py                   # Logger + configurações globais
+├── conftest.py                 # Fixtures pytest (driver, driver_logado)
+├── test_data.py                # Dados externalizados (IP, senha, IDs)
+├── framework.py                # Utilitários Appium (legado)
 ├── pytest.ini                  # Configuração pytest
 ├── requirements.txt            # Dependências Python
-├── run_normal.bat              # Executar todos os testes
-└── run_debug.bat               # Executar com debug
+└── docs/                       # Documentação detalhada
+    ├── GETTING_STARTED.md
+    ├── TESTS.md
+    ├── UNIT_TESTS.md
+    ├── SMOKE_TESTS.md
+    └── PAGE_OBJECTS.md
 ```
 
 ---
 
 ## 🛠️ Tecnologias
 
-### Core
-- **Python 3.13** - Linguagem de programação
-- **Appium 2.0** - Automação mobile
-- **Pytest 9.0** - Framework de testes
-- **Selenium 4.x** - WebDriver
-
-### Relatórios e Visualização
-- **Allure** - Relatórios interativos
-- **pytest-html** - Relatórios HTML
-- **Logging customizado** - Logs coloridos e detalhados
-
-### Padrões e Arquitetura
-- **Page Object Model (POM)** - Organização dos elementos
-- **AAA Pattern** - Arrange-Act-Assert nos testes
-- **Fixtures** - Reutilização de setup/teardown
-- **Mocks** - Testes unitários isolados
+- **Python 3.13** + **Appium 2.0** + **Pytest 9.0** + **Allure Reports**
+- **Page Object Model (POM)** — arquitetura de testes
+- **MagicMock** — isolamento nos testes unitários
+- **Faker** — geração de dados nos testes de cadastro
 
 ---
 
 ## 🚀 Instalação
 
-### Pré-requisitos
-
-1. **Python 3.8+** instalado
-2. **Java JDK 11+** instalado (para Appium)
-3. **Node.js 16+** instalado
-4. **Android SDK** configurado
-5. **Appium Server 2.0+** instalado
-
-### Passo a Passo
-
 ```bash
-# 1. Clone o repositório
 cd D:\PDV_AUTOMACAO\Testes_PDV
-
-# 2. Crie um ambiente virtual (opcional mas recomendado)
-python -m venv venv
-venv\Scripts\activate
-
-# 3. Instale as dependências
 pip install -r requirements.txt
 
-# 4. Instale o Appium (se não tiver)
+# Appium (se não tiver)
 npm install -g appium
 appium driver install uiautomator2
-
-# 5. Configure o test_data.py com seus dados
-# Edite test_data.py com IP do servidor, credenciais, etc.
-```
-
-### Verificação da Instalação
-
-```bash
-# Verificar Python
-python --version
-
-# Verificar Appium
-appium --version
-
-# Verificar ADB
-adb version
-
-# Listar dispositivos conectados
-adb devices
 ```
 
 ---
 
 ## ▶️ Execução dos Testes
 
-### Testes Unitários (Rápido - <10s)
-
 ```bash
-# Executar todos os testes unitários
+cd D:\PDV_AUTOMACAO\Testes_PDV
+
+# Unitários (sem device, ~25s)
 pytest tests/unit/ -v
 
-# Executar testes de um Page Object específico
-pytest tests/unit/test_bonus_page_unit.py -v
-
-# Ver duração dos testes
-pytest tests/unit/ -v --durations=10
-```
-
-### Smoke Tests (3-5 minutos)
-
-```bash
-# Executar smoke tests
+# Smoke (device conectado, ~8-10min)
 pytest tests/smoke/ -v -m smoke
 
-# Com relatório Allure
-pytest tests/smoke/ -v -m smoke --alluredir=logs/allure-results
-allure serve logs/allure-results
-```
-
-### Testes E2E (30-45 minutos)
-
-```bash
-# Executar todos os testes E2E
+# E2E completo (device conectado, ~30-45min)
 pytest tests/e2e/ -v
 
-# Executar teste específico
-pytest tests/e2e/test_venda_consumidor.py -v
+# Negativos
+pytest tests/negativos/ -v
 
-# Executar com tag específica
-pytest tests/e2e/ -v -m venda
-```
+# Teste específico
+pytest tests/e2e/vendas/test_venda_cliente.py -v
 
-### Executar Tudo
-
-```bash
-# Windows
-run_normal.bat
-
-# Linux/Mac
-pytest -v --alluredir=logs/allure-results
-```
-
-### Com Relatório Allure
-
-```bash
-# Executar testes e gerar relatório
-pytest -v --alluredir=logs/allure-results
-allure serve logs/allure-results
+# Com relatório Allure
+pytest --alluredir=logs/allure-results && allure serve logs/allure-results
 ```
 
 ---
 
 ## 📚 Documentação
 
-Documentação detalhada disponível na pasta `docs/`:
-
-- **[Getting Started](docs/GETTING_STARTED.md)** - Guia completo de instalação e primeiro teste
-- **[Arquitetura](docs/ARCHITECTURE.md)** - Estrutura e padrões do projeto
-- **[Testes](docs/TESTS.md)** - Visão geral da estratégia de testes
-- **[Testes Unitários](docs/UNIT_TESTS.md)** - Como criar e executar testes unitários
-- **[Smoke Tests](docs/SMOKE_TESTS.md)** - Documentação dos smoke tests
-- **[Testes E2E](docs/E2E_TESTS.md)** - Guia completo dos testes E2E
-- **[Page Objects](docs/PAGE_OBJECTS.md)** - Referência dos Page Objects
+| Arquivo | Conteúdo |
+|---|---|
+| `docs/GETTING_STARTED.md` | Guia de início rápido |
+| `docs/TESTS.md` | Estratégia de testes |
+| `docs/UNIT_TESTS.md` | Testes unitários |
+| `docs/SMOKE_TESTS.md` | Smoke tests |
+| `docs/PAGE_OBJECTS.md` | Referência dos Page Objects |
+| `../CLAUDE.md` | Instruções completas (arquitetura, fluxos, padrões) |
 
 ---
 
 ## 📈 Relatórios
 
-### Allure Reports
-
-Os relatórios Allure fornecem visualização rica dos resultados:
-
-- ✅ Histórico de execuções
-- ✅ Gráficos de sucesso/falha
-- ✅ Screenshots de falhas
-- ✅ Logs detalhados
-- ✅ Categorização por severidade
-- ✅ Tempo de execução
-
 ```bash
-# Gerar e visualizar relatório
 pytest -v --alluredir=logs/allure-results
 allure serve logs/allure-results
 ```
 
-### Logs
-
-Logs detalhados são gerados em:
-- **Console**: Saída colorida em tempo real
-- **Allure**: Logs anexados aos testes
+Allure gera: histórico, gráficos, screenshots de falhas, logs por teste, categorização por severidade.
 
 ---
 
-## 🎯 Padrões de Código
-
-### Estrutura de Teste Unitário
-
-```python
-class TestNomePageMetodo:
-    """Testes para o método metodo_exemplo."""
-
-    @patch('pages.nome_page.BasePage.__init__', return_value=None)
-    @patch('pages.nome_page.logger')
-    def test_metodo_cenario_resultado_esperado(self, mock_logger, mock_base_init):
-        """Descrição do teste."""
-        from pages.nome_page import NomePage
-
-        # Arrange
-        page = NomePage.__new__(NomePage)
-        page.driver = MagicMock()
-        page.metodo_mock = MagicMock(return_value=valor_esperado)
-
-        # Act
-        resultado = page.metodo_testado()
-
-        # Assert
-        assert resultado == valor_esperado
-        page.metodo_mock.assert_called_once()
-```
-
-### Estrutura de Teste E2E
-
-```python
-@allure.title("Título do Teste")
-@allure.description("Descrição detalhada")
-@allure.severity(allure.severity_level.CRITICAL)
-@allure.tag("tag1", "tag2")
-def test_nome_teste(self, driver_logado):
-    """Cenário do teste em formato BDD."""
-    driver = driver_logado
-    page = NomePage(driver)
-
-    with allure.step("1. Primeiro passo"):
-        page.acao_1()
-
-    with allure.step("2. Segundo passo"):
-        page.acao_2()
-
-    with allure.step("3. Validação"):
-        assert page.validacao()
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Problemas Comuns
-
-**1. Appium não conecta ao dispositivo**
-```bash
-# Verificar dispositivos
-adb devices
-
-# Reiniciar ADB
-adb kill-server
-adb start-server
-```
-
-**2. Testes falhando intermitentemente**
-- Aumentar tempos de espera em `config.py`
-- Verificar estabilidade da conexão com servidor
-- Verificar memória do dispositivo
-
-**3. Import errors**
-```bash
-# Reinstalar dependências
-pip install -r requirements.txt --force-reinstall
-```
-
-**4. Testes unitários falhando após mudanças**
-- Verificar se os mocks estão atualizados
-- Verificar nomenclatura dos métodos
-- Executar: `pytest tests/unit/ -v --tb=short`
-
----
-
-## 📝 Changelog
-
-### [2.0.5] - 2026-03-03
-
-#### ✨ Adicionado
-- **VendaSucessoPage** - Novo Page Object dedicado à tela de sucesso de vendas
-- **Reorganização dos testes E2E** - Separação por tipo de cliente:
-  - test_pedido_vendaConsumidor.py e test_pedido_vendaCliente.py
-  - test_consulta_pedidoConsumidor.py e test_consulta_pedidoCliente.py
-
-#### 🔧 Atualizado
-- Documentação sincronizada com estrutura atual de arquivos
-- Contagem de Page Objects: 10 → **11**
-- Estrutura de testes E2E mais organizada e modular
-
-#### 📊 Estatísticas Atualizadas
-- **Page Objects:** 11 (100% cobertos)
-- **Testes E2E:** 14 arquivos
-- **Testes Unitários:** 12 arquivos
-- **Testes Smoke:** 1 arquivo
-
-### [2.1.0] - 2026-02-24
-
-#### ✨ Adicionado
-- **Testes Unitários para BonusPage** (29 novos testes)
-  - Cobertura completa de todos os métodos
-  - Testes para bonus_disponivel, ativar_bonus, bonus_foi_aplicado
-  - Testes para métodos de pagamento e validações
-
-- **Expansão dos Smoke Tests** (5 → 10 testes)
-  - Teste de conectividade com servidor
-  - Teste de venda básica completa
-  - Teste de cancelamento com confirmação
-  - Teste de geração de pedido
-  - Teste de navegação entre módulos
-  - Teste de recuperação de botão back
-
-#### 🔧 Corrigido
-- EstoquePage ausente na pasta pages/ (impedindo coleta de testes)
-- Smoke tests agora validam módulos principais (Pedido, Estoque, Troca)
-- Documentação atualizada com números corretos
-
-#### 📊 Estatísticas
-- Testes Unitários: 171 → **200** (+29)
-- Smoke Tests: 5 → **10** (+5)
-- Cobertura de Page Objects: 88.9% → **100%**
-
----
-
-## 👥 Equipe
-
-- **QA Mobile Team** - Desenvolvimento e manutenção dos testes
-- **Servidor QA Mobile** - Infraestrutura e CI/CD
-
----
-
-## 📄 Licença
-
-Projeto interno - Todos os direitos reservados
-
----
-
-## 🔗 Links Úteis
-
-- [Appium Documentation](https://appium.io/docs/en/2.0/)
-- [Pytest Documentation](https://docs.pytest.org/)
-- [Allure Reports](https://docs.qameta.io/allure/)
-- [Page Object Pattern](https://www.selenium.dev/documentation/test_practices/encouraged/page_object_models/)
-
----
-
-**Última atualização**: 03/03/2026
-**Versão**: 2.0.5
+**Versão**: 2.0.108 | **Última atualização**: 10/04/2026

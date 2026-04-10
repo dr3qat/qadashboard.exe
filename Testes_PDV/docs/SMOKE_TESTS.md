@@ -21,10 +21,11 @@ Garantir que as funcionalidades críticas do sistema estão operacionais:
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de Testes** | 10 |
-| **Tempo de Execução** | 3-5 minutos |
+| **Total de Testes** | 18 |
+| **Arquivos** | 12 (11 individuais + test_smoke_e2e.py consolidado) |
+| **Tempo de Execução** | 8-10 minutos |
 | **Cobertura Crítica** | ~70% das funcionalidades |
-| **Arquivo** | `tests/smoke/test_smoke_e2e.py` |
+| **Localização** | `tests/smoke/` |
 
 ---
 
@@ -296,7 +297,7 @@ timeout = 600  # 10 minutos para smoke tests
 - Não validar funcionalidades secundárias
 - Não usar dados complexos ou dependentes
 - Não deixar o ambiente sujo após teste
-- Não adicionar mais de 15 testes (mantenha focado)
+- Não adicionar mais de 20 testes (mantenha focado)
 
 ---
 
@@ -309,5 +310,5 @@ Problemas com Smoke Tests? Consulte:
 
 ---
 
-**Última atualização**: 24/02/2026
-**Versão**: 2.0
+**Última atualização**: 10/04/2026
+**Versão**: 2.0.108

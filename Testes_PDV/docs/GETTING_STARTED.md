@@ -112,11 +112,11 @@ PRODUCT_CODE = "123"  # Código de produto válido
 pytest tests/unit/ -v
 
 # Resultado esperado:
-# ======================== 200 passed in 8.50s ========================
+# ======================== 236 passed in 23.50s ========================
 ```
 
 **O que validar:**
-- ✅ Todos os 200 testes devem passar
+- ✅ Todos os 236 testes devem passar
 - ✅ Tempo de execução < 10 segundos
 - ✅ Nenhum erro de import
 
@@ -304,4 +304,4 @@ Antes de começar a trabalhar com testes, certifique-se de que:
 
 **Precisando de ajuda?** Entre em contato com a equipe de QA Mobile.
 
-**Última atualização**: 24/02/2026
+**Última atualização**: 10/04/2026 | **Versão**: 2.0.108

@@ -6,18 +6,25 @@ Documentação de todos os Page Objects do projeto seguindo o padrão Page Objec
 
 ## 🎯 Visão Geral
 
-| Page Object | Métodos | Testes Unitários | Testes E2E | Arquivo |
-|------------|---------|-----------------|-----------|---------|
-| BasePage | 50+ | 23 | - | `pages/base_page.py` |
-| LoginPage | 8 | 7 | 1 | `pages/login_page.py` |
-| HomePage | 6 | 7 | - | `pages/home_page.py` |
-| VendaPage | 12 | 15 | 2 | `pages/venda_page.py` |
-| PedidoPage | 11 | 10 | 3 | `pages/pedido_page.py` |
-| EstoquePage | 15 | 23 | 4 | `pages/estoque_page.py` |
-| TrocaPage | 18 | 19 | 4 | `pages/troca_page.py` |
-| **BonusPage** | **17** | **29** | **2** | `pages/bonus_page.py` ✨ |
-| ConsultaPedidoPage | 8 | 7 | 2 | `pages/consulta_pedido_page.py` |
-| VendaFuturaPage | 14 | 20 | 2 | `pages/venda_futura_page.py` |
+| Page Object | Arquivo | Responsabilidade |
+|---|---|---|
+| `BasePage` | `pages/base_page.py` | 50+ métodos comuns (busca, clique, scroll, digitação) |
+| `LoginPage` | `pages/login_page.py` | Login + configuração de servidor |
+| `HomePage` | `pages/home_page.py` | Tela inicial + navegação entre módulos |
+| `VendaPage` | `pages/venda_page.py` | Vendas consumidor e cliente |
+| `VendaSucessoPage` | `pages/venda_sucesso_page.py` | Tela sucesso + impressões (NFC-E, DANFE, cupom) |
+| `PedidoPage` | `pages/pedido_page.py` | Pedidos de venda |
+| `EstoquePage` | `pages/estoque_page.py` | Consulta de estoque |
+| `TrocaPage` | `pages/troca_page.py` | Trocas e devoluções |
+| `BonusPage` | `pages/bonus_page.py` | Bônus/cashback |
+| `ConsultaPedidoPage` | `pages/consulta_pedido_page.py` | Consulta e finalização de pedidos |
+| `VendaFuturaPage` | `pages/venda_futura_page.py` | Vendas futuras (retirada e entrega) |
+| `BorderoPage` | `pages/bordero_page.py` | Relatório de borderô |
+| `ClientePage` | `pages/cliente_page.py` | Cadastro PF/PJ (usa Faker) |
+| `HistoricoClientePage` | `pages/historico_cliente_page.py` | Histórico de compras do cliente |
+| `DocumentosPage` | `pages/documentos_page.py` | Consulta de documentos fiscais |
+| `ValePresentePage` | `pages/vale_presente_page.py` | Venda de vale presente |
+| `OpcoesItemPage` | `pages/opcoes_item_page.py` | Opções do item no carrinho |
 
 ---
 
@@ -480,5 +487,5 @@ class NomePage(BasePage):
 
 ---
 
-**Última atualização**: 24/02/2026
-**Versão**: 2.1 (adicionado BonusPage)
+**Última atualização**: 10/04/2026
+**Versão**: 2.0.108 — 17 Page Objects

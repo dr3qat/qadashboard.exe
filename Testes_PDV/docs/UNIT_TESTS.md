@@ -12,7 +12,7 @@ Garantir que cada Page Object funciona corretamente:
 - ✅ Retornos são os esperados
 - ✅ Lógica de negócio está correta
 
-**Vantagem**: Execução ultra-rápida (< 10 segundos para 200 testes)
+**Vantagem**: Execução rápida (~25 segundos para 236 testes)
 
 ---
 
@@ -20,26 +20,30 @@ Garantir que cada Page Object funciona corretamente:
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de Testes** | 200 |
-| **Tempo de Execução** | < 10 segundos |
-| **Cobertura** | 100% dos Page Objects (10/10) |
-| **Status** | 197 passando, 3 com issues conhecidos |
+| **Total de Testes** | 236 |
+| **Arquivos** | 14 |
+| **Tempo de Execução** | ~25 segundos |
+| **Cobertura** | 100% dos Page Objects (17/17) |
+| **Status** | 236/236 passando |
 
-### Testes por Page Object
+### Testes por Arquivo
 
-| Page Object | Testes | Arquivo |
-|------------|--------|---------|
-| BasePage | 23 | `test_base_page_unit.py` |
-| LoginPage | 7 | `test_login_page_unit.py` |
-| HomePage | 7 | `test_home_page_unit.py` |
-| VendaPage | 15 | `test_venda_page_unit.py` |
-| PedidoPage | 10 | `test_pedido_page_unit.py` |
-| EstoquePage | 23 | `test_estoque_page_unit.py` |
-| TrocaPage | 19 | `test_troca_page_unit.py` |
-| **BonusPage** | **29** | `test_bonus_page_unit.py` ✨ **NOVO** |
-| ConsultaPedidoPage | 7 | `test_consulta_pedido_page_unit.py` |
-| VendaFuturaPage | 20 | `test_venda_futura_page_unit.py` |
-| Config/Framework | 40 | `test_config_unit.py`, `test_locators_unit.py` |
+| Arquivo | Page Object coberto |
+|---|---|
+| `test_base_page_unit.py` | BasePage |
+| `test_bonus_page_unit.py` | BonusPage |
+| `test_config_unit.py` | config.py (LogStyle, logger) |
+| `test_consulta_pedido_page_unit.py` | ConsultaPedidoPage |
+| `test_documentos_page_unit.py` | DocumentosPage |
+| `test_estoque_page_unit.py` | EstoquePage |
+| `test_home_page_unit.py` | HomePage |
+| `test_locators_unit.py` | Locators de todos os Page Objects |
+| `test_login_page_unit.py` | LoginPage |
+| `test_pedido_page_unit.py` | PedidoPage |
+| `test_troca_page_unit.py` | TrocaPage |
+| `test_vale_presente_page_unit.py` | ValePresentePage |
+| `test_venda_futura_page_unit.py` | VendaFuturaPage |
+| `test_venda_page_unit.py` | VendaPage |
 
 ---
 

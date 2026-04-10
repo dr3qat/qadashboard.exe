@@ -5,11 +5,14 @@ __pycache__/
 *.pyd
 .Python
 
-# Logs e screenshots
+# Logs e screenshots (capturas de falha — não versionar)
 logs/
 *.log
 *.png
 *.jpg
+
+# Screenshots da documentação (manter versionadas)
+!docs/screenshots/*.png
 
 # Build / dist
 Gerador_EXE/output/dist/

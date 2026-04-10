@@ -1,11 +1,28 @@
 # 🚀 PDV Automação - Sistema Completo de Testes
 
-![Status](https://img.shields.io/badge/Status-Produ%C3%A7%C3%A3o-success)
-![Versão](https://img.shields.io/badge/Vers%C3%A3o-2.0.21-blue)
+![Status](https://img.shields.io/badge/Status-Ativo-success)
+![Versão](https://img.shields.io/badge/Vers%C3%A3o-2.0.108-blue)
 ![Python](https://img.shields.io/badge/Python-3.13-blue)
 ![Appium](https://img.shields.io/badge/Appium-2.0-green)
+![Testes](https://img.shields.io/badge/Testes-323-brightgreen)
 
 Sistema completo de automação de testes mobile para PDV Android, incluindo framework de testes, dashboard interativo e sistema de compilação automatizado.
+
+---
+
+## Screenshots
+
+### QA Dashboard v2.0.108
+
+![QA Dashboard](docs/screenshots/dashboard.png)
+
+### Allure Report — Overview
+
+![Allure Overview](docs/screenshots/allure_overview.png)
+
+### Allure Report — Behaviors
+
+![Allure Behaviors](docs/screenshots/allure_behaviors.png)
 
 ---
 
@@ -28,8 +45,8 @@ Este projeto contém tudo necessário para automação de testes mobile do PDV:
 ### ✅ O que está incluído:
 
 - **Framework de Testes** (`Testes_PDV/`)
-  - 11 Page Objects (POM)
-  - 264 testes automatizados (200 unitários + 11 smoke + 53 E2E)
+  - 17 Page Objects (POM)
+  - 323 testes automatizados (236 unitários + 18 smoke + 48 E2E + 5 negativos)
   - Integração com Allure Reports
   - Logs detalhados e coloridos
 
@@ -49,10 +66,11 @@ Este projeto contém tudo necessário para automação de testes mobile do PDV:
 
 | Componente | Quantidade | Status |
 |-----------|-----------|--------|
-| **Testes Unitários** | 213 | ✅ 211/213 passando |
-| **Smoke Tests** | 11 | ✅ Funcional |
-| **Testes E2E** | 57 | ✅ Funcional |
-| **Page Objects** | 13 | ✅ 100% cobertos |
+| **Testes Unitários** | 236 | ✅ 236/236 passando |
+| **Smoke Tests** | 18 | ✅ Funcional |
+| **Testes E2E** | 48 | ✅ Funcional |
+| **Testes Negativos** | 5 | ✅ Funcional |
+| **Page Objects** | 17 | ✅ 100% cobertos |
 | **Tempo Total** | ~45 min | ✅ |
 
 ---
@@ -63,7 +81,7 @@ Este projeto contém tudo necessário para automação de testes mobile do PDV:
 D:\PDV_AUTOMACAO/
 │
 ├── 📂 Testes_PDV/                    ← 🎯 EDITE AQUI (desenvolvimento)
-│   ├── 📂 pages/                     # 12 Page Objects
+│   ├── 📂 pages/                     # 17 Page Objects
 │   │   ├── base_page.py              # Classe base
 │   │   ├── login_page.py
 │   │   ├── home_page.py
@@ -78,15 +96,35 @@ D:\PDV_AUTOMACAO/
 │   │   └── documentos_page.py        # ⭐ NOVO
 │   │
 │   ├── 📂 tests/
-│   │   ├── 📂 unit/                  # 213 testes unitários
+│   │   ├── 📂 unit/                  # 236 testes unitários (14 arquivos)
 │   │   │   ├── test_base_page_unit.py
+│   │   │   ├── test_bonus_page_unit.py
+│   │   │   ├── test_config_unit.py
+│   │   │   ├── test_consulta_pedido_page_unit.py
+│   │   │   ├── test_documentos_page_unit.py
+│   │   │   ├── test_estoque_page_unit.py
+│   │   │   ├── test_home_page_unit.py
+│   │   │   ├── test_locators_unit.py
 │   │   │   ├── test_login_page_unit.py
-│   │   │   ├── test_venda_page_unit.py
-│   │   │   ├── test_documentos_page_unit.py  # ⭐ NOVO
-│   │   │   └── test_locators_unit.py # ✅ CORRIGIDO
+│   │   │   ├── test_pedido_page_unit.py
+│   │   │   ├── test_troca_page_unit.py
+│   │   │   ├── test_vale_presente_page_unit.py
+│   │   │   ├── test_venda_futura_page_unit.py
+│   │   │   └── test_venda_page_unit.py
 │   │   │
-│   │   ├── 📂 smoke/                 # 11 smoke tests
-│   │   │   └── test_smoke_e2e.py     # ✅ ATUALIZADO
+│   │   ├── 📂 smoke/                 # 18 testes (11 individuais + test_smoke_e2e.py)
+│   │   │   ├── test_01_app_abre.py
+│   │   │   ├── test_02_login.py
+│   │   │   ├── test_03_home_modulos.py
+│   │   │   ├── test_04_venda_consumidor.py
+│   │   │   ├── test_05_venda_cliente.py
+│   │   │   ├── test_06_consultar_estoque.py
+│   │   │   ├── test_07_cancelar_venda.py
+│   │   │   ├── test_08_pedido.py
+│   │   │   ├── test_09_troca.py
+│   │   │   ├── test_10_bordero.py
+│   │   │   ├── test_11_documentos.py
+│   │   │   └── test_smoke_e2e.py     # consolidado (7 testes)
 │   │   │
 │   │   └── 📂 e2e/                   # 54 testes E2E
 │   │       ├── test_login.py
@@ -459,46 +497,25 @@ ABRIR_DASHBOARD.bat
 
 ---
 
-## 🆕 Mudanças Recentes (v2.0.21)
+## 🆕 Mudanças Recentes (v2.0.108)
 
-### ✅ Corrigido nesta Versão
+### ✅ Corrigido em 2026-04-10
 
-1. **Teste Unitário Falhando**:
-   - ❌ `test_selecionar_ultimo_pedido_sem_elementos_lanca_excecao`
-   - ✅ Corrigido: Agora testa retorno `False` ao invés de exceção
-   - Arquivo: `tests/unit/test_consulta_pedido_page_unit.py:97`
+1. **23 arquivos de testes duplicados removidos** — `tests/e2e/test_*.py` raiz eram cópias das subpastas; subpastas têm versões mais atualizadas
+2. **Hook `pytest_runtest_makereport` duplicado** — definido duas vezes no `conftest.py`; segunda definição sobrescrevia a primeira. Unificado com `tryfirst=True`
+3. **pytest.ini com opções inválidas** — `log_selenium.webdriver`, `log_urllib3`, `log_appium` não são opções válidas do pytest; movidas para `conftest.py` como `logging.getLogger().setLevel()`
+4. **`test_obter_quantidade_estoque`** — teste unitário esperava retorno e comportamento de versão antiga do método; atualizado para implementação atual
+5. **`test_executar_fluxo_completo_vale_presente`** — `VendaSucessoPage` instanciada dentro do método não era mockada; `BasePage.__init__` patchado zerava `self.driver`; adicionado `@patch('pages.venda_sucesso_page.VendaSucessoPage')`
 
-2. **Teste de Locators Falhando**:
-   - ❌ `test_todos_locators_existem_no_app` (ConsultaPedidoPage)
-   - ✅ Corrigido: Removidos locators inexistentes (`BTN_IMPRIMIR_NAO`, `BTN_CONFIRMAR_VENDA`)
-   - Adicionados locators corretos (`BTN_DIALOG_SIM`, `BTN_DIALOG_NAO`)
-   - Arquivo: `tests/unit/test_locators_unit.py:306`
+### 📊 Estado Atual (2026-04-10)
 
-### ⭐ Adicionado nesta Versão
-
-1. **DocumentosPage**:
-   - ✅ Novo Page Object para consulta de documentos fiscais
-   - ✅ Teste unitário completo (`test_documentos_page_unit.py`)
-   - ✅ Teste E2E (`test_consulta_documentos.py`)
-   - ✅ Adicionado ao smoke test (teste 09)
-
-2. **Smoke Tests Expandidos**:
-   - ✅ 10 → 11 testes
-   - ✅ Novo teste: Consulta de documentos fiscais
-   - ✅ Cobertura aumentada de funcionalidades críticas
-
-3. **Validação de Locators**:
-   - ✅ Adicionada validação para DocumentosPage
-   - ✅ IDs adicionados: `textInputLayout4`, `textInputLayout5`, `lbl_nf`, `textView148`, `textView238`
-
-### 📊 Estatísticas Atualizadas
-
-| Métrica | Antes | Agora | Mudança |
-|---------|-------|-------|---------|
-| **Testes Unitários** | 200 | 213 | +13 ✅ |
-| **Smoke Tests** | 10 | 11 | +1 ✅ |
-| **Page Objects** | 11 | 12 | +1 ✅ |
-| **Testes Falhando** | 2 | 0 | -2 ✅ |
+| Tipo | Arquivos | Testes | Status |
+|---|---|---|---|
+| **Unitários** | 14 | **236** | 236/236 passando |
+| **Smoke** | 12 | **18** | Funcional |
+| **E2E** | 29 | **48** | Funcional |
+| **Negativos** | 3 | **5** | Funcional |
+| **TOTAL** | 58 | **323** | 0 warnings na coleta |
 
 ---
 
@@ -641,16 +658,11 @@ pytest tests/smoke/ -v -m smoke
 
 ## 📌 Informações da Versão
 
-**Versão Atual**: 2.0.21
+**Versão Atual**: 2.0.108
 
-**Data da Última Atualização**: 06/03/2026
+**Data da Última Atualização**: 10/04/2026
 
-**Principais Mudanças**:
-- ✅ Corrigidos 2 testes unitários falhando
-- ✅ Adicionado DocumentosPage + testes
-- ✅ Expandidos smoke tests (10 → 11)
-- ✅ Total de testes: 264 → 278 (+14)
-- ✅ Todos os testes passando: 211/213 unitários
+**Estado**: 323 testes | 236/236 unitários passando | 0 warnings
 
 **Próximas Melhorias Planejadas**:
 - [ ] Integração com CI/CD (GitLab)
@@ -668,4 +680,4 @@ Projeto interno - Todos os direitos reservados
 
 **Desenvolvido com ❤️ pela Equipe QA Mobile**
 
-**Última atualização**: 06/03/2026 | **Versão**: 2.0.21
+**Última atualização**: 10/04/2026 | **Versão**: 2.0.108
