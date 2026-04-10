@@ -181,10 +181,13 @@ D:\PDV_AUTOMACAO/
 ├── 🔨 COMPILAR.bat                   # Execute para COMPILAR
 │
 ├── 📄 README.md                      # ⬅️ VOCÊ ESTÁ AQUI
-├── 📄 README_DESENVOLVIMENTO.md      # Guia de desenvolvimento
-├── 📄 ARQUITETURA_COMPLETA.md        # Arquitetura técnica
-├── 📄 CONFIGURACAO_IMPRESSAO.md      # Sistema de impressões
-└── 📄 MAPEAMENTO_IMPRESSOES.md       # Mapeamento de impressões
+├── 📄 CLAUDE.md                      # Instruções completas do projeto
+└── 📂 detalhes/                      # Documentação técnica
+    ├── README_DESENVOLVIMENTO.md
+    ├── ARQUITETURA_COMPLETA.md
+    ├── CONFIGURACAO_IMPRESSAO.md
+    ├── MAPEAMENTO_IMPRESSOES.md
+    └── MUDANCAS.md
 ```
 
 ---
@@ -404,10 +407,10 @@ COMPILAR.bat
 | Documento | Descrição |
 |-----------|-----------|
 | **[README.md](README.md)** | ⬅️ Este arquivo - Visão geral completa |
-| **[README_DESENVOLVIMENTO.md](README_DESENVOLVIMENTO.md)** | Guia de desenvolvimento e workflow |
-| **[ARQUITETURA_COMPLETA.md](ARQUITETURA_COMPLETA.md)** | Arquitetura técnica detalhada |
-| **[CONFIGURACAO_IMPRESSAO.md](CONFIGURACAO_IMPRESSAO.md)** | Sistema de impressões configurável |
-| **[MAPEAMENTO_IMPRESSOES.md](MAPEAMENTO_IMPRESSOES.md)** | Mapeamento de fluxo de impressões |
+| **[detalhes/README_DESENVOLVIMENTO.md](detalhes/README_DESENVOLVIMENTO.md)** | Guia de desenvolvimento e workflow |
+| **[detalhes/ARQUITETURA_COMPLETA.md](detalhes/ARQUITETURA_COMPLETA.md)** | Arquitetura técnica detalhada |
+| **[detalhes/CONFIGURACAO_IMPRESSAO.md](detalhes/CONFIGURACAO_IMPRESSAO.md)** | Sistema de impressões configurável |
+| **[detalhes/MAPEAMENTO_IMPRESSOES.md](detalhes/MAPEAMENTO_IMPRESSOES.md)** | Mapeamento de fluxo de impressões |
 
 ### Documentação dos Testes
 
@@ -648,11 +651,11 @@ pytest tests/smoke/ -v -m smoke
 
 **Problemas com testes**: Verificar documentação em `Testes_PDV/docs/`
 
-**Problemas com Dashboard**: Verificar `README_DESENVOLVIMENTO.md`
+**Problemas com Dashboard**: Verificar [`detalhes/README_DESENVOLVIMENTO.md`](detalhes/README_DESENVOLVIMENTO.md)
 
-**Problemas com Build**: Verificar `ARQUITETURA_COMPLETA.md`
+**Problemas com Build**: Verificar [`detalhes/ARQUITETURA_COMPLETA.md`](detalhes/ARQUITETURA_COMPLETA.md)
 
-**Configuração de impressões**: Verificar `CONFIGURACAO_IMPRESSAO.md`
+**Configuração de impressões**: Verificar [`detalhes/CONFIGURACAO_IMPRESSAO.md`](detalhes/CONFIGURACAO_IMPRESSAO.md)
 
 ---
 

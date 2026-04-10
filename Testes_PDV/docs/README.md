@@ -76,10 +76,11 @@ Bem-vindo à documentação completa do framework de testes automatizados do PDV
 
 | Componente | Status | Documentação |
 |-----------|--------|--------------|
-| Testes Unitários | ✅ 197/200 (98.5%) | [UNIT_TESTS.md](UNIT_TESTS.md) |
-| Smoke Tests | ✅ 10/10 (100%) | [SMOKE_TESTS.md](SMOKE_TESTS.md) |
-| Testes E2E | ✅ ~96% | - |
-| Page Objects | ✅ 10/10 (100%) | [PAGE_OBJECTS.md](PAGE_OBJECTS.md) |
+| Testes Unitários | ✅ 236/236 (100%) | [UNIT_TESTS.md](UNIT_TESTS.md) |
+| Smoke Tests | ✅ 18 testes | [SMOKE_TESTS.md](SMOKE_TESTS.md) |
+| Testes E2E | ✅ 48 testes | [TESTS.md](TESTS.md) |
+| Testes Negativos | ✅ 5 testes | - |
+| Page Objects | ✅ 17/17 (100%) | [PAGE_OBJECTS.md](PAGE_OBJECTS.md) |
 | Documentação | ✅ Completa | Você está aqui! |
 
 ---
@@ -162,12 +163,12 @@ allure serve logs/allure-results
 
 Precisa de ajuda?
 
-1. Consulte [Getting Started - Troubleshooting](GETTING_STARTED.md#-problemas-comuns)
+1. Consulte [Getting Started - Troubleshooting](GETTING_STARTED.md#problemas-comuns)
 2. Verifique os logs em `logs/allure-results`
 3. Entre em contato com a equipe de QA Mobile
 
 ---
 
-**Última atualização**: 24/02/2026
-**Versão da Documentação**: 2.1
+**Última atualização**: 10/04/2026
+**Versão**: 2.0.108
 **Total de Documentos**: 6 + README principal

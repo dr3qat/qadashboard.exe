@@ -31,97 +31,35 @@ Garantir que as funcionalidades críticas do sistema estão operacionais:
 
 ## 🧪 Testes Implementados
 
-### TestSmokeAmbiente (4 testes)
+### Arquivos individuais (11 testes — `test_01` a `test_11`)
 
-#### 1. `test_01_app_abre_corretamente`
-- **Severidade**: BLOCKER
-- **Duração**: 5s
-- **Valida**:
-  - Driver foi inicializado
-  - App não crashou
-  - Page source não está vazio
+| Arquivo | Teste | Severidade |
+|---|---|---|
+| `test_01_app_abre.py` | `test_01_app_abre` | BLOCKER |
+| `test_02_login.py` | `test_02_login` | BLOCKER |
+| `test_03_home_modulos.py` | `test_03_home_modulos_visiveis` | CRITICAL |
+| `test_04_venda_consumidor.py` | `test_04_venda_consumidor_completa` | CRITICAL |
+| `test_05_venda_cliente.py` | `test_05_venda_cliente_completa` | CRITICAL |
+| `test_06_consultar_estoque.py` | `test_06_consultar_estoque` | NORMAL |
+| `test_07_cancelar_venda.py` | `test_07_cancelar_venda_vazia` | NORMAL |
+| `test_08_pedido.py` | `test_08_pedido_consumidor` | NORMAL |
+| `test_09_troca.py` | `test_09_troca_tela_acessivel` | NORMAL |
+| `test_10_bordero.py` | `test_10_bordero_tela_e_geracao` | NORMAL |
+| `test_11_documentos.py` | `test_11_documentos_tela_e_consulta` | NORMAL |
 
-#### 2. `test_02_login_funciona`
-- **Severidade**: BLOCKER
-- **Duração**: 30s
-- **Valida**:
-  - Consegue preencher credenciais
-  - Login é bem-sucedido
-  - Tela inicial aparece
+### test_smoke_e2e.py (7 testes consolidados)
 
-#### 3. `test_03_elementos_basicos_visiveis`
-- **Severidade**: CRITICAL
-- **Duração**: 10s
-- **Valida**:
-  - Botão "Iniciar Venda" visível
-  - Módulos principais visíveis:
-    - Pedido Venda
-    - Consultar Estoque
-    - Realizar Troca
-    - Consultar Pedido
+Arquivo único com os fluxos críticos (derivado dos E2E). Use quando quiser rodar um smoke rápido sem carregar todos os arquivos individuais.
 
-#### 4. `test_04_consegue_iniciar_venda`
-- **Severidade**: CRITICAL
-- **Duração**: 15s
-- **Valida**:
-  - Consegue clicar em "Iniciar Venda"
-  - Próxima tela carrega (seleção de vendedor/cliente)
-  - Sistema não trava
-
-### TestSmokeFuncionalidades (6 testes)
-
-#### 5. `test_05_servidor_respondendo`
-- **Severidade**: BLOCKER
-- **Duração**: 5s
-- **Valida**:
-  - Servidor está acessível
-  - Tela inicial carregou (prova que servidor retornou dados)
-
-#### 6. `test_06_venda_basica_consumidor`
-- **Severidade**: CRITICAL
-- **Duração**: 45s
-- **Valida**:
-  - Fluxo completo de venda:
-    1. Iniciar venda
-    2. Selecionar vendedor
-    3. Adicionar produto
-    4. Selecionar pagamento em dinheiro
-    5. Finalizar venda
-  - Venda é concluída com sucesso
-  - Retorna à tela inicial
-
-#### 7. `test_07_cancelamento_com_dialogo`
-- **Severidade**: CRITICAL
-- **Duração**: 20s
-- **Valida**:
-  - Consegue iniciar venda
-  - Consegue adicionar produto
-  - Consegue cancelar venda
-  - Retorna à tela inicial
-
-#### 8. `test_08_pedido_venda_basico`
-- **Severidade**: NORMAL
-- **Duração**: 40s
-- **Valida**:
-  - Consegue acessar módulo de pedidos
-  - Fluxo de pedido funciona
-  - Pedido é gerado com sucesso
-
-#### 9. `test_09_navegacao_entre_modulos`
-- **Severidade**: NORMAL
-- **Duração**: 30s
-- **Valida**:
-  - Consegue acessar "Pedido Venda"
-  - Consegue acessar "Realizar Troca"
-  - Consegue voltar de cada módulo
-
-#### 10. `test_10_recuperacao_botao_back`
-- **Severidade**: NORMAL
-- **Duração**: 20s
-- **Valida**:
-  - Botão back do Android funciona
-  - Diálogo de confirmação aparece (ou volta direto)
-  - Sistema não trava
+| Teste | O que valida |
+|---|---|
+| `test_01_app_abre` | Driver inicializa, app não crasha |
+| `test_02_login` | Login com credenciais válidas |
+| `test_03_home_modulos_visiveis` | Módulos visíveis na home |
+| `test_04_venda_consumidor_completa` | Venda consumidor fluxo completo |
+| `test_05_venda_cliente_completa` | Venda cliente fluxo completo |
+| `test_06_consultar_estoque` | Consulta de estoque funciona |
+| `test_07_cancelar_venda_vazia` | Cancelamento + navegação de saída |
 
 ---
 
@@ -304,7 +242,7 @@ timeout = 600  # 10 minutos para smoke tests
 ## 📞 Suporte
 
 Problemas com Smoke Tests? Consulte:
-- [Troubleshooting](GETTING_STARTED.md#-problemas-comuns)
+- [Troubleshooting](GETTING_STARTED.md#problemas-comuns)
 - Logs em `logs/allure-results`
 - Equipe de QA Mobile
 

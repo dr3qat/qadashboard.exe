@@ -124,7 +124,7 @@ pytest tests/e2e/ -v
 ```
 
 ### Documentação
-📖 [E2E Tests Guide](E2E_TESTS.md)
+📖 [Page Objects](PAGE_OBJECTS.md) | 📖 [CLAUDE.md](../../CLAUDE.md#61-testes-e2e)
 
 ---
 
@@ -281,11 +281,11 @@ pytest tests/ -v --tb=short
 ## 📚 Documentação Completa
 
 - 📖 [Getting Started](GETTING_STARTED.md) - Instalação e primeiro teste
-- 📖 [Architecture](ARCHITECTURE.md) - Estrutura do projeto
+- 📖 [Arquitetura](../../detalhes/ARQUITETURA_COMPLETA.md) - Estrutura do projeto
 - 📖 [Unit Tests](UNIT_TESTS.md) - Testes unitários detalhados
 - 📖 [Smoke Tests](SMOKE_TESTS.md) - Smoke tests detalhados
-- 📖 [E2E Tests](E2E_TESTS.md) - Testes E2E detalhados
 - 📖 [Page Objects](PAGE_OBJECTS.md) - Referência dos Page Objects
+- 📖 [CLAUDE.md](../../CLAUDE.md) - Fluxos E2E, padrões, armadilhas
 
 ---
 

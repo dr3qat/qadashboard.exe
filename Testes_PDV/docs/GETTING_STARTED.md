@@ -247,11 +247,12 @@ DEFAULT_WAIT = 15  # Aumentar de 10 para 15
 
 Agora que você já executou seus primeiros testes, explore:
 
-1. **[Arquitetura](ARCHITECTURE.md)** - Entenda como o projeto está organizado
+1. **[Arquitetura](../../detalhes/ARQUITETURA_COMPLETA.md)** - Entenda como o projeto está organizado
 2. **[Testes Unitários](UNIT_TESTS.md)** - Aprenda a criar testes unitários
 3. **[Smoke Tests](SMOKE_TESTS.md)** - Entenda os smoke tests
-4. **[Testes E2E](E2E_TESTS.md)** - Guia completo dos testes E2E
+4. **[Testes E2E](TESTS.md)** - Estratégia e listagem dos testes E2E
 5. **[Page Objects](PAGE_OBJECTS.md)** - Referência dos Page Objects
+6. **[CLAUDE.md](../../CLAUDE.md)** - Fluxos críticos, padrões e armadilhas
 
 ---
 
