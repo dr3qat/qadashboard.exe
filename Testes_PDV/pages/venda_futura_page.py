@@ -24,8 +24,11 @@ class VendaFuturaPage(BasePage):
     BTN_AVANCAR = "btn_proceed"
     TXT_PAGAMENTO_TITULO = "txt_payment_title"
     TXT_OPCAO_TITULO = "txt_option_title"
+    TXT_CAMPO_PAGAMENTO = "textView170"         # valor a pagar (mostra R$ 0 quando sem forma)
     IMG_PAGAMENTOS = "imageView19"
     BTN_PAGAR = "btn_pagar"
+    TXT_VALOR_PAGO = "txt_checkout_total_pay3"       # total pago
+    TXT_TOTAL_VENDA = "txt_checkout_total_payments3" # total da venda
     BTN_FINALIZAR = "btnFinalizar"
     BTN_CONFIRMAR_VENDA = "btn_confirmar_venda"
     BTN_IMPRIMIR_NAO = "android:id/button2"
@@ -110,12 +113,10 @@ class VendaFuturaPage(BasePage):
 
         try:
             if count_depois >= 2:
-                # Ainda há 2 elementos: clica no segundo (Plano de Venda)
                 log_tecnico("   [INFO] 2 elementos 'A VISTA' visíveis. Clicando no 2º (Plano de Venda)...", "info")
                 self.clicar_no_enesimo_texto("A VISTA", indice=1, tempo_espera=3)
                 log_tecnico("   [OK] Plano de Venda A VISTA selecionado (2º elemento)", "info")
             elif count_depois == 1:
-                # Dropdown fechou, só há 1 elemento: clica nele (Plano de Venda)
                 log_tecnico("   [INFO] 1 elemento 'A VISTA' visível. Clicando nele (Plano de Venda)...", "info")
                 self.clicar_no_enesimo_texto("A VISTA", indice=0, tempo_espera=3)
                 log_tecnico("   [OK] Plano de Venda A VISTA selecionado (único elemento)", "info")
@@ -153,16 +154,27 @@ class VendaFuturaPage(BasePage):
             log_tecnico("   [INFO] Nenhum popup de bônus", "info")
 
     def selecionar_forma_dinheiro(self):
-        """Seleciona forma de pagamento DINHEIRO."""
+        """Seleciona forma de pagamento DINHEIRO.
+        Scroll nativo até textView170 (campo pagamento = R$ 0) para garantir que
+        imageView19 esteja visível, independente do estado do scroll da tela.
+        """
+        self.scroll_nativo_ate_id(self.TXT_CAMPO_PAGAMENTO)
         self.clicar_por_id(self.IMG_PAGAMENTOS)
         self.clicar_por_texto("DINHEIRO")
         self.clicar_por_id(self.BTN_PAGAR)
 
     def finalizar_venda(self):
-        """Finaliza a venda."""
-        log_acao(f"{SimbolosASCII.SCROLL} Rolando até botão Finalizar")
-        self.rolar_ate_id(self.BTN_FINALIZAR)
-        self.clicar_por_id(self.BTN_FINALIZAR)
+        """Scroll até btnFinalizar. Valida pago == total antes de clicar."""
+        try:
+            pago = self.encontrar_por_id(self.TXT_VALOR_PAGO, tempo_espera=3).text
+            total = self.encontrar_por_id(self.TXT_TOTAL_VENDA, tempo_espera=3).text
+            log_tecnico(f"   [VALIDAR] Pago={pago} | Total={total}", "info")
+            if pago != total:
+                log_tecnico(f"   [AVISO] Pago != Total — forma de pagamento pode estar incompleta", "warning")
+        except Exception:
+            pass
+        log_acao(f"{SimbolosASCII.SCROLL} Localizando botão Finalizar")
+        self.ver_e_clicar(self.BTN_FINALIZAR)
 
     def responder_impressao(self, imprimir: bool = None):
         """

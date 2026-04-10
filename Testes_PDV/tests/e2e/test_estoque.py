@@ -148,8 +148,7 @@ Entao os detalhes do segundo produto sao exibidos corretamente
 
             assert resultado1['encontrado'], f"Produto {produto_1} não encontrado"
             assert resultado1['nome'], "Nome vazio"
-            if resultado1['preco'] != "N/A":
-                assert "R$" in resultado1['preco'], f"Preço inválido: {resultado1['preco']}"
+            assert "R$" in resultado1['preco'], f"Preço inválido: {resultado1['preco']}"
 
         # --- BUSCA 2 ---
         with allure.step(f"4. Buscar Produto 2: {produto_2}"):

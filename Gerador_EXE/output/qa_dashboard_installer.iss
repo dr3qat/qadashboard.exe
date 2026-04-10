@@ -3,7 +3,7 @@
 ; Gerado automaticamente por builder_pro.py em 2026_04_10
 
 #define MyAppName "QA Dashboard"
-#define MyAppVersion "2.0.107"
+#define MyAppVersion "2.0.108"
 #define MyAppPublisher "QA Team"
 #define MyAppExeName "QA_Dashboard.exe"
 #define MyAppDate "2026_04_10"
@@ -15,14 +15,14 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputDir=E:\PDV_AUTOMACAO\Gerador_EXE\output\installer
+OutputDir=D:\PDV_AUTOMACAO\Gerador_EXE\output\installer
 OutputBaseFilename=Instalador_QA_Dashboard_{#MyAppDate}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 DisableProgramGroupPage=yes
 PrivilegesRequired=admin
-SetupIconFile=E:\PDV_AUTOMACAO\Gerador_EXE\assets\icon.ico
+SetupIconFile=D:\PDV_AUTOMACAO\Gerador_EXE\assets\icon.ico
 
 [Languages]
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
@@ -33,22 +33,22 @@ Name: "desktopicon"; Description: "Criar icone na Area de Trabalho"; GroupDescri
 
 [Files]
 ; Executável
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\dist\QA_Dashboard.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\dist\QA_Dashboard.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; Configuração
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\settings.json"; DestDir: "{app}"; Flags: ignoreversion onlyifdoesntexist
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\test_order_e2e.json"; DestDir: "{app}"; Flags: ignoreversion onlyifdoesntexist
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\settings.json"; DestDir: "{app}"; Flags: ignoreversion onlyifdoesntexist
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\test_order_e2e.json"; DestDir: "{app}"; Flags: ignoreversion onlyifdoesntexist
 ; Core files
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\config.py"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\conftest.py"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\framework.py"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\test_data.py"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\requirements.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\config.py"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\conftest.py"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\framework.py"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\test_data.py"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\requirements.txt"; DestDir: "{app}"; Flags: ignoreversion
 ; Pastas
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\pages\*"; DestDir: "{app}\pages"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\tests\*"; DestDir: "{app}\tests"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\pages\*"; DestDir: "{app}\pages"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\tests\*"; DestDir: "{app}\tests"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Scripts de Instalação
-Source: "E:\PDV_AUTOMACAO\Gerador_EXE\output\staging\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\PDV_AUTOMACAO\Gerador_EXE\output\staging\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\icon.ico"

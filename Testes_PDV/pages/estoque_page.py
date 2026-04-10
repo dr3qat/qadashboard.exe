@@ -188,10 +188,10 @@ class EstoquePage(BasePage):
 
     # --- Compatibilidade com Testes Antigos ---
     def obter_quantidade_estoque(self) -> str:
-        # Se achou o preço na tabela inferior, assume que tem estoque
+        # Produto na tela = detalhes exibidos = tabela presente
         try:
-            if self.driver.find_element("xpath", self.XPATH_PRECO_VALOR):
-                return "Disponível (Tabela)"
+            if self.elemento_existe(self.TXT_NOME_PRODUTO, 5):
+                return "Disponível"
         except: pass
         return ""
 
