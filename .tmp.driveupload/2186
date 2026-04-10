@@ -1,0 +1,358 @@
+"""
+Troca Page - Page Object para tela de troca/devolução.
+"""
+import time
+from datetime import datetime
+from pages.base_page import BasePage
+from config import logger, LogStyle, Cores
+from test_data import test_data
+
+
+class TrocaPage(BasePage):
+    """Page Object para tela de troca/devolução."""
+
+    # --- Locators ---
+    INPUT_DATA_INICIAL = "textInputLayout4"
+    BTN_CONSULTAR = "button9"
+    ITEM_LISTA_NOTAS = "textView100"
+    CHECKBOX_ITEM = "checkBox"
+    BTN_DEVOLVER = "button12"
+    MD_TITLE = "md_title"
+    BTN_DIALOGO_OK = "md_buttonDefaultPositive"
+
+    # Venda pós-troca (consumidor)
+    BTN_ADICIONAR_PRODUTOS = "btn_adicionar_produtos"
+    EDT_BUSCA_PRODUTO = "editText"
+    IMG_PRODUTO = "imageView3"
+    BTN_PROXIMO = "btn_proximo"
+    BTN_AVANCAR = "btn_proceed"
+    SWITCH_BONUS = "switch_bonus"
+    BTN_FINALIZAR = "btnFinalizar"
+    BTN_CONFIRMAR_VENDA = "btn_confirmar_venda"
+    BTN_IMPRIMIR_NAO = "android:id/button2"
+
+    # Busca cliente
+    EDT_BUSCA_CLIENTE = "search_src_text"
+    BTN_CONFIRMAR_CLIENTE = "button3"
+
+    # Popup de bonus
+    BTN_MAIS_TARDE = "btn_mais_tarde"
+    TXT_BONUS_DISPONIVEL = "BÔNUS DISPONÍVEL"
+
+    # --- Ações ---
+    def definir_data_inicial(self, data: str = None):
+        """Define data inicial para consulta."""
+        if data is None:
+            data = datetime.now().strftime('%d/%m/%Y')
+
+        logger.info(f"{LogStyle.ACAO} Definindo data inicial: {LogStyle.valor(data)}")
+
+        logger.info(f"{LogStyle.DEBUG} Procurando campo de período rolando para baixo...")
+        self.ver_e_clicar(self.INPUT_DATA_INICIAL)
+        xpath = f"//*[@resource-id='{self.app_package}:id/{self.INPUT_DATA_INICIAL}']//android.widget.EditText"
+        self.digitar_por_xpath(xpath, data)
+
+    def clicar_consultar(self):
+        """Clica no botão consultar."""
+        # Garante que o teclado esteja fechado antes de rolar
+        # (emuladores/flavor playstore mantém o teclado aberto após digitar a data)
+        self.fechar_teclado()
+        logger.info(f"{LogStyle.DEBUG} Procurando botão Consultar rolando para baixo...")
+        self.ver_e_clicar(self.BTN_CONSULTAR)
+
+        # CRUCIAL: Aguarda lista de notas carregar completamente do servidor
+        logger.info(f"{LogStyle.DEBUG} Aguardando lista de notas carregar do servidor...")
+        self.encontrar_por_id(self.ITEM_LISTA_NOTAS, tempo_espera=10)  # Aguarda servidor retornar lista
+        logger.info(f"{LogStyle.OK} Lista de notas carregada")
+
+    def selecionar_primeira_nota(self):
+        """
+        Seleciona primeira nota da lista (mais recente).
+
+        IMPORTANTE: A primeira nota é SEMPRE a mais recente (ordem decrescente por data).
+        """
+        logger.info(f"{LogStyle.ACAO} Selecionando primeira nota da lista (mais recente)...")
+
+        # Aguarda lista estar completamente carregada e visível
+        time.sleep(2)
+
+        # Clica na PRIMEIRA nota (índice 0 = mais recente)
+        logger.info(f"{LogStyle.DEBUG} Clicando no PRIMEIRO item da lista (índice 0 = mais recente)...")
+        self.clicar_no_primeiro_da_lista_por_id(self.ITEM_LISTA_NOTAS)
+
+        logger.info(f"{LogStyle.OK} Primeira nota selecionada (deve ser a venda mais recente)")
+        time.sleep(1)  # Aguarda tela de detalhes carregar
+
+    def selecionar_cliente(self, identificador: str):
+        """Seleciona cliente pelo identificador."""
+        logger.info(f"{LogStyle.ACAO} Selecionando cliente: {LogStyle.valor(identificador)}")
+        self.digitar_por_id(self.EDT_BUSCA_CLIENTE, identificador)
+        self.pressionar_pesquisar()
+        self.clicar_por_id(self.BTN_CONFIRMAR_CLIENTE)
+
+    def marcar_item_para_devolucao(self):
+        """Marca item para devolução. Checkbox está no início da tela."""
+        logger.info(f"{LogStyle.ACAO} Marcando item para devolução...")
+        time.sleep(2)  # Aguarda tela carregar completamente
+        self.clicar_por_id(self.CHECKBOX_ITEM)
+
+    def clicar_devolver_itens(self):
+        """Clica em devolver itens."""
+        self.clicar_por_id(self.BTN_DEVOLVER)
+
+    def confirmar_dialogos(self):
+        """
+        Confirma diálogos de atenção e confirmação.
+
+        Fluxo:
+        1. Popup de ATENÇÃO (opcional) - espera 5s
+        2. Popup de CONFIRMAÇÃO (opcional) - espera apenas 3s (não é o popup "Sucesso!")
+
+        IMPORTANTE: O popup "Sucesso!" usa o mesmo ID (md_buttonDefaultPositive),
+        então usamos timeout curto para não clicar nele por engano.
+        """
+        # Popup de atenção (opcional) - espera 5 segundos como no legado
+        self.clicar_se_existir(self.BTN_DIALOGO_OK, tempo_espera=5)
+
+        # Popup de confirmação (opcional) - espera APENAS 3s para não clicar no popup "Sucesso!" por engano
+        # Se não aparecer em 3s, assume que já foi processado ou que o próximo popup é o "Sucesso!"
+        if self.clicar_se_existir(self.BTN_DIALOGO_OK, tempo_espera=3):
+            logger.info(f"{LogStyle.OK} Segundo diálogo confirmado")
+        else:
+            logger.info(f"{LogStyle.DEBUG} Segundo diálogo não apareceu (aguardando popup 'Sucesso!' ...)")
+
+    def validar_sucesso_troca(self):
+        """
+        Valida popup 'Sucesso!' da troca aguardando até o texto aparecer.
+
+        IMPORTANTE: Faz polling até o texto "Sucesso!" aparecer (pode estar como "Aguarde" antes).
+        Após validar, clica no botão OK para fechar.
+        """
+        logger.info(f"{LogStyle.VALIDAR} Aguardando popup {LogStyle.elemento('Sucesso!')} da troca...")
+
+        # Faz polling até o texto "Sucesso!" aparecer (timeout 30s)
+        # Ignora outros textos como "Aguarde" que podem aparecer antes
+        timeout = 30
+        tempo_inicio = time.time()
+        texto_encontrado = False
+
+        while time.time() - tempo_inicio < timeout:
+            try:
+                # Verifica se o texto "Sucesso!" está presente na tela
+                if self.texto_exibido("Sucesso!", tempo_espera=2):
+                    texto_encontrado = True
+                    break
+            except:
+                pass
+            time.sleep(1)  # Aguarda 1 segundo antes de tentar novamente
+
+        if not texto_encontrado:
+            raise TimeoutError(f"Timeout: Texto 'Sucesso!' não apareceu após {timeout} segundos")
+
+        logger.info(f"{LogStyle.OK} Popup 'Sucesso!' detectado!")
+
+        # Clica no botão OK para fechar
+        logger.info(f"{LogStyle.CLICK} Clicando em 'OK' ({LogStyle.elemento('md_buttonDefaultPositive')}) para confirmar...")
+        self.clicar_por_id(self.BTN_DIALOGO_OK)
+
+        # Aguarda transição de tela (2s) - NÃO tenta validar ou screenshot neste momento
+        time.sleep(2)
+        logger.info(f"{LogStyle.OK} Troca confirmada com sucesso!")
+
+    def adicionar_produto(self, codigo: str = "123"):
+        """Adiciona produto pelo código."""
+        logger.info(f"{LogStyle.ACAO} Adicionando produto: {LogStyle.valor(codigo)}")
+        self.clicar_por_id(self.BTN_ADICIONAR_PRODUTOS)
+        time.sleep(0.5)  # Aguarda campo de busca aparecer
+        self.digitar_por_id(self.EDT_BUSCA_PRODUTO, codigo)
+        self.clicar_por_id(self.IMG_PRODUTO)
+        logger.info(f"{LogStyle.OK} Produto {LogStyle.valor(codigo)} adicionado")
+
+    def clicar_avancar(self):
+        """
+        Clica no botão avançar com espera robusta.
+
+        Equivalente a: clicar_por_id_com_espera(driver, "btn_proximo")
+        """
+        logger.info(f"{LogStyle.ACAO} Clicando em {LogStyle.elemento('Avançar')}...")
+        # Encontra e aguarda elemento estar pronto
+        elemento = self.encontrar_clicavel_por_id(self.BTN_PROXIMO, tempo_espera=10)
+        # Sleep para evitar clique fantasma
+        time.sleep(1.5)
+        elemento.click()
+        logger.info(f"{LogStyle.OK} Clique em 'Avançar' executado")
+
+    def selecionar_pagamento_bonus(self):
+        """
+        Seleciona pagamento via bônus da troca.
+
+        Equivalente a legado linhas 80-81.
+        """
+        logger.info(f"{LogStyle.ACAO} Selecionando pagamento: {LogStyle.valor('BÔNUS')}")
+
+        # Verifica se switch existe e está visível
+        logger.info(f"{LogStyle.DEBUG} Verificando se switch de bônus está disponível...")
+        if not self.elemento_existe(self.SWITCH_BONUS, tempo_espera=5):
+            logger.error(f"{LogStyle.ERRO} Switch de bônus NÃO encontrado! Bônus pode não estar disponível.")
+            raise Exception("Switch de bônus não encontrado - bônus pode já ter sido usado ou não estar disponível")
+
+        # Ativa switch de bônus
+        logger.info(f"{LogStyle.CLICK} Ativando switch de bônus...")
+        self.clicar_por_id(self.SWITCH_BONUS)
+        time.sleep(0.5)  # Aguarda UI recalcular após toggle do switch
+
+        logger.info(f"{LogStyle.OK} Switch de bônus ativado com sucesso")
+
+        # Avança para finalização
+        logger.info(f"{LogStyle.CLICK} Avançando para finalização...")
+        self.clicar_por_id(self.BTN_AVANCAR)
+
+    def tratar_popup_bonus(self):
+        """Trata popup de BÔNUS DISPONÍVEL se aparecer."""
+        if self.texto_exibido(self.TXT_BONUS_DISPONIVEL, tempo_espera=3):
+            logger.info(f"{LogStyle.ACAO} Popup {LogStyle.elemento('BÔNUS DISPONÍVEL')} detectado. Clicando em 'Mais tarde'...")
+            self.clicar_por_id(self.BTN_MAIS_TARDE)
+            time.sleep(1)
+
+    def finalizar_venda(self):
+        """
+        Finaliza a venda pós-troca.
+
+        Legado linha 82-83: scroll_ate_encontrar_texto + clicar
+        """
+        logger.info(f"{LogStyle.ACAO} Finalizando venda...")
+        # Scroll até encontrar "Finalizar" (como no legado)
+        logger.info(f"{LogStyle.DEBUG} Rolando até encontrar botão 'Finalizar'...")
+        self.rolar_ate_texto("Finalizar", max_scrolls=5)
+        # Clica no botão Finalizar
+        logger.info(f"{LogStyle.CLICK} Clicando em 'Finalizar'...")
+        self.clicar_por_id(self.BTN_FINALIZAR)
+        logger.info(f"{LogStyle.OK} Botão 'Finalizar' clicado")
+
+    def responder_impressao_nao(self):
+        """Responde NÃO ao diálogo de impressão."""
+        logger.info(f"{LogStyle.ACAO} Respondendo impressão: {LogStyle.valor('NÃO')}")
+        self.clicar_se_existir(self.BTN_IMPRIMIR_NAO, tempo_espera=20)
+        time.sleep(2)
+
+    def concluir_venda(self):
+        """Clica em concluir venda após sucesso."""
+        logger.info(f"{LogStyle.ACAO} Concluindo venda...")
+        self.ver_e_clicar(self.BTN_CONFIRMAR_VENDA)
+
+    def voltar_com_confirmacao(self):
+        """
+        Volta para tela anterior e confirma se aparecer popup.
+
+        Equivalente a: voltar_tela(driver, confirmar=True)
+        """
+        logger.info(f"{LogStyle.ACAO} Pressionando botão voltar...")
+        self.voltar_tela()
+        # Pode aparecer popup de confirmação (SIM)
+        if self.clicar_texto_se_existir("SIM", tempo_espera=3):
+            logger.info(f"{LogStyle.OK} Confirmação aceita")
+        logger.info(f"{LogStyle.OK} Voltou para tela inicial")
+
+    def executar_troca(self, data: str = None):
+        """
+        Executa fluxo de troca para CLIENTE: apenas devolução (sem venda pós-troca).
+
+        Segue EXATAMENTE o legado trocaCliente.py linhas 67-70.
+        """
+        logger.info(f"{LogStyle.secao('📋 FLUXO - Troca Cliente')}")
+
+        self.definir_data_inicial(data)
+        self.clicar_consultar()
+        self.selecionar_primeira_nota()
+
+        # Linha 52: Cliente já está setado, popup pode ou não aparecer
+        self.clicar_texto_se_existir("SIM", tempo_espera=3)
+
+        self.marcar_item_para_devolucao()
+        self.clicar_devolver_itens()
+        self.confirmar_dialogos()
+
+        # Linha 67-68: Validar Sucesso e fechar pop-up final (OBRIGATÓRIO)
+        self.validar_sucesso_troca()
+
+        # Linha 70: Voltar para tela inicial (com confirmação se necessário)
+        logger.info(f"{LogStyle.ACAO} Voltando para tela inicial...")
+        self.voltar_com_confirmacao()
+
+        logger.info(f"{LogStyle.secao('📋 FLUXO - Troca Cliente executada ✅')}")
+
+    def executar_troca_consumidor(self, data: str = None, codigo_produto: str = "123"):
+        """
+        Executa fluxo de troca consumidor: devolução + venda pós-troca com bônus.
+
+        Segue EXATAMENTE o legado trocaConsumidor.py linhas 72-89.
+        """
+        logger.info(f"{LogStyle.secao('📋 FLUXO - Troca consumidor')}")
+
+        # === PARTE 1: DEVOLUÇÃO ===
+        self.definir_data_inicial(data)
+        self.clicar_consultar()
+        self.selecionar_primeira_nota()
+
+        # Se aparecer popup de SIM, precisa selecionar cliente
+        if self.clicar_texto_se_existir("SIM", tempo_espera=3):
+            self.selecionar_cliente(test_data.CUSTOMER_ID_TROCA)
+
+        self.marcar_item_para_devolucao()
+        self.clicar_devolver_itens()
+        self.confirmar_dialogos()
+
+        # Linha 72-73: Validar Sucesso e fechar pop-up final (OBRIGATÓRIO)
+        self.validar_sucesso_troca()
+
+        # === PARTE 2: VENDA PÓS-TROCA COM BÔNUS ===
+        # Linha 75: Adicionar produto
+        self.adicionar_produto(codigo_produto)
+
+        # Linha 76-78: Procurar e clicar no produto, avançar
+        self.clicar_avancar()
+
+        # Linha 79: Pausa estratégica (3s) - CRUCIAL!
+        time.sleep(3)
+
+        # Linha 80-81: Atalho de pagamento (switch_bonus) e avançar
+        self.selecionar_pagamento_bonus()
+
+        # Linha 82-83: Scroll até Finalizar e clicar
+        self.finalizar_venda()
+
+        # Linha 85-87: Responder impressão NÃO + sleep 2s
+        self.responder_impressao_nao()
+
+        # Linha 88-89: Validar sucesso da venda e fechar popup
+        logger.info(f"{LogStyle.VALIDAR} Aguardando popup {LogStyle.elemento('Venda realizada com sucesso!')} e depois Clicando em {LogStyle.elemento('md_buttonDefaultPositive')} e encerra o teste")
+        self.aguardar_texto("Venda realizada com sucesso!", tempo_espera=30)
+        logger.info(f"{LogStyle.OK} Popup 'Venda realizada com sucesso!' detectado!")
+
+        # Clica em OK para fechar popup e encerrar
+        logger.info(f"{LogStyle.CLICK} Clicando em 'OK' para concluir...")
+        self.ver_e_clicar(self.BTN_CONFIRMAR_VENDA)
+        time.sleep(2)
+
+        logger.info(f"{LogStyle.secao('📋 FLUXO - Troca consumidor + Venda Bônus concluída ✅')}")
+
+    # --- Validações ---
+    def sucesso_exibido(self, timeout: int = 10) -> bool:
+        """Verifica se mensagem de sucesso apareceu."""
+        return self.texto_exibido("Sucesso!", timeout)
+
+    def validar_e_fechar_sucesso(self):
+        """Valida sucesso da venda pós-troca e conclui."""
+        logger.info(f"{LogStyle.VALIDAR} Aguardando {LogStyle.elemento('Venda realizada com sucesso!')}")
+        self.aguardar_texto("Venda realizada com sucesso!")
+        self.concluir_venda()
+
+    def venda_sucesso_exibida(self, timeout: int = 10) -> bool:
+        """Verifica se mensagem de sucesso da venda apareceu."""
+        return self.texto_exibido("Venda realizada com sucesso!", timeout)
+
+    def validar_venda_e_concluir(self):
+        """Valida sucesso da venda e conclui."""
+        logger.info(f"{LogStyle.VALIDAR} Aguardando {LogStyle.elemento('Venda realizada com sucesso!')}")
+        self.aguardar_texto("Venda realizada com sucesso!")
+        self.concluir_venda()

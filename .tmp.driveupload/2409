@@ -1,0 +1,1471 @@
+17:27:43 [INFO] Environment Allure criado em: D:\PDV_AUTOMACAO\Testes_PDV\allure-results\environment.properties
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ORDEM DE EXECUCAO DOS TESTES:
+17:27:44 [INFO]   1. test_id_completo_com_package_existente_retorna_sem_modificacao
+17:27:44 [INFO]   2. test_id_completo_adiciona_package_quando_parcial
+17:27:44 [INFO]   3. test_id_completo_sem_package_retorna_id_original
+17:27:44 [INFO]   4. test_elemento_none_retorna_false
+17:27:44 [INFO]   5. test_elemento_nao_displayed_retorna_false
+17:27:44 [INFO]   6. test_elemento_nao_enabled_retorna_false
+17:27:44 [INFO]   7. test_elemento_tamanho_zero_retorna_false
+17:27:44 [INFO]   8. test_elemento_fora_tela_y_negativo_retorna_false
+17:27:44 [INFO]   9. test_elemento_fora_tela_y_maior_altura_retorna_false
+17:27:44 [INFO]   10. test_elemento_visivel_retorna_true
+17:27:44 [INFO]   11. test_elemento_stale_exception_retorna_false
+17:27:44 [INFO]   12. test_app_package_retorna_de_capabilities
+17:27:44 [INFO]   13. test_app_package_usa_cache
+17:27:44 [INFO]   14. test_clicar_se_existir_elemento_nao_encontrado_retorna_false
+17:27:44 [INFO]   15. test_clicar_se_existir_elemento_nao_visivel_retorna_false
+17:27:44 [INFO]   16. test_texto_exibido_retorna_true_quando_visivel
+17:27:44 [INFO]   17. test_texto_exibido_retorna_false_quando_excecao
+17:27:44 [INFO]   18. test_elemento_existe_retorna_true_quando_visivel
+17:27:44 [INFO]   19. test_elemento_existe_retorna_false_quando_excecao
+17:27:44 [INFO]   20. test_voltar_tela_chama_driver_back
+17:27:44 [INFO]   21. test_voltar_tela_com_erro_retorna_false
+17:27:44 [INFO]   22. test_fechar_teclado_quando_nao_visivel_retorna_true
+17:27:44 [INFO]   23. test_fechar_teclado_usando_hide_keyboard
+17:27:44 [INFO]   24. test_bonus_disponivel_retorna_true_quando_elemento_existe
+17:27:44 [INFO]   25. test_bonus_disponivel_retorna_false_quando_elemento_nao_existe
+17:27:44 [INFO]   26. test_obter_valor_bonus_retorna_texto_do_elemento
+17:27:44 [INFO]   27. test_obter_valor_bonus_retorna_na_quando_erro
+17:27:44 [INFO]   28. test_bonus_ativado_retorna_true_quando_checked_true
+17:27:44 [INFO]   29. test_bonus_ativado_retorna_false_quando_checked_false
+17:27:44 [INFO]   30. test_bonus_ativado_retorna_false_quando_erro
+17:27:44 [INFO]   31. test_ativar_bonus_clica_quando_desativado
+17:27:44 [INFO]   32. test_ativar_bonus_nao_clica_quando_ja_ativado
+17:27:44 [INFO]   33. test_obter_valor_final_retorna_texto_do_elemento
+17:27:44 [INFO]   34. test_obter_valor_final_retorna_na_quando_erro
+17:27:44 [INFO]   35. test_obter_desconto_bonus_retorna_texto_do_elemento
+17:27:44 [INFO]   36. test_obter_desconto_bonus_retorna_na_quando_erro
+17:27:44 [INFO]   37. test_bonus_foi_aplicado_retorna_true_quando_valor_zerado
+17:27:44 [INFO]   38. test_bonus_foi_aplicado_retorna_true_quando_desconto_visivel
+17:27:44 [INFO]   39. test_bonus_foi_aplicado_retorna_false_quando_nao_aplicado
+17:27:44 [INFO]   40. test_clicar_avancar_pagamento_clica_e_rola_ate_finalizar
+17:27:44 [INFO]   41. test_clicar_avancar_pagamento_tenta_confirmar_se_finalizar_falha
+17:27:44 [INFO]   42. test_adicionar_produto_usa_codigo_informado
+17:27:44 [INFO]   43. test_adicionar_produto_usa_codigo_padrao
+17:27:44 [INFO]   44. test_clicar_avancar_carrinho_encontra_e_clica
+17:27:44 [INFO]   45. test_buscar_cliente_por_cpf_executa_fluxo_completo
+17:27:44 [INFO]   46. test_responder_impressao_sim
+17:27:44 [INFO]   47. test_responder_impressao_nao
+17:27:44 [INFO]   48. test_cashback_disponivel_retorna_true_quando_elemento_existe
+17:27:44 [INFO]   49. test_cashback_disponivel_retorna_false_quando_elemento_nao_existe
+17:27:44 [INFO]   50. test_obter_valor_cashback_retorna_texto_quando_encontrado
+17:27:44 [INFO]   51. test_obter_valor_cashback_lanca_erro_quando_icone_nao_existe
+17:27:44 [INFO]   52. test_obter_valor_cashback_lanca_erro_quando_valor_vazio
+17:27:44 [INFO]   53. test_tela_pagamento_exibida_retorna_true
+17:27:44 [INFO]   54. test_venda_sucesso_exibida_retorna_true_com_mensagem_completa
+17:27:44 [INFO]   55. test_venda_sucesso_exibida_retorna_true_com_mensagem_parcial
+17:27:44 [INFO]   56. test_concluir_venda_clica_em_confirmar_venda
+17:27:44 [INFO]   57. test_concluir_venda_clica_em_finalizar_se_confirmar_falha
+17:27:44 [INFO]   58. test_dispositivo_unico_conectado_retorna_udid
+17:27:44 [INFO]   59. test_multiplos_dispositivos_retorna_primeiro
+17:27:44 [INFO]   60. test_nenhum_dispositivo_levanta_erro
+17:27:44 [INFO]   61. test_dispositivo_offline_ignorado
+17:27:44 [INFO]   62. test_adb_nao_encontrado_levanta_erro
+17:27:44 [INFO]   63. test_retorna_lista_de_dispositivos
+17:27:44 [INFO]   64. test_retorna_lista_vazia_sem_dispositivos
+17:27:44 [INFO]   65. test_retorna_lista_vazia_em_caso_de_erro
+17:27:44 [INFO]   66. test_encontra_app_conhecido
+17:27:44 [INFO]   67. test_nenhum_app_encontrado_levanta_erro
+17:27:44 [INFO]   68. test_timeout_levanta_erro
+17:27:44 [INFO]   69. test_opcoes_basicas
+17:27:44 [INFO]   70. test_opcoes_com_device_id
+17:27:44 [INFO]   71. test_no_reset_padrao_true
+17:27:44 [INFO]   72. test_limpar_dados_app
+17:27:44 [INFO]   73. test_porta_dentro_do_range
+17:27:44 [INFO]   74. test_mesma_porta_para_mesmo_device
+17:27:44 [INFO]   75. test_portas_diferentes_para_devices_diferentes
+17:27:44 [INFO]   76. test_log_style_constantes_existem
+17:27:44 [INFO]   77. test_log_style_elemento_formata_nome
+17:27:44 [INFO]   78. test_log_style_valor_formata_texto
+17:27:44 [INFO]   79. test_default_wait_definido
+17:27:44 [INFO]   80. test_retry_attempts_definido
+17:27:44 [INFO]   81. test_appium_server_url_definido
+17:27:44 [INFO]   82. test_diretorios_existem
+17:27:44 [INFO]   83. test_cores_ansi_definidas
+17:27:44 [INFO]   84. test_cores_contem_escape_ansi
+17:27:44 [INFO]   85. test_abrir_menu_lateral_sucesso
+17:27:44 [INFO]   86. test_selecionar_ultimo_pedido_scroll_e_clica_maior_numero
+17:27:44 [INFO]   87. test_selecionar_ultimo_pedido_sem_elementos_retorna_false
+17:27:44 [INFO]   88. test_responder_cupom_venda_clica_sim_quando_configurado
+17:27:44 [INFO]   89. test_responder_cupom_venda_clica_nao_quando_nao_configurado
+17:27:44 [INFO]   90. test_responder_cupom_troca_dialogo_clica_sim_quando_configurado
+17:27:44 [INFO]   91. test_responder_cupom_troca_dialogo_ignora_quando_nao_aparece
+17:27:44 [INFO]   92. test_tratar_popup_bonus_clica_quando_existe
+17:27:44 [INFO]   93. test_venda_sucesso_exibida_retorna_true
+17:27:44 [INFO]   94. test_executar_consulta_e_finalizar_pedido_chama_metodos_na_ordem
+17:27:44 [INFO]   95. test_validar_sucesso_e_concluir_processa_impressoes_e_conclui
+17:27:44 [INFO]   96. test_validar_sucesso_e_concluir_lanca_excecao_quando_sucesso_nao_aparece
+17:27:44 [INFO]   97. test_clicar_menu_documentos_sucesso
+17:27:44 [INFO]   98. test_rolar_até_encontrar_texto_sucesso
+17:27:44 [INFO]   99. test_preencher_data_inicial_com_data_atual
+17:27:44 [INFO]   100. test_preencher_data_final_com_data_atual
+17:27:44 [INFO]   101. test_clicar_botão_consultar_sucesso
+17:27:44 [INFO]   102. test_verificar_que_os_documentos_clica_primeiro_da_lista
+17:27:44 [INFO]   103. test_clicar_detalhes_documento_sucesso
+17:27:44 [INFO]   104. test_verificar_que_os_detalhes_sucesso
+17:27:44 [INFO]   105. test_validar_dados_tela_detalhes_retorna_true_quando_visivel
+17:27:44 [INFO]   106. test_voltar_tela_documentos_chama_voltar_tela
+17:27:44 [INFO]   107. test_executar_documentos_chama_metodos_na_ordem
+17:27:44 [INFO]   108. test_dados_tela_detalhes_exibida_retorna_true_quando_visivel
+17:27:44 [INFO]   109. test_dados_tela_detalhes_exibida_retorna_false_quando_nao_visivel
+17:27:44 [INFO]   110. test_acessar_estoque_clica_estoque
+17:27:44 [INFO]   111. test_acessar_estoque_lanca_excecao_quando_nao_encontrado
+17:27:44 [INFO]   112. test_buscar_produto_por_codigo
+17:27:44 [INFO]   113. test_buscar_produto_por_codigo_fallback
+17:27:44 [INFO]   114. test_buscar_produto_por_nome
+17:27:44 [INFO]   115. test_obter_quantidade_estoque
+17:27:44 [INFO]   116. test_obter_quantidade_estoque_retorna_vazio_quando_erro
+17:27:44 [INFO]   117. test_obter_nome_produto
+17:27:44 [INFO]   118. test_obter_preco_produto
+17:27:44 [INFO]   119. test_obter_lista_produtos
+17:27:44 [INFO]   120. test_obter_lista_produtos_retorna_lista_vazia_quando_erro
+17:27:44 [INFO]   121. test_produto_encontrado_quando_nome_produto_existe
+17:27:44 [INFO]   122. test_produto_encontrado_retorna_false_quando_mensagem_nao_encontrado
+17:27:44 [INFO]   123. test_mensagem_nao_encontrado_exibida
+17:27:44 [INFO]   124. test_executar_consulta_estoque_produto_encontrado
+17:27:44 [INFO]   125. test_executar_consulta_estoque_produto_nao_encontrado
+17:27:44 [INFO]   126. test_iniciar_venda_quando_iniciar_venda_visivel
+17:27:44 [INFO]   127. test_iniciar_venda_quando_venda_visivel
+17:27:44 [INFO]   128. test_iniciar_venda_usa_scroll_quando_nao_encontra
+17:27:44 [INFO]   129. test_iniciar_venda_lanca_excecao_quando_nenhum_botao_encontrado
+17:27:44 [INFO]   130. test_iniciar_troca_rola_e_clica
+17:27:44 [INFO]   131. test_selecionar_vendedor_tela_full_screen
+17:27:44 [INFO]   132. test_selecionar_vendedor_dialogo_popup
+17:27:44 [INFO]   133. test_selecionar_vendedor_nenhuma_tela_detectada
+17:27:44 [INFO]   134. test_tela_inicial_exibida_quando_iniciar_venda_visivel
+17:27:44 [INFO]   135. test_tela_inicial_exibida_quando_venda_visivel
+17:27:44 [INFO]   136. test_tela_inicial_exibida_retorna_false_quando_nenhum
+17:27:44 [INFO]   137. test_todos_locators_existem_no_app
+17:27:44 [INFO]   138. test_locators_nao_estao_vazios
+17:27:44 [INFO]   139. test_todos_locators_existem_no_app
+17:27:44 [INFO]   140. test_todos_locators_existem_no_app
+17:27:44 [INFO]   141. test_todos_locators_existem_no_app
+17:27:44 [INFO]   142. test_todos_locators_existem_no_app
+17:27:44 [INFO]   143. test_todos_locators_existem_no_app
+17:27:44 [INFO]   144. test_todos_locators_existem_no_app
+17:27:44 [INFO]   145. test_todos_locators_existem_no_app
+17:27:44 [INFO]   146. test_ids_compartilhados_sao_iguais
+17:27:44 [INFO]   147. test_nenhum_locator_id_tem_espacos
+17:27:44 [INFO]   148. test_configurar_conexao_quando_botao_existe_retorna_true
+17:27:44 [INFO]   149. test_configurar_conexao_quando_botao_nao_existe_retorna_false
+17:27:44 [INFO]   150. test_garantir_login_quando_ja_logado_retorna_true_imediatamente
+17:27:44 [INFO]   151. test_garantir_login_quando_nao_logado_executa_fluxo_completo
+17:27:44 [INFO]   152. test_esta_logado_retorna_true_quando_iniciar_venda_visivel
+17:27:44 [INFO]   153. test_esta_logado_retorna_true_quando_venda_visivel
+17:27:44 [INFO]   154. test_esta_logado_retorna_false_quando_nenhum_texto_visivel
+17:27:44 [INFO]   155. test_pular_telas_introducao_clica_nos_botoes_se_existirem
+17:27:44 [INFO]   156. test_preencher_credenciais_digita_todos_os_campos
+17:27:44 [INFO]   157. test_clicar_entrar_clica_no_botao_entrar
+17:27:44 [INFO]   158. test_selecionar_cliente_digita_busca_e_confirma
+17:27:44 [INFO]   159. test_iniciar_como_consumidor_rola_e_clica
+17:27:44 [INFO]   160. test_adicionar_produto_clica_digita_e_seleciona
+17:27:44 [INFO]   161. test_adicionar_produto_usa_ver_e_clicar_para_scroll_automatico
+17:27:44 [INFO]   162. test_tratar_popup_bonus_clica_quando_visivel
+17:27:44 [INFO]   163. test_tratar_popup_bonus_ignora_quando_nao_visivel
+17:27:44 [INFO]   164. test_selecionar_pagamento_dinheiro_rola_clica_e_avanca
+17:27:44 [INFO]   165. test_selecionar_pagamento_dinheiro_sem_cliente_nao_verifica_cashback
+17:27:44 [INFO]   166. test_finalizar_pedido_trata_bonus_e_finaliza
+17:27:44 [INFO]   167. test_pedido_sucesso_exibido_retorna_true
+17:27:44 [INFO]   168. test_pedido_sucesso_exibido_retorna_false
+17:27:44 [INFO]   169. test_executar_pedido_venda_consumidor_chama_metodos_na_ordem
+17:27:44 [INFO]   170. test_executar_pedido_venda_cliente_chama_metodos_na_ordem
+17:27:44 [INFO]   171. test_executar_pedido_venda_usa_valores_padrao
+17:27:44 [INFO]   172. test_definir_data_inicial_com_data_fornecida
+17:27:44 [INFO]   173. test_definir_data_inicial_usa_data_atual_quando_nao_fornecida
+17:27:44 [INFO]   174. test_clicar_consultar_fecha_teclado_rola_e_aguarda_lista
+17:27:44 [INFO]   175. test_selecionar_primeira_nota_clica_no_primeiro_item
+17:27:44 [INFO]   176. test_selecionar_cliente_digita_pesquisa_e_confirma
+17:27:44 [INFO]   177. test_marcar_item_para_devolucao_clica_no_checkbox
+17:27:44 [INFO]   178. test_confirmar_dialogos_clica_nos_popups
+17:27:44 [INFO]   179. test_tratar_popup_bonus_clica_quando_visivel
+17:27:44 [INFO]   180. test_tratar_popup_bonus_ignora_quando_nao_visivel
+17:27:44 [INFO]   181. test_selecionar_pagamento_bonus_ativa_switch_e_avanca
+17:27:44 [INFO]   182. test_sucesso_exibido_retorna_true
+17:27:44 [INFO]   183. test_venda_sucesso_exibida_retorna_true
+17:27:44 [INFO]   184. test_validar_e_fechar_sucesso
+17:27:44 [INFO]   185. test_executar_troca_chama_metodos_na_ordem
+17:27:44 [INFO]   186. test_executar_troca_usa_data_padrao
+17:27:44 [INFO]   187. test_executar_troca_consumidor_fluxo_completo
+17:27:44 [INFO]   188. test_executar_troca_consumidor_seleciona_cliente_quando_popup_sim
+17:27:44 [INFO]   189. test_navegar_para_vale_presente_clica_por_texto
+17:27:44 [INFO]   190. test_selecionar_vendedor_clica_por_id
+17:27:44 [INFO]   191. test_obter_dados_resumo_retorna_dict_com_dados
+17:27:44 [INFO]   192. test_obter_dados_resumo_lanca_erro_quando_campo_vazio
+17:27:44 [INFO]   193. test_clicar_finalizar_clica_por_id
+17:27:44 [INFO]   194. test_selecionar_pagamento_dinheiro_clica_por_texto
+17:27:44 [INFO]   195. test_clicar_avancar_pagamento_clica_por_id
+17:27:44 [INFO]   196. test_finalizar_pagamento_aguarda_e_clica
+17:27:44 [INFO]   197. test_responder_impressao_sim_quando_imprimir_true
+17:27:44 [INFO]   198. test_responder_impressao_nao_quando_imprimir_false
+17:27:44 [INFO]   199. test_concluir_venda_clica_por_id
+17:27:44 [INFO]   200. test_venda_sucesso_exibida_retorna_true_quando_texto_visivel
+17:27:44 [INFO]   201. test_venda_sucesso_exibida_retorna_false_quando_texto_nao_visivel
+17:27:44 [INFO]   202. test_tratar_alerta_cashback_clica_ok_quando_visivel
+17:27:44 [INFO]   203. test_tratar_alerta_cashback_ignora_quando_nao_visivel
+17:27:44 [INFO]   204. test_executar_fluxo_completo_executa_todas_acoes
+17:27:44 [INFO]   205. test_selecionar_retirada_loja_clica_sem_scroll
+17:27:44 [INFO]   206. test_selecionar_entrega_domicilio_clica_e_avanca_frete
+17:27:44 [INFO]   207. test_buscar_cliente_cpf_clica_digita_e_confirma
+17:27:44 [INFO]   208. test_buscar_cliente_cpf_usa_valor_padrao
+17:27:44 [INFO]   209. test_adicionar_produto_com_tamanho
+17:27:44 [INFO]   210. test_selecionar_pagamento_avista_seleciona_movimento_e_plano
+17:27:44 [INFO]   211. test_selecionar_pagamento_avista_scroll_quando_nao_encontra
+17:27:44 [INFO]   212. test_tratar_alerta_cashback_clica_ok_quando_visivel
+17:27:44 [INFO]   213. test_tratar_alerta_cashback_ignora_quando_nao_visivel
+17:27:44 [INFO]   214. test_tratar_popup_bonus_clica_quando_existe
+17:27:44 [INFO]   215. test_tratar_popup_bonus_ignora_quando_nao_existe
+17:27:44 [INFO]   216. test_selecionar_forma_dinheiro_clica_sem_scroll
+17:27:44 [INFO]   217. test_venda_sucesso_exibida_retorna_true
+17:27:44 [INFO]   218. test_validar_sucesso_e_concluir
+17:27:44 [INFO]   219. test_executar_venda_futura_chama_metodos_na_ordem
+17:27:44 [INFO]   220. test_executar_venda_futura_domicilio_chama_metodos_na_ordem
+17:27:44 [INFO]   221. test_executar_venda_futura_domicilio_usa_valores_padrao
+17:27:44 [INFO]   222. test_clicar_buscar_cliente_versao_l400_stone
+17:27:44 [INFO]   223. test_clicar_buscar_cliente_versao_playstore
+17:27:44 [INFO]   224. test_iniciar_venda_sem_cliente_versao_l400_stone
+17:27:44 [INFO]   225. test_iniciar_venda_sem_cliente_versao_playstore
+17:27:44 [INFO]   226. test_selecionar_cliente_digita_pesquisa_e_confirma
+17:27:44 [INFO]   227. test_adicionar_produto_clica_digita_e_seleciona
+17:27:44 [INFO]   228. test_tratar_popup_bonus_clica_quando_visivel
+17:27:44 [INFO]   229. test_tratar_popup_bonus_ignora_quando_nao_visivel
+17:27:44 [INFO]   230. test_responder_impressao_sim
+17:27:44 [INFO]   231. test_responder_impressao_nao
+17:27:44 [INFO]   232. test_venda_sucesso_exibida_retorna_true
+17:27:44 [INFO]   233. test_validar_sucesso_e_concluir
+17:27:44 [INFO]   234. test_executar_venda_cliente_chama_metodos_na_ordem
+17:27:44 [INFO]   235. test_executar_venda_consumidor_chama_metodos_na_ordem
+17:27:44 [INFO]   236. test_executar_venda_consumidor_usa_codigo_padrao
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ============================================================
+17:27:44 [INFO]         INICIANDO TESTES - Modo Visual
+17:27:44 [INFO] ============================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_id_completo_com_package_existente_retorna_sem_modificacao [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_id_completo_adiciona_package_quando_parcial [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_id_completo_sem_package_retorna_id_original [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_none_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_nao_displayed_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_nao_enabled_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_tamanho_zero_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_fora_tela_y_negativo_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_fora_tela_y_maior_altura_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_visivel_retorna_true [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_stale_exception_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_app_package_retorna_de_capabilities [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_app_package_usa_cache [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_clicar_se_existir_elemento_nao_encontrado_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_clicar_se_existir_elemento_nao_visivel_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_texto_exibido_retorna_true_quando_visivel [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_texto_exibido_retorna_false_quando_excecao [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_existe_retorna_true_quando_visivel [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_elemento_existe_retorna_false_quando_excecao [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO]   -> Voltando para tela anterior
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_voltar_tela_chama_driver_back [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO]   -> Voltando para tela anterior
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_voltar_tela_com_erro_retorna_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_fechar_teclado_quando_nao_visivel_retorna_true [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_fechar_teclado_usando_hide_keyboard [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_disponivel_retorna_true_quando_elemento_existe [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_disponivel_retorna_false_quando_elemento_nao_existe [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_bonus_retorna_texto_do_elemento [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_bonus_retorna_na_quando_erro [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_ativado_retorna_true_quando_checked_true [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_ativado_retorna_false_quando_checked_false [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_ativado_retorna_false_quando_erro [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_ativar_bonus_clica_quando_desativado [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_ativar_bonus_nao_clica_quando_ja_ativado [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_final_retorna_texto_do_elemento [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_final_retorna_na_quando_erro [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_desconto_bonus_retorna_texto_do_elemento [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_desconto_bonus_retorna_na_quando_erro [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_foi_aplicado_retorna_true_quando_valor_zerado [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_foi_aplicado_retorna_true_quando_desconto_visivel [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_bonus_foi_aplicado_retorna_false_quando_nao_aplicado [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_clicar_avancar_pagamento_clica_e_rola_ate_finalizar [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_clicar_avancar_pagamento_tenta_confirmar_se_finalizar_falha [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_adicionar_produto_usa_codigo_informado [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_adicionar_produto_usa_codigo_padrao [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_clicar_avancar_carrinho_encontra_e_clica [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_buscar_cliente_por_cpf_executa_fluxo_completo [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_responder_impressao_sim [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_responder_impressao_nao [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_cashback_disponivel_retorna_true_quando_elemento_existe [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_cashback_disponivel_retorna_false_quando_elemento_nao_existe [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_cashback_retorna_texto_quando_encontrado [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_cashback_lanca_erro_quando_icone_nao_existe [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_obter_valor_cashback_lanca_erro_quando_valor_vazio [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_tela_pagamento_exibida_retorna_true [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true_com_mensagem_completa [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true_com_mensagem_parcial [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:44 [INFO] 
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] ✅ TESTE APROVADO: test_concluir_venda_clica_em_confirmar_venda [PASSED]
+17:27:44 [INFO] ==================================================
+17:27:44 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_concluir_venda_clica_em_finalizar_se_confirmar_falha [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_dispositivo_unico_conectado_retorna_udid [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_multiplos_dispositivos_retorna_primeiro [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_nenhum_dispositivo_levanta_erro [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_dispositivo_offline_ignorado [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_adb_nao_encontrado_levanta_erro [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_retorna_lista_de_dispositivos [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_retorna_lista_vazia_sem_dispositivos [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_retorna_lista_vazia_em_caso_de_erro [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_encontra_app_conhecido [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_nenhum_app_encontrado_levanta_erro [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_timeout_levanta_erro [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_opcoes_basicas [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_opcoes_com_device_id [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_no_reset_padrao_true [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_limpar_dados_app [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_porta_dentro_do_range [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_mesma_porta_para_mesmo_device [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_portas_diferentes_para_devices_diferentes [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_log_style_constantes_existem [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_log_style_elemento_formata_nome [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_log_style_valor_formata_texto [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_default_wait_definido [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_retry_attempts_definido [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_appium_server_url_definido [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_diretorios_existem [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_cores_ansi_definidas [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_cores_contem_escape_ansi [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_abrir_menu_lateral_sucesso [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_selecionar_ultimo_pedido_scroll_e_clica_maior_numero [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_selecionar_ultimo_pedido_sem_elementos_retorna_false [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_responder_cupom_venda_clica_sim_quando_configurado [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_responder_cupom_venda_clica_nao_quando_nao_configurado [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_responder_cupom_troca_dialogo_clica_sim_quando_configurado [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_responder_cupom_troca_dialogo_ignora_quando_nao_aparece [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_clica_quando_existe [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_executar_consulta_e_finalizar_pedido_chama_metodos_na_ordem [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_validar_sucesso_e_concluir_processa_impressoes_e_conclui [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_validar_sucesso_e_concluir_lanca_excecao_quando_sucesso_nao_aparece [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_clicar_menu_documentos_sucesso [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:47 [INFO] 
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] ✅ TESTE APROVADO: test_rolar_até_encontrar_texto_sucesso [PASSED]
+17:27:47 [INFO] ==================================================
+17:27:47 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_preencher_data_inicial_com_data_atual [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_preencher_data_final_com_data_atual [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_clicar_botão_consultar_sucesso [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_verificar_que_os_documentos_clica_primeiro_da_lista [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_clicar_detalhes_documento_sucesso [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_verificar_que_os_detalhes_sucesso [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_validar_dados_tela_detalhes_retorna_true_quando_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_voltar_tela_documentos_chama_voltar_tela [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_executar_documentos_chama_metodos_na_ordem [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_dados_tela_detalhes_exibida_retorna_true_quando_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_dados_tela_detalhes_exibida_retorna_false_quando_nao_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_acessar_estoque_clica_estoque [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_acessar_estoque_lanca_excecao_quando_nao_encontrado [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_buscar_produto_por_codigo [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_buscar_produto_por_codigo_fallback [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_buscar_produto_por_nome [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_obter_quantidade_estoque [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_obter_quantidade_estoque_retorna_vazio_quando_erro [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_obter_nome_produto [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_obter_preco_produto [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_obter_lista_produtos [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_obter_lista_produtos_retorna_lista_vazia_quando_erro [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_produto_encontrado_quando_nome_produto_existe [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_produto_encontrado_retorna_false_quando_mensagem_nao_encontrado [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_mensagem_nao_encontrado_exibida [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_executar_consulta_estoque_produto_encontrado [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_executar_consulta_estoque_produto_nao_encontrado [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_iniciar_venda_quando_iniciar_venda_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_iniciar_venda_quando_venda_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_iniciar_venda_usa_scroll_quando_nao_encontra [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_iniciar_venda_lanca_excecao_quando_nenhum_botao_encontrado [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_iniciar_troca_rola_e_clica [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_selecionar_vendedor_tela_full_screen [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_selecionar_vendedor_dialogo_popup [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_selecionar_vendedor_nenhuma_tela_detectada [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_tela_inicial_exibida_quando_iniciar_venda_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_tela_inicial_exibida_quando_venda_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_tela_inicial_exibida_retorna_false_quando_nenhum [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_locators_nao_estao_vazios [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_todos_locators_existem_no_app [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_ids_compartilhados_sao_iguais [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_nenhum_locator_id_tem_espacos [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_configurar_conexao_quando_botao_existe_retorna_true [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_configurar_conexao_quando_botao_nao_existe_retorna_false [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_garantir_login_quando_ja_logado_retorna_true_imediatamente [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_garantir_login_quando_nao_logado_executa_fluxo_completo [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_esta_logado_retorna_true_quando_iniciar_venda_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_esta_logado_retorna_true_quando_venda_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_esta_logado_retorna_false_quando_nenhum_texto_visivel [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_pular_telas_introducao_clica_nos_botoes_se_existirem [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_preencher_credenciais_digita_todos_os_campos [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_clicar_entrar_clica_no_botao_entrar [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_selecionar_cliente_digita_busca_e_confirma [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:48 [INFO] 
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] ✅ TESTE APROVADO: test_iniciar_como_consumidor_rola_e_clica [PASSED]
+17:27:48 [INFO] ==================================================
+17:27:48 [INFO] 
+17:27:50 [INFO] 
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] ✅ TESTE APROVADO: test_adicionar_produto_clica_digita_e_seleciona [PASSED]
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] 
+17:27:50 [INFO] 
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] ✅ TESTE APROVADO: test_adicionar_produto_usa_ver_e_clicar_para_scroll_automatico [PASSED]
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] 
+17:27:50 [INFO] 
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_clica_quando_visivel [PASSED]
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] 
+17:27:50 [INFO] 
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_ignora_quando_nao_visivel [PASSED]
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] 
+17:27:50 [INFO] 
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] ✅ TESTE APROVADO: test_selecionar_pagamento_dinheiro_rola_clica_e_avanca [PASSED]
+17:27:50 [INFO] ==================================================
+17:27:50 [INFO] 
+17:27:53 [INFO] 
+17:27:53 [INFO] ==================================================
+17:27:53 [INFO] ✅ TESTE APROVADO: test_selecionar_pagamento_dinheiro_sem_cliente_nao_verifica_cashback [PASSED]
+17:27:53 [INFO] ==================================================
+17:27:53 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_finalizar_pedido_trata_bonus_e_finaliza [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_pedido_sucesso_exibido_retorna_true [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_pedido_sucesso_exibido_retorna_false [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_executar_pedido_venda_consumidor_chama_metodos_na_ordem [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_executar_pedido_venda_cliente_chama_metodos_na_ordem [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_executar_pedido_venda_usa_valores_padrao [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_definir_data_inicial_com_data_fornecida [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_definir_data_inicial_usa_data_atual_quando_nao_fornecida [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_clicar_consultar_fecha_teclado_rola_e_aguarda_lista [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_selecionar_primeira_nota_clica_no_primeiro_item [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_selecionar_cliente_digita_pesquisa_e_confirma [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_marcar_item_para_devolucao_clica_no_checkbox [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_confirmar_dialogos_clica_nos_popups [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_clica_quando_visivel [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_ignora_quando_nao_visivel [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_selecionar_pagamento_bonus_ativa_switch_e_avanca [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_sucesso_exibido_retorna_true [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_validar_e_fechar_sucesso [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_executar_troca_chama_metodos_na_ordem [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:54 [INFO] 
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] ✅ TESTE APROVADO: test_executar_troca_usa_data_padrao [PASSED]
+17:27:54 [INFO] ==================================================
+17:27:54 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_executar_troca_consumidor_fluxo_completo [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_executar_troca_consumidor_seleciona_cliente_quando_popup_sim [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_navegar_para_vale_presente_clica_por_texto [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_selecionar_vendedor_clica_por_id [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_obter_dados_resumo_retorna_dict_com_dados [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_obter_dados_resumo_lanca_erro_quando_campo_vazio [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_clicar_finalizar_clica_por_id [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_selecionar_pagamento_dinheiro_clica_por_texto [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_clicar_avancar_pagamento_clica_por_id [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_finalizar_pagamento_aguarda_e_clica [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_responder_impressao_sim_quando_imprimir_true [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:55 [INFO] 
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] ✅ TESTE APROVADO: test_responder_impressao_nao_quando_imprimir_false [PASSED]
+17:27:55 [INFO] ==================================================
+17:27:55 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_concluir_venda_clica_por_id [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true_quando_texto_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_false_quando_texto_nao_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_alerta_cashback_clica_ok_quando_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_alerta_cashback_ignora_quando_nao_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_fluxo_completo_executa_todas_acoes [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_selecionar_retirada_loja_clica_sem_scroll [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_selecionar_entrega_domicilio_clica_e_avanca_frete [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_buscar_cliente_cpf_clica_digita_e_confirma [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_buscar_cliente_cpf_usa_valor_padrao [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_adicionar_produto_com_tamanho [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_selecionar_pagamento_avista_seleciona_movimento_e_plano [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_selecionar_pagamento_avista_scroll_quando_nao_encontra [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_alerta_cashback_clica_ok_quando_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_alerta_cashback_ignora_quando_nao_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_clica_quando_existe [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_ignora_quando_nao_existe [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_selecionar_forma_dinheiro_clica_sem_scroll [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_validar_sucesso_e_concluir [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==> INICIANDO VENDA FUTURA - RETIRADA EM LOJA
+17:27:56 [INFO]   -> Selecionando tipo de entrega: Retirada em Loja
+17:27:56 [INFO]   -> Avançando para próxima etapa
+17:27:56 [INFO]   -> Selecionando vendedor
+17:27:56 [INFO]   -> Buscando cliente CPF: 98765
+17:27:56 [INFO]   -> Adicionando produto 111 tamanho 40
+17:27:56 [INFO]   -> Avançando para pagamento
+17:27:56 [INFO]   -> Configurando pagamento à vista
+17:27:56 [INFO]   -> Verificando alerta de cashback (giftback)
+17:27:56 [INFO]   -> Verificando popup de bônus
+17:27:56 [INFO]   -> Selecionando forma de pagamento: Dinheiro
+17:27:56 [INFO]   -> Finalizando venda
+17:27:56 [INFO]   -> Respondendo diálogo de impressão cupom venda
+17:27:56 [INFO] 
+17:27:56 [INFO] ==> VENDA FUTURA CONCLUÍDA
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_venda_futura_chama_metodos_na_ordem [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==> INICIANDO VENDA FUTURA - ENTREGA EM DOMICÍLIO
+17:27:56 [INFO]   -> Selecionando tipo de entrega: Domicílio
+17:27:56 [INFO]   -> Selecionando vendedor
+17:27:56 [INFO]   -> Buscando cliente CPF: 12345
+17:27:56 [INFO]   -> Adicionando produto 222 tamanho 42
+17:27:56 [INFO]   -> Avançando para pagamento
+17:27:56 [INFO]   -> Configurando pagamento à vista
+17:27:56 [INFO]   -> Verificando alerta de cashback (giftback)
+17:27:56 [INFO]   -> Verificando popup de bônus
+17:27:56 [INFO]   -> Selecionando forma de pagamento: Dinheiro
+17:27:56 [INFO]   -> Finalizando venda
+17:27:56 [INFO]   -> Respondendo diálogo de impressão cupom venda
+17:27:56 [INFO] 
+17:27:56 [INFO] ==> VENDA FUTURA DOMICÍLIO CONCLUÍDA
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_venda_futura_domicilio_chama_metodos_na_ordem [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==> INICIANDO VENDA FUTURA - ENTREGA EM DOMICÍLIO
+17:27:56 [INFO]   -> Selecionando tipo de entrega: Domicílio
+17:27:56 [INFO]   -> Selecionando vendedor
+17:27:56 [INFO]   -> Buscando cliente CPF: 1
+17:27:56 [INFO]   -> Adicionando produto 1234 tamanho 38
+17:27:56 [INFO]   -> Avançando para pagamento
+17:27:56 [INFO]   -> Configurando pagamento à vista
+17:27:56 [INFO]   -> Verificando alerta de cashback (giftback)
+17:27:56 [INFO]   -> Verificando popup de bônus
+17:27:56 [INFO]   -> Selecionando forma de pagamento: Dinheiro
+17:27:56 [INFO]   -> Finalizando venda
+17:27:56 [INFO]   -> Respondendo diálogo de impressão cupom venda
+17:27:56 [INFO] 
+17:27:56 [INFO] ==> VENDA FUTURA DOMICÍLIO CONCLUÍDA
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_venda_futura_domicilio_usa_valores_padrao [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_clicar_buscar_cliente_versao_l400_stone [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_clicar_buscar_cliente_versao_playstore [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_iniciar_venda_sem_cliente_versao_l400_stone [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_iniciar_venda_sem_cliente_versao_playstore [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_selecionar_cliente_digita_pesquisa_e_confirma [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_adicionar_produto_clica_digita_e_seleciona [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_clica_quando_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_tratar_popup_bonus_ignora_quando_nao_visivel [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_responder_impressao_sim [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_responder_impressao_nao [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_venda_sucesso_exibida_retorna_true [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_validar_sucesso_e_concluir [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_venda_cliente_chama_metodos_na_ordem [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_venda_consumidor_chama_metodos_na_ordem [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 
+17:27:56 [INFO] 
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] ✅ TESTE APROVADO: test_executar_venda_consumidor_usa_codigo_padrao [PASSED]
+17:27:56 [INFO] ==================================================
+17:27:56 [INFO] 

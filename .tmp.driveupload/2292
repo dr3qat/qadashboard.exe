@@ -1,0 +1,426 @@
+"""
+Testes unitários para ValePresentePage.
+Valida métodos de venda de vale presente sem depender do Appium.
+"""
+import pytest
+from unittest.mock import MagicMock, patch
+
+
+class TestValePresentePageNavegarParaValePresente:
+    """Testes para o método navegar_para_vale_presente."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_navegar_para_vale_presente_clica_por_texto(self, mock_logger, mock_base_init):
+        """
+        Deve clicar no texto 'Vale Presente' para navegar.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_por_texto = MagicMock()
+
+        # Act
+        page.navegar_para_vale_presente()
+
+        # Assert
+        page.clicar_por_texto.assert_called_once_with(ValePresentePage.TXT_VALE_PRESENTE)
+
+
+class TestValePresentePageSelecionarVendedor:
+    """Testes para o método selecionar_vendedor."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_selecionar_vendedor_clica_por_id(self, mock_logger, mock_base_init):
+        """
+        Deve clicar no primeiro vendedor da lista.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.selecionar_vendedor()
+
+        # Assert
+        page.clicar_por_id.assert_called_once_with(ValePresentePage.TXT_VENDEDOR_NOME)
+
+
+class TestValePresentePageObterDadosResumoValePresente:
+    """Testes para o método obter_dados_resumo_vale_presente."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_obter_dados_resumo_retorna_dict_com_dados(self, mock_logger, mock_base_init):
+        """
+        Deve retornar dicionário com todos os dados do vale presente.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+
+        mock_cliente = MagicMock()
+        mock_cliente.text = "CONSUMIDOR"
+        mock_nome = MagicMock()
+        mock_nome.text = "VALE PRESENTE USAFLEX"
+        mock_numero = MagicMock()
+        mock_numero.text = "VLP0000001"
+        mock_valor = MagicMock()
+        mock_valor.text = "R$ 100,00"
+
+        page.encontrar_clicavel_por_id = MagicMock(side_effect=[
+            mock_cliente, mock_nome, mock_numero, mock_valor
+        ])
+
+        # Act
+        dados = page.obter_dados_resumo_vale_presente()
+
+        # Assert
+        assert dados == {
+            "cliente": "CONSUMIDOR",
+            "nome_vale": "VALE PRESENTE USAFLEX",
+            "numero_vale": "VLP0000001",
+            "valor": "R$ 100,00"
+        }
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_obter_dados_resumo_lanca_erro_quando_campo_vazio(self, mock_logger, mock_base_init):
+        """
+        Deve lançar exceção quando algum campo está vazio.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+
+        mock_cliente = MagicMock()
+        mock_cliente.text = "CONSUMIDOR"
+        mock_nome = MagicMock()
+        mock_nome.text = "VALE PRESENTE"
+        mock_numero = MagicMock()
+        mock_numero.text = ""  # Vazio
+        mock_valor = MagicMock()
+        mock_valor.text = "R$ 100,00"
+
+        page.encontrar_clicavel_por_id = MagicMock(side_effect=[
+            mock_cliente, mock_nome, mock_numero, mock_valor
+        ])
+
+        # Act & Assert
+        with pytest.raises(Exception, match="Um ou mais campos do resumo estão vazios"):
+            page.obter_dados_resumo_vale_presente()
+
+
+class TestValePresentePageClicarFinalizar:
+    """Testes para o método clicar_finalizar."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_clicar_finalizar_clica_por_id(self, mock_logger, mock_base_init):
+        """
+        Deve clicar no botão finalizar.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.clicar_finalizar()
+
+        # Assert
+        page.clicar_por_id.assert_called_once_with(ValePresentePage.BTN_FINALIZAR)
+
+
+class TestValePresentePageSelecionarPagamentoDinheiro:
+    """Testes para o método selecionar_pagamento_dinheiro."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    @patch('pages.vale_presente_page.time')
+    def test_selecionar_pagamento_dinheiro_clica_por_texto(self, mock_time, mock_logger, mock_base_init):
+        """
+        Deve clicar no texto 'DINHEIRO' para selecionar pagamento.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_por_texto = MagicMock()
+
+        # Act
+        page.selecionar_pagamento_dinheiro()
+
+        # Assert
+        page.clicar_por_texto.assert_called_once_with("DINHEIRO")
+
+
+class TestValePresentePageClicarAvancarPagamento:
+    """Testes para o método clicar_avancar_pagamento."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_clicar_avancar_pagamento_clica_por_id(self, mock_logger, mock_base_init):
+        """
+        Deve clicar no botão avançar.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.clicar_avancar_pagamento()
+
+        # Assert
+        page.clicar_por_id.assert_called_once_with(ValePresentePage.BTN_PROCEED)
+
+
+class TestValePresentePageFinalizarPagamento:
+    """Testes para o método finalizar_pagamento."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_finalizar_pagamento_aguarda_e_clica(self, mock_logger, mock_base_init):
+        """
+        Deve aguardar texto 'Finalizar' e depois clicar no botão.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.aguardar_texto = MagicMock()
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.finalizar_pagamento()
+
+        # Assert
+        page.aguardar_texto.assert_called_once_with("Finalizar", tempo_espera=10)
+        page.clicar_por_id.assert_called_once_with(ValePresentePage.BTN_FINALIZAR_PAGAMENTO)
+
+
+class TestValePresentePageResponderImpressao:
+    """Testes para o método responder_impressao."""
+
+    @patch('pages.vale_presente_page.test_data')
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    @patch('pages.vale_presente_page.time')
+    def test_responder_impressao_sim_quando_imprimir_true(self, mock_time, mock_logger, mock_base_init, mock_test_data):
+        """
+        Quando imprimir=True, deve clicar no botão SIM.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        mock_test_data.PRINT_DIALOG_TIMEOUT = 20
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_se_existir = MagicMock()
+
+        # Act
+        page.responder_impressao(imprimir=True)
+
+        # Assert
+        page.clicar_se_existir.assert_called_once_with(ValePresentePage.BTN_SIM, tempo_espera=20)
+
+    @patch('pages.vale_presente_page.test_data')
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    @patch('pages.vale_presente_page.time')
+    def test_responder_impressao_nao_quando_imprimir_false(self, mock_time, mock_logger, mock_base_init, mock_test_data):
+        """
+        Quando imprimir=False, deve clicar no botão NÃO.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        mock_test_data.PRINT_DIALOG_TIMEOUT = 20
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_se_existir = MagicMock()
+
+        # Act
+        page.responder_impressao(imprimir=False)
+
+        # Assert
+        page.clicar_se_existir.assert_called_once_with(ValePresentePage.BTN_NAO, tempo_espera=20)
+
+
+class TestValePresentePageConcluirVenda:
+    """Testes para o método concluir_venda."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_concluir_venda_clica_por_id(self, mock_logger, mock_base_init):
+        """
+        Deve clicar no botão confirmar venda.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.concluir_venda()
+
+        # Assert
+        page.clicar_por_id.assert_called_once_with(ValePresentePage.BTN_CONFIRMAR_VENDA)
+
+
+class TestValePresentePageVendaSucessoExibida:
+    """Testes para o método venda_sucesso_exibida."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_venda_sucesso_exibida_retorna_true_quando_texto_visivel(self, mock_logger, mock_base_init):
+        """
+        Deve retornar True quando mensagem de sucesso está visível.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.texto_exibido = MagicMock(return_value=True)
+
+        # Act
+        resultado = page.venda_sucesso_exibida(timeout=15)
+
+        # Assert
+        assert resultado is True
+        page.texto_exibido.assert_called_once_with("Venda realizada com sucesso!", 15)
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    def test_venda_sucesso_exibida_retorna_false_quando_texto_nao_visivel(self, mock_logger, mock_base_init):
+        """
+        Deve retornar False quando mensagem de sucesso não está visível.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.texto_exibido = MagicMock(return_value=False)
+
+        # Act
+        resultado = page.venda_sucesso_exibida(timeout=5)
+
+        # Assert
+        assert resultado is False
+
+
+class TestValePresentePageTratarAlertaCashback:
+    """Testes para o método tratar_alerta_cashback."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    @patch('pages.vale_presente_page.time')
+    def test_tratar_alerta_cashback_clica_ok_quando_visivel(self, mock_time, mock_logger, mock_base_init):
+        """
+        Quando o alerta de cashback está visível, deve clicar em OK.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.texto_exibido = MagicMock(return_value=True)
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.tratar_alerta_cashback()
+
+        # Assert
+        page.clicar_por_id.assert_called_once_with(ValePresentePage.BTN_CONFIRMAR_CASHBACK)
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    @patch('pages.vale_presente_page.time')
+    def test_tratar_alerta_cashback_ignora_quando_nao_visivel(self, mock_time, mock_logger, mock_base_init):
+        """
+        Quando o alerta não está visível, não deve clicar.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.texto_exibido = MagicMock(return_value=False)
+        page.clicar_por_id = MagicMock()
+
+        # Act
+        page.tratar_alerta_cashback()
+
+        # Assert
+        page.clicar_por_id.assert_not_called()
+
+
+class TestValePresentePageExecutarFluxoCompletoValePresente:
+    """Testes para o método executar_fluxo_completo_vale_presente."""
+
+    @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
+    @patch('pages.vale_presente_page.logger')
+    @patch('pages.vale_presente_page.time')
+    def test_executar_fluxo_completo_executa_todas_acoes(self, mock_time, mock_logger, mock_base_init):
+        """
+        Deve executar todas as ações do fluxo completo.
+        """
+        from pages.vale_presente_page import ValePresentePage
+
+        # Arrange
+        page = ValePresentePage.__new__(ValePresentePage)
+        page.driver = MagicMock()
+        page.navegar_para_vale_presente = MagicMock()
+        page.selecionar_vendedor = MagicMock()
+        page.obter_dados_resumo_vale_presente = MagicMock(return_value={
+            "cliente": "CONSUMIDOR",
+            "nome_vale": "VALE PRESENTE",
+            "numero_vale": "VLP001",
+            "valor": "R$ 100,00"
+        })
+        page.clicar_finalizar = MagicMock()
+        page.selecionar_pagamento_dinheiro = MagicMock()
+        page.clicar_avancar_pagamento = MagicMock()
+        page.tratar_alerta_cashback = MagicMock()
+        page.finalizar_pagamento = MagicMock()
+        page.responder_impressao = MagicMock()
+        page.venda_sucesso_exibida = MagicMock(return_value=True)
+        page.concluir_venda = MagicMock()
+
+        # Act
+        dados = page.executar_fluxo_completo_vale_presente()
+
+        # Assert
+        page.navegar_para_vale_presente.assert_called_once()
+        page.selecionar_vendedor.assert_called_once()
+        page.obter_dados_resumo_vale_presente.assert_called_once()
+        page.clicar_finalizar.assert_called_once()
+        page.selecionar_pagamento_dinheiro.assert_called_once()
+        page.clicar_avancar_pagamento.assert_called_once()
+        page.tratar_alerta_cashback.assert_called_once()
+        page.finalizar_pagamento.assert_called_once()
+        page.responder_impressao.assert_called_once()
+        page.venda_sucesso_exibida.assert_called_once()
+        page.concluir_venda.assert_called_once()
+        assert dados["cliente"] == "CONSUMIDOR"

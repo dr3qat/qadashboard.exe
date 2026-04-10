@@ -1,0 +1,159 @@
+{
+  "_comment": "Ordem de execução dos testes E2E - PDV Automação",
+  "_instructions": "Lista ordenada dos testes E2E. Execute nesta sequência para respeitar dependências.",
+  "_last_update": "2026-04-01",
+  "_dependency_info": {
+    "critical_chain": "login → venda_consumidor → troca_consumidor → venda_cliente → troca_cliente → pedidos → bonus",
+    "note": "Testes com required=true possuem dependências críticas. Testes com required=false podem rodar em qualquer ordem após os críticos."
+  },
+
+  "test_order": [
+    {
+      "name": "test_login.py",
+      "priority": 1,
+      "description": "Login no Sistema - PRIMEIRO SEMPRE (requisito para todos os testes)",
+      "required": true,
+      "dependencies": []
+    },
+    {
+      "name": "test_venda_consumidor.py",
+      "priority": 2,
+      "description": "Venda Consumidor - Gera nota fiscal para troca posterior",
+      "required": true,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_troca_consumidor.py",
+      "priority": 3,
+      "description": "Troca Consumidor - DEPENDE da venda_consumidor (usa nota gerada)",
+      "required": true,
+      "dependencies": ["test_login.py", "test_venda_consumidor.py"]
+    },
+    {
+      "name": "test_venda_cliente.py",
+      "priority": 4,
+      "description": "Venda Cliente Cadastrado - Gera nota fiscal para troca posterior",
+      "required": true,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_troca_cliente.py",
+      "priority": 5,
+      "description": "Troca Cliente - DEPENDE da venda_cliente (usa nota gerada)",
+      "required": true,
+      "dependencies": ["test_login.py", "test_venda_cliente.py"]
+    },
+    {
+      "name": "test_pedido_vendaConsumidor.py",
+      "priority": 6,
+      "description": "Pedido Venda Consumidor - Gera pedido para consulta posterior",
+      "required": true,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_consulta_pedidoConsumidor.py",
+      "priority": 7,
+      "description": "Consulta Pedido Consumidor - DEPENDE do pedido_vendaConsumidor",
+      "required": true,
+      "dependencies": ["test_login.py", "test_pedido_vendaConsumidor.py"]
+    },
+    {
+      "name": "test_pedido_vendaCliente.py",
+      "priority": 8,
+      "description": "Pedido Venda Cliente - Gera pedido para consulta posterior",
+      "required": true,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_consulta_pedidoCliente.py",
+      "priority": 9,
+      "description": "Consulta Pedido Cliente - DEPENDE do pedido_vendaCliente",
+      "required": true,
+      "dependencies": ["test_login.py", "test_pedido_vendaCliente.py"]
+    },
+    {
+      "name": "test_bonus.py",
+      "priority": 10,
+      "description": "Bônus - Gera bônus para validação posterior",
+      "required": true,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_validar_bonus.py",
+      "priority": 11,
+      "description": "Validar Bônus - Valida aplicação de bônus no pagamento",
+      "required": true,
+      "dependencies": ["test_login.py", "test_bonus.py"]
+    },
+    {
+      "name": "test_validar_cashback.py",
+      "priority": 12,
+      "description": "Validar Cashback - Valida cashback no sistema",
+      "required": true,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_venda_futura.py",
+      "priority": 13,
+      "description": "Venda Futura - Retirada em loja (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_venda_futura_domicilio.py",
+      "priority": 14,
+      "description": "Venda Futura Domicílio - Entrega em casa (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_estoque.py",
+      "priority": 15,
+      "description": "Estoque - Consultas de estoque (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_cancelamento.py",
+      "priority": 16,
+      "description": "Cancelamento - Testes de cancelamento (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_historico_cliente.py",
+      "priority": 17,
+      "description": "Histórico Cliente - Consulta histórico (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_consulta_documentos.py",
+      "priority": 18,
+      "description": "Consulta Documentos - Consulta NFCe/NFe (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_bordero.py",
+      "priority": 19,
+      "description": "Borderô - Testes de borderô (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_cad_cliente.py",
+      "priority": 20,
+      "description": "Cadastro Cliente - Cadastro de clientes (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    },
+    {
+      "name": "test_venda_vale_presente.py",
+      "priority": 21,
+      "description": "Venda Vale Presente - Vale presente (independente)",
+      "required": false,
+      "dependencies": ["test_login.py"]
+    }
+  ]
+}

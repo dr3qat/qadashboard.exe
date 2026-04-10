@@ -360,7 +360,7 @@ class VendaPage(BasePage):
         self.clicar_por_id(self.BTN_TIPO_PAGAMENTO)
         self.clicar_por_texto("Bônus")
         xpath_cb = '(//android.widget.CheckBox[contains(@resource-id,"ck_discount")])[1]'
-        elemento = self.driver.find_element(AppiumBy.XPATH, xpath_cb)
+        elemento = self.encontrar_por_xpath(xpath_cb)
         elemento.click()
         self.clicar_por_texto("Aplicar")
 
