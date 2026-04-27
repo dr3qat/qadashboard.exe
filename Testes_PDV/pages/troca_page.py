@@ -144,7 +144,15 @@ class TrocaPage(BasePage):
                     break
             except:
                 pass
-            time.sleep(1)  # Aguarda 1 segundo antes de tentar novamente
+            # OPCIONAL: dialog "Atenção" NF SEFAZ pode aparecer antes do Sucesso!
+            # (nota gravada mas não emitida no SEFAZ — md_title="Atenção", btn=md_buttonDefaultPositive)
+            try:
+                if self.texto_exibido("Atenção", tempo_espera=1):
+                    logger.info(f"{LogStyle.DEBUG} Dialog 'Atenção' NF SEFAZ detectado — dispensando...")
+                    self.clicar_se_existir(self.BTN_DIALOGO_OK, tempo_espera=2)
+            except:
+                pass
+            time.sleep(0.5)
 
         if not texto_encontrado:
             raise TimeoutError(f"Timeout: Texto 'Sucesso!' não apareceu após {timeout} segundos")

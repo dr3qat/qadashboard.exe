@@ -36,11 +36,11 @@ class TestConsultaDocumentos:
             pagina_documentos.preencher_data_final_com()
             pagina_documentos.fechar_teclado()
             pagina_documentos.clicar_botão_consultar()
-            time.sleep(5)
+            pagina_documentos.aguardar_resultado_consulta()
 
         with allure.step("2. Clicar no primeiro documento da lista"):
             pagina_documentos.clicar_primeiro_documento()
-            time.sleep(2)
+            time.sleep(0.5)
 
         with allure.step("3. Clicar em Detalhes (1ª opção do bottom sheet)"):
             pagina_documentos.clicar_detalhes_documento()
@@ -52,7 +52,7 @@ class TestConsultaDocumentos:
 
         with allure.step("5. Voltar para home"):
             pagina_documentos.voltar_tela_documentos()
-            time.sleep(0.5)
+            time.sleep(0.2)
             pagina_documentos.voltar_tela_documentos()
-            time.sleep(0.5)
+            time.sleep(0.2)
             pagina_documentos.voltar_tela_documentos()

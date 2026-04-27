@@ -53,6 +53,9 @@ def _limpar_cache_pytest():
 def pytest_sessionstart(session):
     """Hook chamado no início da sessão de testes - limpa cache automaticamente."""
     _limpar_cache_pytest()
+    # Limpa cache de descoberta de formas de pagamento para garantir redescoberta
+    import pages.venda_page as _vp
+    _vp._formas_cache = None
 
 
 # ============================================================================
@@ -605,6 +608,7 @@ def driver(request):
 def driver_logado(driver):
     """
     Fixture que garante que o usuario esta logado.
+    Teardown: tenta retornar à home após cada teste (isolamento entre testes).
 
     Uso:
         def test_venda(driver_logado):
@@ -623,7 +627,17 @@ def driver_logado(driver):
 
     assert home_page.tela_inicial_exibida(timeout=30), "Falha ao fazer login"
     logger.info("Usuario logado com sucesso.")
-    return driver
+    yield driver
+
+    # Teardown: pressiona voltar até chegar na home (max 4x)
+    # Garante isolamento entre testes — próximo teste começa sempre na home
+    try:
+        for _ in range(4):
+            if home_page.tela_inicial_exibida(timeout=2):
+                break
+            driver.back()
+    except Exception:
+        pass
 
 
 @pytest.fixture(scope="function")

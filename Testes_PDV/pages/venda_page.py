@@ -2,10 +2,80 @@
 Venda Page - Page Object para tela de venda.
 """
 import time
+from collections import namedtuple
 from appium.webdriver.common.appiumby import AppiumBy
 from pages.base_page import BasePage
 from config import logger, LogStyle, Cores
 from test_data import test_data
+
+
+# ---------------------------------------------------------------------------
+# Tipos semânticos de forma de pagamento (agnósticos ao nome da loja)
+# ---------------------------------------------------------------------------
+class TipoForma:
+    """Categorias fixas independentes do nome configurado no caixa.exe."""
+    DINHEIRO      = "dinheiro"
+    POS_DEBITO    = "pos_debito"
+    POS_CREDITO   = "pos_credito"
+    PIX           = "pix"
+    PERSONALIZADO = "personalizado"   # Pagamento Personalizado (sheet c/ tipo_venda + parcelas)
+    TEF           = "tef"             # TEF — requer hardware externo, excluído por padrão
+    OUTRO         = "outro"           # Forma desconhecida / não classificada
+
+
+# Dados de uma forma descoberta na tela
+FormaInfo = namedtuple("FormaInfo", ["titulo", "tipo", "tem_parcelamento"])
+
+# Cache de processo — preenchido na primeira chamada, reutilizado no resto da sessão
+_formas_cache: dict | None = None
+
+
+def _salvar_formas_pagamento(formas: list) -> None:
+    """Salva lista completa de formas em formas_pagamento.json (best-effort).
+    Formato: {"_discovery_timestamp": ..., "formas": [...]}"""
+    try:
+        from test_data import _settings_path
+        import json
+        from datetime import datetime
+        if not _settings_path:
+            return
+        path = _settings_path.parent / "formas_pagamento.json"
+        data = {
+            "_discovery_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "formas": formas,
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        logger.info(f"{LogStyle.OK} formas_pagamento.json salvo: {len(formas)} formas")
+    except Exception:
+        pass
+
+
+def _persistir_formas_descobertas(mapa: dict) -> None:
+    """Salva formas descobertas no settings.json (best-effort, não quebra testes)."""
+    try:
+        from test_data import TestData
+        kwargs = {}
+        for tipo, info in mapa.items():
+            if tipo == TipoForma.DINHEIRO:
+                kwargs["forma_dinheiro"] = info.titulo
+            elif tipo == TipoForma.POS_DEBITO:
+                kwargs["forma_debito"] = info.titulo
+            elif tipo == TipoForma.POS_CREDITO:
+                kwargs["forma_credito"] = info.titulo
+        if kwargs:
+            TestData.atualizar_formas_descobertas(**kwargs)
+    except Exception:
+        pass
+
+
+def _persistir_parcelas_descobertas(parcelas: list) -> None:
+    """Salva lista de parcelas de crédito no settings.json (best-effort)."""
+    try:
+        from test_data import TestData
+        TestData.atualizar_formas_descobertas(parcelas_credito=parcelas)
+    except Exception:
+        pass
 
 
 class VendaPage(BasePage):
@@ -54,6 +124,23 @@ class VendaPage(BasePage):
     # contains() funciona em qualquer flavor/device sem hardcode de pacote
     XPATH_ACRESCIMO_REAIS  = '(//android.widget.EditText[contains(@resource-id,"edt_desconto_item_reais")])[1]'
     XPATH_DESCONTO_REAIS   = '(//android.widget.EditText[contains(@resource-id,"edt_desconto_item_reais")])[2]'
+
+    # Tela de atalhos de formas de pagamento
+    RECYCLER_FORMAS      = "recycler_payment_methods"
+    TXT_TITULO_FORMA     = "txt_payment_title"
+    TXT_SUBTITULO_FORMA  = "txt_payment_subtitle"   # tipo fixo: "Dinheiro", "Cartão de Crédito/Débito"
+    TXT_DETALHES_FORMA   = "txt_payment_details"    # movimentos: "CREDITO", "DEBITO", "TEF", "A VISTA"
+    # Bottom sheet de parcelamento (aparece ao clicar forma de crédito)
+    RECYCLER_PARCELAS    = "recycler_plano_venda"
+    # Bottom sheet "Pagamento Personalizado"
+    RECYCLER_TIPO_VENDA  = "recycler_tipo_venda"     # lista de tipos (A VISTA, BANRICOMPRAS DEBITO, ...)
+    BTN_FECHAR_SHEET     = "btn_close"               # fecha qualquer bottom sheet de pagamento
+
+    # Formas excluídas da seleção automática (requerem hardware externo)
+    _EXCLUIR_FORMAS = ["tef", "bshoppix", "bshop pix", "pagamento personalizado"]
+
+    # Tipos de tipo_venda do Personalizado que requerem hardware externo → habilitado=False por padrão
+    _EXCLUIR_TIPOS_VENDA = ["tef", "pix", "whatsapp", " app"]
 
     # Pagamentos — seção (para excluir/reconfigurar pagamento)
     TXT_PAGAMENTOS_HEADER  = "textView131"   # header "Pagamentos"
@@ -135,6 +222,395 @@ class VendaPage(BasePage):
         if com_cliente:
             self.tratar_alerta_cashback()
 
+    def obter_formas_pagamento_disponiveis(self) -> list:
+        """Lê atalhos exibidos na tela e filtra TEF/BShopPIX/Personalizado.
+        Chamar quando já estiver na tela de seleção de forma de pagamento."""
+        elementos = self.encontrar_todos_por_id(self.TXT_TITULO_FORMA)
+        formas = []
+        for el in elementos:
+            texto = el.text.strip()
+            if not any(exc in texto.lower() for exc in self._EXCLUIR_FORMAS):
+                formas.append(texto)
+        logger.info(f"{LogStyle.INFO} Formas disponíveis: {LogStyle.valor(str(formas))}")
+        return formas
+
+    def descobrir_formas_tipadas(self) -> dict:
+        """Classifica formas de pagamento por tipo semântico lendo subtitle + details.
+        Chamar quando já estiver na tela de seleção de forma de pagamento.
+        Resultado cacheado por processo — não redescobre em testes subsequentes.
+        Retorna {TipoForma: FormaInfo}."""
+        global _formas_cache
+        if _formas_cache is not None:
+            return _formas_cache
+
+        titulos    = self.encontrar_todos_por_id(self.TXT_TITULO_FORMA)
+        subtitulos = self.encontrar_todos_por_id(self.TXT_SUBTITULO_FORMA)
+        # NOTA: nem todos os cards têm txt_payment_details (ex: Pagamento Personalizado)
+        # Por isso NÃO indexamos detalhes por posição — buscamos por XPath ancorado no título
+
+        mapa = {}
+        for i, titulo_el in enumerate(titulos):
+            titulo    = titulo_el.text.strip()
+            subtitulo = subtitulos[i].text.strip().lower() if i < len(subtitulos) else ""
+
+            # Busca details como irmão do título — evita desalinhamento de índices
+            detalhe = ""
+            try:
+                xpath_det = (
+                    f'//android.widget.TextView[contains(@resource-id,"txt_payment_title")'
+                    f' and @text="{titulo}"]'
+                    f'/following-sibling::android.widget.TextView'
+                    f'[contains(@resource-id,"txt_payment_details")]'
+                )
+                det_els = self.driver.find_elements(AppiumBy.XPATH, xpath_det)
+                if det_els:
+                    detalhe = det_els[0].text.strip().lower()
+            except Exception:
+                pass
+
+            tipo = self._classificar_tipo(titulo, subtitulo, detalhe)
+            if tipo and tipo not in mapa:
+                mapa[tipo] = FormaInfo(
+                    titulo=titulo,
+                    tipo=tipo,
+                    tem_parcelamento=(tipo == TipoForma.POS_CREDITO)
+                )
+
+        _formas_cache = mapa
+        _persistir_formas_descobertas(mapa)
+        logger.info(f"{LogStyle.INFO} Formas tipadas: {LogStyle.valor(str(mapa))}")
+        return mapa
+
+    def _classificar_tipo(self, titulo: str, subtitulo: str, detalhe: str):
+        """Classifica uma forma pelo subtítulo (campo fixo do app) e detalhes."""
+        if "selecione manualmente" in subtitulo:
+            return None
+        if "dinheiro" in subtitulo:
+            return TipoForma.DINHEIRO
+        if "bshoppix" in subtitulo or ("pix" in subtitulo and "cartão" not in subtitulo):
+            return None  # PIX excluído — requer integração BshopPix
+        if "cartão" in subtitulo or "cartao" in subtitulo or \
+           "credito" in subtitulo or "debito" in subtitulo:
+            if "tef" in detalhe or "tef" in titulo.lower():
+                return None  # TEF excluído — requer hardware externo
+            if "debito" in detalhe:
+                return TipoForma.POS_DEBITO
+            if "credito" in detalhe:
+                return TipoForma.POS_CREDITO
+        return None
+
+    def _classificar_tipo_completo(self, subtitulo: str, detalhe: str) -> str:
+        """Como _classificar_tipo mas SEM exclusões — inclui TEF, PIX, Personalizado.
+        Usado em descobrir_formas_completo()."""
+        sub = subtitulo.lower()
+        det = detalhe.lower()
+        if "dinheiro" in sub:
+            return TipoForma.DINHEIRO
+        if "selecione manualmente" in sub:
+            return TipoForma.PERSONALIZADO
+        if "bshoppix" in sub or ("pix" in sub and "cartão" not in sub):
+            return TipoForma.PIX
+        if "cartão" in sub or "cartao" in sub or "credito" in sub or "debito" in sub:
+            if "tef" in det or "tef" in sub:
+                return TipoForma.TEF
+            if "debito" in det:
+                return TipoForma.POS_DEBITO
+            if "credito" in det:
+                return TipoForma.POS_CREDITO
+        return TipoForma.OUTRO
+
+    # ------------------------------------------------------------------
+    # DESCOBERTA COMPLETA (todos os atalhos + Personalizado)
+    # ------------------------------------------------------------------
+
+    def descobrir_formas_completo(self) -> list:
+        """Descobre TODAS as formas + subopções do Personalizado.
+        Chamar quando na tela de seleção de formas de pagamento.
+        Salva em formas_pagamento.json E atualiza settings.json.
+        Retorna lista de dicts prontos para JSON.
+
+        FASE 1: lê info básica de todos os cards SEM navegar (evita stale elements).
+        FASE 2: para cada forma que precisa de sub-discovery, navega e volta.
+        """
+        # --- FASE 1: leitura básica (sem navegação) ---
+        formas = []
+        titulos    = self.encontrar_todos_por_id(self.TXT_TITULO_FORMA)
+        subtitulos = self.encontrar_todos_por_id(self.TXT_SUBTITULO_FORMA)
+
+        for i, titulo_el in enumerate(titulos):
+            try:
+                titulo    = titulo_el.text.strip()
+                subtitulo = subtitulos[i].text.strip() if i < len(subtitulos) else ""
+                detalhe   = ""
+                try:
+                    xpath_det = (
+                        f'//android.widget.TextView[contains(@resource-id,"txt_payment_title")'
+                        f' and @text="{titulo}"]'
+                        f'/following-sibling::android.widget.TextView'
+                        f'[contains(@resource-id,"txt_payment_details")]'
+                    )
+                    det_els = self.driver.find_elements(AppiumBy.XPATH, xpath_det)
+                    if det_els:
+                        detalhe = det_els[0].text.strip()
+                except Exception:
+                    pass
+
+                tipo_auto  = self._classificar_tipo_completo(subtitulo, detalhe)
+                habilitado = tipo_auto not in (TipoForma.TEF, TipoForma.PIX, TipoForma.OUTRO)
+                formas.append({
+                    "titulo":      titulo,
+                    "subtitulo":   subtitulo,
+                    "detalhes":    detalhe,
+                    "tipo_auto":   tipo_auto,
+                    "habilitado":  habilitado,
+                    "parcelas":    [],
+                    "tipos_venda": [],
+                })
+                logger.info(f"{LogStyle.INFO} Forma: {titulo!r} → {tipo_auto}")
+            except Exception as exc:
+                logger.info(f"{LogStyle.DEBUG} Fase1 erro item {i}: {exc}")
+
+        # --- FASE 2: sub-discoveries (navegam e voltam) ---
+        # Elementos da fase 1 já foram consumidos; agora podemos navegar sem stale.
+        for forma in formas:
+            try:
+                if forma["tipo_auto"] == TipoForma.PERSONALIZADO:
+                    forma["tipos_venda"], forma["parcelas"] = self._descobrir_personalizado()
+                elif forma["tipo_auto"] == TipoForma.POS_CREDITO:
+                    forma["parcelas"] = self._descobrir_parcelas_pos_credito(forma["titulo"])
+            except Exception as exc:
+                logger.info(f"{LogStyle.DEBUG} Fase2 erro {forma['titulo']!r}: {exc}")
+
+        if formas:
+            _salvar_formas_pagamento(formas)
+            self._sincronizar_settings_de_formas(formas)
+
+        return formas
+
+    def _fechar_sheet_ativo(self) -> None:
+        """Fecha o bottom sheet no topo (btn_close ou voltar_tela como fallback)."""
+        try:
+            if not self.clicar_se_existir(self.BTN_FECHAR_SHEET, tempo_espera=2):
+                self.voltar_tela()
+            time.sleep(0.5)
+        except Exception:
+            pass
+
+    def _descobrir_personalizado(self) -> tuple:
+        """Abre sheet do Personalizado, lê tipos_venda + parcelas, fecha AMBOS os sheets.
+        Retorna (tipos_venda: list[dict], parcelas: list[str])."""
+        tipos_venda   = []
+        parcelas      = []
+        abriu_parcelas = False
+        entrou_sheet  = False
+        try:
+            self.ver_e_clicar_texto("Pagamento Personalizado")
+            # Clicar AVANÇAR abre o recycler_tipo_venda (igual _descobrir_parcelas_pos_credito)
+            self.clicar_por_id(self.BTN_AVANCAR)
+            time.sleep(1.0)
+            entrou_sheet = True
+
+            # Ler tipos_venda de recycler_tipo_venda
+            els = self.driver.find_elements(
+                AppiumBy.XPATH,
+                '//android.widget.RecyclerView[contains(@resource-id,"recycler_tipo_venda")]'
+                '//android.widget.TextView[contains(@resource-id,"txt_option_title")]',
+            )
+            for el in els:
+                nome = el.text.strip()
+                if nome:
+                    hab = not any(x in nome.lower() for x in self._EXCLUIR_TIPOS_VENDA)
+                    tipos_venda.append({"nome": nome, "habilitado": hab})
+
+            # Tentar ler parcelas: clicar no primeiro tipo_venda com "credito" no nome
+            for tv in tipos_venda:
+                if "credito" in tv["nome"].lower():
+                    xpath_tv = (
+                        '//android.widget.RecyclerView[contains(@resource-id,"recycler_tipo_venda")]'
+                        f'//android.widget.TextView[contains(@resource-id,"txt_option_title")'
+                        f' and @text="{tv["nome"]}"]'
+                    )
+                    tv_els = self.driver.find_elements(AppiumBy.XPATH, xpath_tv)
+                    if tv_els:
+                        tv_els[0].click()
+                        time.sleep(0.5)
+                        parc_els = self.driver.find_elements(
+                            AppiumBy.XPATH,
+                            '//android.widget.RecyclerView[contains(@resource-id,"recycler_plano_venda")]'
+                            '//android.widget.TextView[contains(@resource-id,"txt_option_title")]',
+                        )
+                        parcelas = [p.text.strip() for p in parc_els if p.text.strip()]
+                        if parcelas:
+                            abriu_parcelas = True
+                            break
+        except Exception as exc:
+            logger.info(f"{LogStyle.DEBUG} _descobrir_personalizado falhou: {exc}")
+        finally:
+            # Fecha sheet de parcelas (se abriu) e depois sheet de tipo_venda
+            if abriu_parcelas:
+                self._fechar_sheet_ativo()   # fecha recycler_plano_venda
+            if entrou_sheet:
+                self._fechar_sheet_ativo()   # fecha recycler_tipo_venda
+        return tipos_venda, parcelas
+
+    def _descobrir_parcelas_pos_credito(self, titulo: str) -> list:
+        """Abre sheet de crédito POS, lê parcelas disponíveis, fecha sem avançar."""
+        try:
+            self.ver_e_clicar_texto(titulo)
+            self.clicar_por_id(self.BTN_AVANCAR)
+            time.sleep(1)
+            if self._parcelamento_visivel():
+                els = self.driver.find_elements(
+                    AppiumBy.XPATH,
+                    '//android.widget.TextView[contains(@resource-id,"txt_option_title")]',
+                )
+                parcelas = [el.text.strip() for el in els if el.text.strip()]
+                self.voltar_tela()
+                return parcelas
+            self.voltar_tela()
+        except Exception:
+            pass
+        return []
+
+    def _sincronizar_settings_de_formas(self, formas: list) -> None:
+        """Atualiza settings.json com forma_debito/credito/dinheiro/parcelas (backward compat)."""
+        try:
+            from test_data import TestData
+            kwargs: dict = {}
+            for f in formas:
+                if f["tipo_auto"] == TipoForma.DINHEIRO and "forma_dinheiro" not in kwargs:
+                    kwargs["forma_dinheiro"] = f["titulo"]
+                elif f["tipo_auto"] == TipoForma.POS_DEBITO and "forma_debito" not in kwargs:
+                    kwargs["forma_debito"] = f["titulo"]
+                elif f["tipo_auto"] == TipoForma.POS_CREDITO and "forma_credito" not in kwargs:
+                    kwargs["forma_credito"] = f["titulo"]
+                    if f["parcelas"] and "parcelas_credito" not in kwargs:
+                        kwargs["parcelas_credito"] = f["parcelas"]
+            if kwargs:
+                TestData.atualizar_formas_descobertas(**kwargs)
+        except Exception:
+            pass
+
+    def selecionar_personalizado(self, tipo_venda: str, parcela: str = None) -> None:
+        """Seleciona Pagamento Personalizado → tipo_venda → parcela (se houver).
+        Chamar na tela de seleção de formas de pagamento."""
+        logger.info(f"{LogStyle.ACAO} Personalizado: tipo={LogStyle.valor(tipo_venda)}"
+                    + (f" parcela={LogStyle.valor(parcela)}" if parcela else ""))
+        self.ver_e_clicar_texto("Pagamento Personalizado")
+        xpath_tv = (
+            '//android.widget.RecyclerView[contains(@resource-id,"recycler_tipo_venda")]'
+            f'//android.widget.TextView[contains(@resource-id,"txt_option_title")'
+            f' and @text="{tipo_venda}"]'
+        )
+        self.encontrar_por_xpath(xpath_tv, tempo_espera=5).click()
+        time.sleep(0.3)
+        if parcela:
+            xpath_parc = (
+                '//android.widget.RecyclerView[contains(@resource-id,"recycler_plano_venda")]'
+                f'//android.widget.TextView[contains(@resource-id,"txt_option_title")'
+                f' and @text="{parcela}"]'
+            )
+            self.encontrar_por_xpath(xpath_parc, tempo_espera=5).click()
+            time.sleep(0.3)
+        self.ver_e_clicar(self.BTN_AVANCAR)
+
+    def selecionar_pagamento_por_tipo(
+        self,
+        tipo: str,
+        com_cliente: bool = True,
+        parcela: str = "A Prazo 0 + 1"
+    ) -> str:
+        """Seleciona forma de pagamento pelo tipo semântico (não pelo nome).
+        Override manual em settings.json tem prioridade.
+        Chama pytest.skip() se o tipo não estiver disponível na base.
+        Retorna o título real usado."""
+        override = self._override_forma(tipo)
+        if override:
+            nome = override
+            logger.info(f"{LogStyle.INFO} Override settings: {LogStyle.valor(nome)}")
+        else:
+            formas = self.descobrir_formas_tipadas()
+            info = formas.get(tipo)
+            if not info:
+                import pytest
+                pytest.skip(f"Tipo de pagamento '{tipo}' não configurado nesta base")
+            nome = info.titulo
+
+        parcela_arg = parcela if tipo == TipoForma.POS_CREDITO else None
+        self.selecionar_pagamento(nome, com_cliente=com_cliente, parcela=parcela_arg)
+        return nome
+
+    def _override_forma(self, tipo: str):
+        """Retorna override manual de settings.json, ou None para auto-descoberta."""
+        mapa = {
+            TipoForma.DINHEIRO:    getattr(test_data, "FORMA_DINHEIRO", None),
+            TipoForma.POS_DEBITO:  getattr(test_data, "FORMA_DEBITO",   None),
+            TipoForma.POS_CREDITO: getattr(test_data, "FORMA_CREDITO",  None),
+        }
+        return mapa.get(tipo)
+
+    def obter_parcelas_disponiveis(self) -> list:
+        """Lista todas as parcelas visíveis no bottom sheet de parcelamento.
+        Chamar após btn_proceed em forma de crédito.
+        Retorna ex: ['A Prazo 0 + 1', 'A Prazo 0 + 2', 'A Prazo 0 + 3'].
+        Auto-persiste no settings.json na primeira descoberta."""
+        try:
+            els = self.driver.find_elements(
+                AppiumBy.XPATH,
+                '//android.widget.TextView[contains(@resource-id,"txt_option_title")]'
+            )
+            parcelas = [el.text.strip() for el in els if el.text.strip()]
+            if parcelas:
+                _persistir_parcelas_descobertas(parcelas)
+            return parcelas
+        except Exception:
+            return []
+
+    # XPath para detectar e clicar opções de parcelamento
+    XPATH_PARCELA = '//android.widget.TextView[contains(@resource-id,"txt_option_title") and @text="{parcela}"]'
+    XPATH_QUALQUER_PARCELA = '//android.widget.TextView[contains(@resource-id,"txt_option_title") and contains(@text,"A Prazo")]'
+
+    def _parcelamento_visivel(self) -> bool:
+        """Detecta se bottom sheet de parcelamento (crédito) abriu via XPath."""
+        try:
+            self.encontrar_por_xpath(self.XPATH_QUALQUER_PARCELA, tempo_espera=8)
+            return True
+        except Exception:
+            return False
+
+    def _selecionar_parcela(self, parcela: str = "A Prazo 0 + 1"):
+        """Seleciona parcela no bottom sheet via XPath e avança."""
+        logger.info(f"{LogStyle.ACAO} Parcela: {LogStyle.valor(parcela)}")
+        xpath = self.XPATH_PARCELA.format(parcela=parcela)
+        elemento = self.encontrar_por_xpath(xpath, tempo_espera=5)
+        elemento.click()
+        self.ver_e_clicar(self.BTN_AVANCAR)
+
+    def selecionar_pagamento(self, nome_forma: str, com_cliente: bool = True, parcela: str = None):
+        """Seleciona forma de pagamento pelo nome do atalho.
+
+        Fluxo:
+        - Clica no card → clica btn_proceed (igual DINHEIRO)
+        - Para crédito: btn_proceed abre sheet de parcelas → seleciona parcela → btn_proceed no sheet
+        - Para débito/dinheiro: btn_proceed avança direto (sem sheet)
+
+        Args:
+            nome_forma: Texto exibido no card (ex: 'BANRI POS', 'BANRI DEB POS', 'DINHEIRO').
+            com_cliente: Se True, trata alerta de cashback após avançar.
+            parcela: Texto da parcela para formas de crédito (ex: 'A Prazo 0 + 1').
+                     Se None, assume débito/dinheiro — sem sheet de parcelas.
+        """
+        logger.info(f"{LogStyle.ACAO} Selecionando pagamento: {LogStyle.valor(nome_forma)}")
+        self.ver_e_clicar_texto(nome_forma)
+        self.clicar_por_id(self.BTN_AVANCAR)  # Igual DINHEIRO — para crédito abre sheet de parcelas
+
+        if parcela and self._parcelamento_visivel():
+            logger.info(f"{LogStyle.INFO} Sheet de parcelas detectado → {LogStyle.valor(parcela)}")
+            self._selecionar_parcela(parcela)
+
+        if com_cliente:
+            self.tratar_alerta_cashback()
+
     def tratar_popup_bonus(self):
         """Trata popup de BÔNUS DISPONÍVEL se aparecer."""
         if self.texto_exibido(self.TXT_BONUS_DISPONIVEL, tempo_espera=3):
@@ -189,11 +665,14 @@ class VendaPage(BasePage):
         if imprimir is None:
             imprimir = test_data.PRINT_CUPOM_VENDA
 
-        timeout = test_data.PRINT_DIALOG_TIMEOUT
+        # Quando vai imprimir: usa timeout cheio (impressão pode demorar)
+        # Quando descarta: timeout menor — dialog sempre aparece rápido, sleep curto
+        timeout = test_data.PRINT_DIALOG_TIMEOUT if imprimir else 12
+        sleep_pos = 2.0 if imprimir else 0.5
         logger.info(f"{LogStyle.ACAO} Respondendo impressão cupom venda: {LogStyle.valor('SIM' if imprimir else 'NÃO')} (config: {test_data.PRINT_CUPOM_VENDA})")
         btn = self.BTN_IMPRIMIR_SIM if imprimir else self.BTN_IMPRIMIR_NAO
         self.clicar_se_existir(btn, tempo_espera=timeout)
-        time.sleep(2)  # Aguarda fechamento do diálogo
+        time.sleep(sleep_pos)  # Aguarda fechamento do diálogo
 
     def responder_dialogo_cupom_troca(self, imprimir: bool = None):
         """
@@ -214,7 +693,7 @@ class VendaPage(BasePage):
         # Tenta responder ao diálogo (pode não aparecer)
         if self.clicar_se_existir(self.BTN_IMPRIMIR_SIM if imprimir else self.BTN_IMPRIMIR_NAO, tempo_espera=3):
             logger.info(f"{LogStyle.OK} Diálogo cupom troca respondido: {LogStyle.valor('SIM' if imprimir else 'NÃO')}")
-            time.sleep(2)
+            time.sleep(2.0 if imprimir else 0.5)
         else:
             logger.info(f"{LogStyle.INFO} Diálogo cupom troca não apareceu (parâmetro pode estar desabilitado)")
 
@@ -233,8 +712,6 @@ class VendaPage(BasePage):
         self.clicar_avancar()
         self.selecionar_pagamento_dinheiro(com_cliente=True)  # Verifica cashback
         self.finalizar_venda()
-        self.responder_impressao()  # Cupom de venda (diálogo automático)
-        self.responder_dialogo_cupom_troca()  # Cupom de troca (pode aparecer antes da tela)
 
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda cliente concluída ✅')}")
 
@@ -247,8 +724,6 @@ class VendaPage(BasePage):
         self.clicar_avancar()
         self.selecionar_pagamento_dinheiro(com_cliente=False)  # Consumidor não tem cashback
         self.finalizar_venda()
-        self.responder_impressao()  # Cupom de venda (diálogo automático)
-        self.responder_dialogo_cupom_troca()  # Cupom de troca (pode aparecer antes da tela)
 
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda consumidor concluída ✅')}")
 
@@ -322,8 +797,6 @@ class VendaPage(BasePage):
         assert self.validar_restante_zerado(), "Restante não é R$ 0,00 — desconto não aplicado"
         # ver_e_clicar scrolla pro fundo até btnFinalizar
         self.ver_e_clicar(self.BTN_FINALIZAR)
-        self.responder_impressao()
-        self.responder_dialogo_cupom_troca()
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda consumidor com desconto concluída ✅')}")
 
     def executar_venda_cliente_com_desconto(self, id_cliente: str = "1", codigo_produto: str = "123", desconto: str = "10,00"):
@@ -341,8 +814,6 @@ class VendaPage(BasePage):
         assert self.validar_restante_zerado(), "Restante não é R$ 0,00 — desconto não aplicado"
         # ver_e_clicar scrolla pro fundo até btnFinalizar
         self.ver_e_clicar(self.BTN_FINALIZAR)
-        self.responder_impressao()
-        self.responder_dialogo_cupom_troca()
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda cliente com desconto concluída ✅')}")
 
     def excluir_primeiro_pagamento(self):
@@ -393,8 +864,6 @@ class VendaPage(BasePage):
         self.aplicar_bonus_cashback()                          # imageView19 → Bônus → ck_discount[1] → Aplicar
         self.adicionar_dinheiro_pagamento()                    # btn_adiciona_pagamento → DINHEIRO → btn_pagar
         self.ver_e_clicar(self.BTN_FINALIZAR)                  # scroll ↓ → clica
-        self.responder_impressao()
-        self.responder_dialogo_cupom_troca()
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda cliente desconto + bônus concluída ✅')}")
 
     def executar_venda_cliente_desconto_cashback(self, id_cliente: str = "1", codigo_produto: str = "123", desconto: str = "10,00", quantidade_extra: int = 2):
@@ -414,8 +883,6 @@ class VendaPage(BasePage):
         self.clicar_se_existir(self.BTN_CONFIRMAR_CASHBACK, tempo_espera=6)  # safety net cashback dialog
         self.aplicar_desconto_reais(desconto)                  # scroll ↑ textView127 → XPath[2] → 10,00
         self.ver_e_clicar(self.BTN_FINALIZAR)                  # scroll ↓ → clica
-        self.responder_impressao()
-        self.responder_dialogo_cupom_troca()
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda cliente desconto + cashback concluída ✅')}")
 
     def executar_venda_consumidor_com_acrescimo(self, codigo_produto: str = "123", acrescimo: str = "10,00"):
@@ -429,8 +896,6 @@ class VendaPage(BasePage):
         self.aplicar_acrescimo_reais(acrescimo)
         assert self.validar_restante_zerado(), "Restante não é R$ 0,00 — acréscimo não aplicado"
         self.ver_e_clicar(self.BTN_FINALIZAR)
-        self.responder_impressao()
-        self.responder_dialogo_cupom_troca()
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda consumidor com acréscimo concluída ✅')}")
 
     def executar_venda_cliente_com_acrescimo(self, id_cliente: str = "1", codigo_produto: str = "123", acrescimo: str = "10,00"):
@@ -445,8 +910,6 @@ class VendaPage(BasePage):
         self.aplicar_acrescimo_reais(acrescimo)
         assert self.validar_restante_zerado(), "Restante não é R$ 0,00 — acréscimo não aplicado"
         self.ver_e_clicar(self.BTN_FINALIZAR)
-        self.responder_impressao()
-        self.responder_dialogo_cupom_troca()
         logger.info(f"{LogStyle.secao('📋 FLUXO - Venda cliente com acréscimo concluída ✅')}")
 
     # --- Validações ---
@@ -456,19 +919,18 @@ class VendaPage(BasePage):
 
     def validar_sucesso_e_concluir(self):
         """
-        Valida sucesso, processa impressões da tela e conclui venda.
+        Event-driven: trata dialogs de impressão ao aparecer, aguarda tela de sucesso,
+        processa impressões da tela e conclui venda.
 
-        IMPORTANTE: Este método processa TODAS as impressões configuradas no Dashboard:
-        - NFC-E (se habilitado)
-        - DANFE (se habilitado)
-        - Cupom de Troca botão (se habilitado e não foi perguntado antes)
+        Budget único 45s — sem timeouts fixos por dialog.
+        Substitui: responder_impressao(12s) + responder_dialogo_cupom_troca(3s) + aguardar_texto(30s).
         """
         from pages.venda_sucesso_page import VendaSucessoPage
 
-        logger.info(f"{LogStyle.VALIDAR} Aguardando {LogStyle.elemento('Venda realizada com sucesso!')}")
-        self.aguardar_texto("Venda realizada com sucesso!")
+        # Event-driven: dialogs respondidos ao aparecer, sucesso aguardado no mesmo budget
+        self._aguardar_sucesso_event_driven(timeout=45)
 
-        # Processa TODAS as impressões da tela de sucesso (ordem XML)
+        # Processa impressões da tela de sucesso (NFC-E, DANFE, Cupom Troca botão)
         sucesso_page = VendaSucessoPage(self.driver)
         sucesso_page.processar_todas_impressoes()
 

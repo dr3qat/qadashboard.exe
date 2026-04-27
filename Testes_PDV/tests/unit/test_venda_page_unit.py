@@ -259,8 +259,8 @@ class TestVendaPageResponderImpressao:
         # Act
         page.responder_impressao(imprimir=False)
 
-        # Assert
-        page.clicar_se_existir.assert_called_once_with(VendaPage.BTN_IMPRIMIR_NAO, tempo_espera=20)
+        # Assert — timeout=12 (fast path para imprimir=False, independe de PRINT_DIALOG_TIMEOUT)
+        page.clicar_se_existir.assert_called_once_with(VendaPage.BTN_IMPRIMIR_NAO, tempo_espera=12)
 
 
 class TestVendaPageValidacoes:
@@ -291,14 +291,14 @@ class TestVendaPageValidacoes:
     @patch('pages.venda_page.logger')
     def test_validar_sucesso_e_concluir(self, mock_logger, mock_base_init, mock_sucesso_class):
         """
-        Deve aguardar texto de sucesso, processar impressões e concluir venda.
+        Deve usar event-driven para aguardar sucesso, processar impressões e concluir venda.
         """
         from pages.venda_page import VendaPage
 
         # Arrange
         page = VendaPage.__new__(VendaPage)
         page.driver = MagicMock()
-        page.aguardar_texto = MagicMock()
+        page._aguardar_sucesso_event_driven = MagicMock()
         page.concluir_venda = MagicMock()
 
         mock_sucesso_instance = MagicMock()
@@ -307,8 +307,8 @@ class TestVendaPageValidacoes:
         # Act
         page.validar_sucesso_e_concluir()
 
-        # Assert
-        page.aguardar_texto.assert_called_once_with("Venda realizada com sucesso!")
+        # Assert — event-driven substitui aguardar_texto
+        page._aguardar_sucesso_event_driven.assert_called_once_with(timeout=45)
         mock_sucesso_instance.processar_todas_impressoes.assert_called_once()
         page.concluir_venda.assert_called_once()
 
@@ -333,8 +333,6 @@ class TestVendaPageFluxoCliente:
         page.clicar_avancar = MagicMock()
         page.selecionar_pagamento_dinheiro = MagicMock()
         page.finalizar_venda = MagicMock()
-        page.responder_impressao = MagicMock()
-        page.responder_dialogo_cupom_troca = MagicMock()
 
         id_cliente = "42"
         codigo_produto = "888"
@@ -349,8 +347,6 @@ class TestVendaPageFluxoCliente:
         page.clicar_avancar.assert_called_once()
         page.selecionar_pagamento_dinheiro.assert_called_once()
         page.finalizar_venda.assert_called_once()
-        page.responder_impressao.assert_called_once()
-        page.responder_dialogo_cupom_troca.assert_called_once()
 
 
 class TestVendaPageFluxoConsumidor:
@@ -372,8 +368,6 @@ class TestVendaPageFluxoConsumidor:
         page.clicar_avancar = MagicMock()
         page.selecionar_pagamento_dinheiro = MagicMock()
         page.finalizar_venda = MagicMock()
-        page.responder_impressao = MagicMock()
-        page.responder_dialogo_cupom_troca = MagicMock()
 
         codigo_produto = "999"
 
@@ -386,8 +380,6 @@ class TestVendaPageFluxoConsumidor:
         page.clicar_avancar.assert_called_once()
         page.selecionar_pagamento_dinheiro.assert_called_once()
         page.finalizar_venda.assert_called_once()
-        page.responder_impressao.assert_called_once()
-        page.responder_dialogo_cupom_troca.assert_called_once()
 
     @patch('pages.venda_page.BasePage.__init__', return_value=None)
     @patch('pages.venda_page.logger')
@@ -405,8 +397,6 @@ class TestVendaPageFluxoConsumidor:
         page.clicar_avancar = MagicMock()
         page.selecionar_pagamento_dinheiro = MagicMock()
         page.finalizar_venda = MagicMock()
-        page.responder_impressao = MagicMock()
-        page.responder_dialogo_cupom_troca = MagicMock()
 
         # Act
         page.executar_venda_consumidor()

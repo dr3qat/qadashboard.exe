@@ -177,8 +177,12 @@ class TestBonusPageAtivarBonus:
         # Arrange
         page = BonusPage.__new__(BonusPage)
         page.driver = MagicMock()
+        page._app_package = "com.test"
         page.bonus_ativado = MagicMock(return_value=False)
         page.clicar_por_id = MagicMock()
+        mock_el = MagicMock()
+        mock_el.text = "R$ 10,00"
+        page.encontrar_por_id = MagicMock(return_value=mock_el)
 
         # Act
         page.ativar_bonus()
@@ -186,7 +190,7 @@ class TestBonusPageAtivarBonus:
         # Assert
         page.bonus_ativado.assert_called_once()
         page.clicar_por_id.assert_called_once_with(BonusPage.SWITCH_BONUS)
-        mock_time.sleep.assert_called_once_with(4)
+        mock_time.sleep.assert_called_once_with(2)
 
     @patch('pages.bonus_page.BasePage.__init__', return_value=None)
     @patch('pages.bonus_page.logger')
@@ -528,46 +532,34 @@ class TestBonusPageResponderImpressao:
     @patch('pages.bonus_page.test_data')
     @patch('pages.bonus_page.BasePage.__init__', return_value=None)
     @patch('pages.bonus_page.logger')
-    @patch('pages.bonus_page.time')
-    def test_responder_impressao_sim(self, mock_time, mock_logger, mock_base_init, mock_test_data):
-        """
-        Quando imprimir=True, deve clicar no botão SIM.
-        """
+    def test_responder_impressao_sim(self, mock_logger, mock_base_init, mock_test_data):
+        """Quando imprimir=True, deve delegar ao event-driven com imprimir_cupom=True."""
         from pages.bonus_page import BonusPage
 
-        # Arrange
-        mock_test_data.PRINT_DIALOG_TIMEOUT = 20
+        mock_test_data.PRINT_CUPOM_VENDA = True
         page = BonusPage.__new__(BonusPage)
         page.driver = MagicMock()
-        page.clicar_se_existir = MagicMock()
+        page._aguardar_sucesso_event_driven = MagicMock()
 
-        # Act
         page.responder_impressao(imprimir=True)
 
-        # Assert
-        page.clicar_se_existir.assert_called_once_with(BonusPage.BTN_SIM, tempo_espera=20)
+        page._aguardar_sucesso_event_driven.assert_called_once_with(imprimir_cupom=True, timeout=45)
 
     @patch('pages.bonus_page.test_data')
     @patch('pages.bonus_page.BasePage.__init__', return_value=None)
     @patch('pages.bonus_page.logger')
-    @patch('pages.bonus_page.time')
-    def test_responder_impressao_nao(self, mock_time, mock_logger, mock_base_init, mock_test_data):
-        """
-        Quando imprimir=False, deve clicar no botão NÃO.
-        """
+    def test_responder_impressao_nao(self, mock_logger, mock_base_init, mock_test_data):
+        """Quando imprimir=False, deve delegar ao event-driven com imprimir_cupom=False."""
         from pages.bonus_page import BonusPage
 
-        # Arrange
-        mock_test_data.PRINT_DIALOG_TIMEOUT = 20
+        mock_test_data.PRINT_CUPOM_VENDA = False
         page = BonusPage.__new__(BonusPage)
         page.driver = MagicMock()
-        page.clicar_se_existir = MagicMock()
+        page._aguardar_sucesso_event_driven = MagicMock()
 
-        # Act
         page.responder_impressao(imprimir=False)
 
-        # Assert
-        page.clicar_se_existir.assert_called_once_with(BonusPage.BTN_NAO, tempo_espera=20)
+        page._aguardar_sucesso_event_driven.assert_called_once_with(imprimir_cupom=False, timeout=45)
 
 
 class TestBonusPageCashbackDisponivel:

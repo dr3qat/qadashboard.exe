@@ -150,6 +150,12 @@ class VendaSucessoPage(BasePage):
         """
         logger.info(f"{LogStyle.secao('📋 PROCESSANDO IMPRESSÕES (ordem XML)')}")
 
+        # Fast-path: se nada configurado, não precisa verificar botões na tela
+        if not (test_data.PRINT_NFCE or test_data.PRINT_DANFE or
+                test_data.PRINT_CUPOM_TROCA or test_data.PRINT_GIFTBACK):
+            logger.info(f"   {LogStyle.SKIP} Nenhuma impressão configurada — pulando tela de sucesso")
+            return
+
         # 1. NFC-E (primeiro botão visível)
         self.imprimir_nfce()
 

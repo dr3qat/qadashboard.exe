@@ -486,6 +486,7 @@ class TestTrocaPageFluxoTrocaConsumidor:
         page.selecionar_primeira_nota = MagicMock()
         page.clicar_texto_se_existir = MagicMock(return_value=True)  # Popup SIM aparece
         page.selecionar_cliente = MagicMock()
+        page.elemento_existe = MagicMock(return_value=True)
         page.marcar_item_para_devolucao = MagicMock()
         page.clicar_devolver_itens = MagicMock()
         page.confirmar_dialogos = MagicMock()

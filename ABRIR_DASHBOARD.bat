@@ -27,9 +27,10 @@ set "SOURCE_DIR=%ROOT_DIR%Testes_PDV"
 echo [1/1] Sincronizando Testes_PDV para staging...
 :: /E = recursivo sem deletar extras do staging (preserva settings.json, scripts, runner files)
 :: /XD __pycache__ .git = ignora caches
-:: /XF *.pyc = ignora bytecode
+:: /XF *.pyc settings.json = ignora bytecode e preserva settings
+:: /MIR = espelho real (deleta do staging o que foi removido/movido no fonte)
 :: /NFL /NDL /NJH /NJS = log silencioso (sem listagem de arquivos/dirs)
-robocopy "%SOURCE_DIR%" "%STAGING_DIR%" /E /XD __pycache__ .git /XF *.pyc /NFL /NDL /NJH /NJS /NC /NS
+robocopy "%SOURCE_DIR%" "%STAGING_DIR%" /MIR /XD __pycache__ .git /XF *.pyc settings.json /NFL /NDL /NJH /NJS /NC /NS
 
 :: Robocopy: 0-7 = sucesso (bit flags). 8+ = erro real.
 if %ERRORLEVEL% GEQ 8 (

@@ -136,10 +136,21 @@ else:
         print(f"[DEV MODE] Usando diretório atual: {current_dir}")
 
 SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
+FORMAS_FILE   = os.path.join(BASE_DIR, "formas_pagamento.json")
 SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
 # VERSION fica no _MEIPASS quando compilado, ou no BASE_DIR em dev
 VERSION_FILE = os.path.join(MEIPASS_DIR, "VERSION") if getattr(sys, 'frozen', False) else os.path.join(BASE_DIR, "VERSION")
 FIRST_RUN_MARKER = os.path.join(BASE_DIR, ".first_run")
+
+# Auto-sync: detecta dev mode (True quando staging/ existe e é usado como BASE_DIR)
+try:
+    _DEV_MODE = (BASE_DIR == staging_dir)
+    _TESTES_PDV_DIR = os.path.normpath(os.path.join(
+        os.path.dirname(os.path.dirname(current_dir)), "Testes_PDV"
+    )) if _DEV_MODE else None
+except NameError:
+    _DEV_MODE = False
+    _TESTES_PDV_DIR = None
 
 
 # ==============================================================================
@@ -193,6 +204,11 @@ class TestRunnerApp:
         # Inicialização paralela
         self.root.after(100, self.verificar_dependencias_startup)
         self.root.after(500, self.iniciar_appium_background)
+        self.root.after(200, self._recarregar_painel_formas)   # checar JSON instantâneo, sem subprocess
+        self._discovery_running = False
+        self._discovery_last_error = ""
+        self._formas_habilitado_vars: dict = {}   # titulo → BooleanVar
+        self._tipos_venda_vars: dict = {}          # titulo:tipo_venda → BooleanVar
 
         self.appium_proc = None 
         self.pytest_proc = None
@@ -247,7 +263,11 @@ class TestRunnerApp:
             "print_dialog_timeout": tk.StringVar(value="20"),
             # Configurações de Ordem E2E
             "run_e2e_full": tk.BooleanVar(value=False),
-            "e2e_order_file": tk.StringVar(value="")
+            "e2e_order_file": tk.StringVar(value=""),
+            # Formas de pagamento POS (preenchidas por auto-descoberta ou manual)
+            "forma_dinheiro": tk.StringVar(value=""),
+            "forma_debito":   tk.StringVar(value=""),
+            "forma_credito":  tk.StringVar(value=""),
         }
 
         # Arquivo settings ativo (não salvo dentro do JSON — é o próprio arquivo)
@@ -283,6 +303,17 @@ class TestRunnerApp:
             padx=10
         )
         footer_label.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.lbl_formas_status = tk.Label(
+            footer_frame,
+            text="",
+            bg="#2d2d30",
+            fg="#a0a0a0",
+            font=('Segoe UI', 8),
+            anchor=tk.E,
+            padx=10
+        )
+        self.lbl_formas_status.pack(side=tk.RIGHT)
 
         self.setup_tab_testes()
         self.setup_tab_config()
@@ -449,10 +480,277 @@ class TestRunnerApp:
         sys.exit(0)
 
     # ==========================================================================
+    # AUTO-DESCOBERTA DE FORMAS DE PAGAMENTO POS
+    # ==========================================================================
+
+    def _atualizar_status_formas(self, texto: str, cor: str = "#a0a0a0"):
+        """Atualiza label de status de formas no footer (thread-safe via root.after)."""
+        if hasattr(self, 'lbl_formas_status'):
+            self.lbl_formas_status.config(text=texto, fg=cor)
+
+
+    def _autodescobrir_formas_bg(self):
+        """Roda pytest de discovery completo em thread daemon — sem janela visível."""
+        self._discovery_running = True
+        self._discovery_last_error = ""
+        try:
+            # Usa BASE_DIR (staging em dev, dir do EXE em prod) — não qa_dev_path que pode
+            # estar apontando para o diretório instalado enquanto se edita em staging.
+            projeto_path = BASE_DIR
+            appium_port  = self.config_vars["appium_port"].get() or "4723"
+            device_id    = self.config_vars.get("device_id", tk.StringVar()).get()
+            test_node = (
+                "tests/e2e/vendas/test_discovery_completo.py"
+                "::TestDiscoveryCompleto::test_mapear_todas_formas"
+            )
+            base_args = [
+                test_node,
+                "--no-header", "-q", "--tb=short",
+                f"--rootdir={projeto_path}",
+                f"--appium-port={appium_port}",
+            ]
+            if device_id:
+                base_args.append(f"--device-id={device_id}")
+
+            if getattr(sys, 'frozen', False):
+                cmd = [sys.executable, "worker_pytest_runner"] + base_args
+            else:
+                cmd = [sys.executable, "-m", "pytest"] + base_args
+
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONPATH"] = projeto_path + os.pathsep + env.get("PYTHONPATH", "")
+            env["TEST_SERVER_IP"]   = self.config_vars["server_ip"].get()
+            env["TEST_SERVER_PORT"] = self.config_vars["server_port"].get()
+            env["TEST_COMPANY"]     = self.config_vars["company"].get()
+            env["TEST_USER"]        = self.config_vars["user"].get()
+            env["TEST_PASSWORD"]    = self.config_vars["password"].get()
+            env["TEST_PRINT_CUPOM_VENDA"]  = "false"
+            env["TEST_PRINT_NFCE"]         = "false"
+            env["TEST_PRINT_DANFE"]        = "false"
+            env["TEST_PRINT_CUPOM_TROCA"]  = "false"
+            env["TEST_PRINT_GIFTBACK"]     = "false"
+
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+
+            result = subprocess.run(
+                cmd,
+                cwd=projeto_path,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                env=env,
+                startupinfo=si,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                timeout=180,
+            )
+            # Salva output para diagnóstico se falhar
+            if result.returncode != 0:
+                output = (result.stdout or "") + (result.stderr or "")
+                self._discovery_last_error = output[-500:] if len(output) > 500 else output
+                # Log no arquivo para debug
+                try:
+                    log_path = os.path.join(BASE_DIR, "logs", "discovery_error.log")
+                    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+                    with open(log_path, "w", encoding="utf-8") as f:
+                        f.write(f"CMD: {' '.join(cmd)}\nCWD: {projeto_path}\n\n{output}")
+                except Exception:
+                    pass
+        except subprocess.TimeoutExpired:
+            self._discovery_last_error = "Timeout (180s) — teste demorou demais"
+        except Exception as e:
+            self._discovery_last_error = str(e)
+        finally:
+            self._discovery_running = False
+            self.root.after(0, self._pos_autodescoberta)
+
+    def _pos_autodescoberta(self):
+        """Chamado após pytest de discovery terminar (botão manual)."""
+        err = getattr(self, "_discovery_last_error", "")
+        if err:
+            linhas = [l.strip() for l in err.splitlines() if l.strip()]
+            msg = f"⚠️ {linhas[-1][:80]}" if linhas else "⚠️ Discovery falhou"
+            self._atualizar_status_formas(msg, "#e74c3c")
+        self.root.after(200, self._recarregar_painel_formas)
+
+    # ------------------------------------------------------------------
+    # PAINEL DE ATALHOS DE PAGAMENTO (formas_pagamento.json)
+    # ------------------------------------------------------------------
+
+    def _formas_json_path(self) -> str:
+        """Retorna o caminho correto do formas_pagamento.json."""
+        settings = self.settings_file_var.get() if hasattr(self, "settings_file_var") else ""
+        if settings:
+            candidate = os.path.join(os.path.dirname(settings), "formas_pagamento.json")
+            if os.path.exists(candidate):
+                return candidate
+            # Usa mesmo diretório mesmo que ainda não exista
+            return candidate
+        return FORMAS_FILE
+
+    def _ler_formas_json(self) -> list:
+        """Lê formas_pagamento.json. Retorna [] se não existe ou inválido."""
+        path = self._formas_json_path()
+        if not os.path.exists(path):
+            return []
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f).get("formas", [])
+        except Exception:
+            return []
+
+    def _recarregar_painel_formas(self):
+        """Popula os 8 slots de atalhos a partir do formas_pagamento.json."""
+        if not hasattr(self, "_atalhos_nome_vars"):
+            return
+        formas = self._ler_formas_json()
+        if formas:
+            n_hab = sum(1 for f in formas if f.get("habilitado", True))
+            self._atualizar_status_formas(f"✅ {len(formas)} atalhos mapeados ({n_hab} habilitados)", "#2ecc71")
+        else:
+            self._atualizar_status_formas("⚠️ Atalhos não mapeados — clique 🔄 para mapear", "#e67e22")
+        COR_TIPO = {
+            "pos_debito":   "#1565c0",
+            "pos_credito":  "#6a1b9a",
+            "dinheiro":     "#2e7d32",
+            "personalizado":"#e65100",
+            "tef":          "#888888",
+            "pix":          "#00838f",
+            "outro":        "#888888",
+        }
+        for i in range(8):
+            if i < len(formas):
+                f = formas[i]
+                titulo    = f.get("titulo", "")
+                tipo_auto = f.get("tipo_auto", "outro")
+                habilitado = f.get("habilitado", True)
+                parcelas  = f.get("parcelas", [])
+                tipos_v   = f.get("tipos_venda", [])
+                self._atalhos_nome_vars[i].set(titulo)
+                self._atalhos_hab_vars[i].set(habilitado)
+                # Label de tipo com info extra
+                info = tipo_auto
+                if parcelas:
+                    info += f" · {len(parcelas)}parc"
+                if tipos_v:
+                    n_hab = sum(1 for t in tipos_v if t.get("habilitado", True))
+                    info += f" · {n_hab}tv"
+                if hasattr(self, "_atalhos_tipo_labels") and i < len(self._atalhos_tipo_labels):
+                    self._atalhos_tipo_labels[i].config(
+                        text=info, foreground=COR_TIPO.get(tipo_auto, "#555"))
+            else:
+                self._atalhos_nome_vars[i].set("")
+                self._atalhos_hab_vars[i].set(False)
+                if hasattr(self, "_atalhos_tipo_labels") and i < len(self._atalhos_tipo_labels):
+                    self._atalhos_tipo_labels[i].config(text="—", foreground="#ccc")
+
+    def _salvar_formas_json(self):
+        """Salva os valores dos 8 slots de volta no formas_pagamento.json."""
+        path = self._formas_json_path()
+        try:
+            # Lê existente para preservar parcelas/tipos_venda
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            else:
+                data = {"formas": []}
+            formas = data.get("formas", [])
+            # Atualiza nome + habilitado de cada slot
+            for i in range(8):
+                nome = self._atalhos_nome_vars[i].get().strip()
+                hab  = self._atalhos_hab_vars[i].get()
+                if i < len(formas):
+                    formas[i]["titulo"]    = nome
+                    formas[i]["habilitado"] = hab
+                elif nome:
+                    formas.append({"titulo": nome, "subtitulo": "", "detalhes": "",
+                                   "tipo_auto": "outro", "habilitado": hab,
+                                   "parcelas": [], "tipos_venda": []})
+            # Remove slots vazios no final
+            while formas and not formas[-1].get("titulo"):
+                formas.pop()
+            data["formas"] = formas
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao salvar formas_pagamento.json:\n{e}")
+
+    def _abrir_formas_json(self):
+        """Abre formas_pagamento.json no editor padrão. Cria vazio se não existir."""
+        path = self._formas_json_path()
+        if not os.path.exists(path):
+            try:
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump({"_discovery_timestamp": "", "formas": []}, f, indent=2)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Não foi possível criar {path}:\n{e}")
+                return
+        try:
+            os.startfile(path)
+        except Exception:
+            try:
+                subprocess.Popen(["notepad.exe", path])
+            except Exception as e:
+                messagebox.showerror("Erro", f"Não foi possível abrir:\n{path}\n\n{e}")
+
+    def _appium_esta_rodando(self) -> bool:
+        """Verifica se o Appium está ouvindo na porta configurada."""
+        import socket
+        try:
+            port = int(self.config_vars.get(
+                "appium_port", tk.StringVar(value="4723")).get() or 4723)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1)
+            result = s.connect_ex(("127.0.0.1", port))
+            s.close()
+            return result == 0
+        except Exception:
+            return False
+
+    def _forcar_redescoberta_formas(self):
+        """Limpa formas mapeadas e inicia redescoberta (chamado pelo botão)."""
+        if self._discovery_running:
+            messagebox.showinfo("Aguarde", "Já existe uma descoberta em andamento.")
+            return
+        if not self._appium_esta_rodando():
+            messagebox.showwarning("Appium offline", "O Appium não está rodando.\nInicie o Appium e tente novamente.")
+            return
+        # Apaga formas_pagamento.json para forçar re-mapeamento completo
+        path = self._formas_json_path()
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+        except Exception:
+            pass
+        # Limpa campos legados no settings.json
+        try:
+            settings_path = self.settings_file_var.get() or SETTINGS_FILE
+            with open(settings_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            for campo in ("forma_debito", "forma_credito", "forma_dinheiro", "parcelas_credito"):
+                data.pop(campo, None)
+            with open(settings_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2)
+        except Exception:
+            pass
+        # Limpa slots visuais
+        for i in range(8):
+            self._atalhos_nome_vars[i].set("")
+            self._atalhos_hab_vars[i].set(False)
+            if i < len(self._atalhos_tipo_labels):
+                self._atalhos_tipo_labels[i].config(text="—", foreground="#ccc")
+        self._atualizar_status_formas("🔄 Iniciando descoberta...", "#f39c12")
+        t = threading.Thread(target=self._autodescobrir_formas_bg, daemon=True)
+        t.start()
+
+    # ==========================================================================
     # SETUP DA TAB DE TESTES
     # ==========================================================================
     def setup_tab_testes(self):
-        left_frame = ttk.Frame(self.tab_testes, padding="10", width=390)
+        left_frame = ttk.Frame(self.tab_testes, padding="10", width=430)
         left_frame.pack(side=tk.LEFT, fill=tk.Y, expand=False)
         left_frame.pack_propagate(False) 
         
@@ -477,6 +775,18 @@ class TestRunnerApp:
         
         self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         self.tree.bind("<Button-1>", self.on_tree_click)
+
+        # --- Estilo visual da árvore ---
+        _ts = ttk.Style()
+        _ts.configure("Treeview", rowheight=24)
+        self.tree.tag_configure("cat_e2e",       foreground="#1a6b3c", font=('Segoe UI', 9))
+        self.tree.tag_configure("cat_smoke",      foreground="#007a6c", font=('Segoe UI', 9))
+        self.tree.tag_configure("cat_unit",       foreground="#5c2d91", font=('Segoe UI', 9))
+        self.tree.tag_configure("cat_negativos",  foreground="#8b0000", font=('Segoe UI', 9))
+        self.tree.tag_configure("cat_descontos",  foreground="#8b4513", font=('Segoe UI', 9))
+        self.tree.tag_configure("cat_default",    foreground="#2d2d30", font=('Segoe UI', 9))
+        self.tree.tag_configure("folder_root",    font=('Segoe UI', 9, 'bold'))
+        self.tree.tag_configure("subfolder",      font=('Segoe UI', 9, 'italic'))
 
         self.lbl_status_fila = tk.Label(left_frame, text="Fila: (Vazia)", fg="gray", wraplength=250, justify="left", font=('Segoe UI', 8))
         self.lbl_status_fila.pack(side=tk.TOP, fill=tk.X, pady=(10, 2))
@@ -590,7 +900,6 @@ class TestRunnerApp:
             if fn in IGNORED_FILES: continue
             rp = os.path.relpath(fp, projeto_path)
             pts = rp.split(os.sep)
-            # categoria = pts[1] se pts[0]=='tests', senão pts[0]
             if len(pts) >= 2 and pts[0] == "tests":
                 cat_key = os.path.join(pts[0], pts[1])
             elif len(pts) >= 1:
@@ -598,6 +907,33 @@ class TestRunnerApp:
             else:
                 continue
             category_counts[cat_key] = category_counts.get(cat_key, 0) + 1
+
+        total_tests = len([fp for fp in test_files if os.path.basename(fp) not in IGNORED_FILES])
+
+        CAT_ICONS = {
+            "e2e": "🔄", "smoke": "💨", "unit": "⚡", "negativos": "🚫",
+            "vendas": "💰", "descontos": "🏷️", "trocas": "🔁", "pedidos": "📋",
+            "login": "🔑", "cliente": "👤", "validar": "✔️", "venda_futura": "🗓️",
+            "consultas": "🔍",
+        }
+        CAT_LABELS = {
+            "e2e": "E2E", "smoke": "Smoke", "unit": "Unitários", "negativos": "Negativos",
+            "vendas": "Vendas", "descontos": "Descontos", "trocas": "Trocas",
+            "pedidos": "Pedidos", "login": "Login", "cliente": "Cliente",
+            "validar": "Validar", "venda_futura": "Venda Futura", "consultas": "Consultas",
+        }
+        CAT_TAGS = {
+            "e2e": "cat_e2e", "smoke": "cat_smoke", "unit": "cat_unit",
+            "negativos": "cat_negativos", "descontos": "cat_descontos",
+        }
+
+        def _get_cat(pts):
+            if len(pts) >= 2 and pts[0] == "tests":
+                return pts[1]
+            return pts[0] if pts else ""
+
+        def _fmt_file(name):
+            return name.replace("test_", "").replace(".py", "").replace("_", " ").title()
 
         folder_ids = {}
 
@@ -607,23 +943,37 @@ class TestRunnerApp:
 
             rel_path = os.path.relpath(full_path, projeto_path)
             parts = rel_path.split(os.sep)
+            file_cat = _get_cat(parts)
 
             parent_id = ""
 
             for i, part in enumerate(parts[:-1]):
                 current_path_str = os.path.join(*parts[:i+1])
                 if current_path_str not in folder_ids:
-                    # Mostra contagem apenas na categoria (1º nível abaixo de 'tests')
                     is_category = (parts[0] == "tests" and i == 1) or (parts[0] != "tests" and i == 0)
+                    folder_cat = _get_cat(parts[:i+1])
+                    tag = CAT_TAGS.get(folder_cat, "cat_default")
+                    is_root = (parts[0] == "tests" and i == 0)
                     if is_category and current_path_str in category_counts:
-                        label = f"⬜ 📂 {part}  ({category_counts[current_path_str]})"
+                        icon = CAT_ICONS.get(folder_cat, "📂")
+                        display = CAT_LABELS.get(folder_cat, part.capitalize())
+                        label = f"⬜ {icon} {display}  ({category_counts[current_path_str]})"
+                        tags = (tag, "folder_root")
+                    elif is_root:
+                        label = f"⬜ 📁 {part.replace('_', ' ').capitalize()}  ({total_tests})"
+                        tags = (tag, "folder_root")
                     else:
-                        label = f"⬜ 📂 {part}"
-                    folder_id = self.tree.insert(parent_id, "end", text=label, open=True, values=("folder", current_path_str))
+                        label = f"⬜ 📁 {part.replace('_', ' ').capitalize()}"
+                        tags = (tag, "subfolder")
+                    # só tests raiz abre; categorias e subpastas: recolhidas
+                    should_open = is_root
+                    folder_id = self.tree.insert(parent_id, "end", text=label, open=should_open, values=("folder", current_path_str), tags=tags)
                     folder_ids[current_path_str] = folder_id
                 parent_id = folder_ids[current_path_str]
 
-            self.tree.insert(parent_id, "end", text=f"⬜ 🐍 {file_name}", values=("file", full_path))
+            tag = CAT_TAGS.get(file_cat, "cat_default")
+            display = _fmt_file(file_name)
+            self.tree.insert(parent_id, "end", text=f"⬜ 🐍 {display}", values=("file", full_path), tags=(tag,))
 
     def on_tree_click(self, event):
         item_id = self.tree.identify_row(event.y)
@@ -925,6 +1275,72 @@ class TestRunnerApp:
             # Adicionar tooltip hover ao campo (sem label cinza)
             ToolTip(entry, tooltip)
             r += 1
+
+        ttk.Separator(frame, orient='horizontal').grid(row=r, column=0, columnspan=3, sticky="ew", pady=15)
+        r += 1
+
+        # === ATALHOS DE PAGAMENTO (8 slots fixos) ===
+        ttk.Label(frame, text="Atalhos de Pagamento", font=('Segoe UI', 12, 'bold')).grid(
+            row=r, column=0, columnspan=3, pady=(0, 5), sticky="w")
+        r += 1
+        ttk.Label(frame,
+                  text="8 slots fixos da tela de pagamento do app. "
+                       "Mapeados automaticamente no startup (quando Appium estiver pronto). "
+                       "Edite o JSON para ajustar tipos_venda e parcelas do Personalizado.",
+                  font=('Segoe UI', 8), foreground="gray", wraplength=480).grid(
+            row=r, column=0, columnspan=3, sticky="w", padx=5, pady=(0, 8))
+        r += 1
+
+        # Grade com os 8 atalhos
+        atalhos_frame = ttk.LabelFrame(frame, text="Atalhos descobertos", padding=6)
+        atalhos_frame.grid(row=r, column=0, columnspan=3, sticky="ew", padx=5, pady=(0, 6))
+        self._painel_formas_frame = atalhos_frame
+
+        # Inicializa as variáveis dos 8 slots (se ainda não criadas no __init__)
+        if not hasattr(self, "_atalhos_nome_vars"):
+            self._atalhos_nome_vars  = [tk.StringVar() for _ in range(8)]
+            self._atalhos_hab_vars   = [tk.BooleanVar(value=True) for _ in range(8)]
+            self._atalhos_tipo_labels = []
+
+        # Cabeçalho
+        ttk.Label(atalhos_frame, text="Slot",   font=('Segoe UI', 8, 'bold'), width=6 ).grid(row=0, column=0, padx=4)
+        ttk.Label(atalhos_frame, text="Nome da Forma", font=('Segoe UI', 8, 'bold'), width=30).grid(row=0, column=1, padx=4)
+        ttk.Label(atalhos_frame, text="Tipo",   font=('Segoe UI', 8, 'bold'), width=14).grid(row=0, column=2, padx=4)
+        ttk.Label(atalhos_frame, text="Testar", font=('Segoe UI', 8, 'bold'), width=6 ).grid(row=0, column=3, padx=4)
+        ttk.Separator(atalhos_frame, orient='horizontal').grid(row=1, column=0, columnspan=4, sticky="ew", pady=2)
+
+        self._atalhos_tipo_labels = []
+        for i in range(8):
+            slot_r = i + 2
+            ttk.Label(atalhos_frame, text=f"Atalho {i+1}", font=('Segoe UI', 8), foreground="#555").grid(
+                row=slot_r, column=0, sticky="e", padx=4, pady=2)
+            entry = ttk.Entry(atalhos_frame, textvariable=self._atalhos_nome_vars[i], width=30)
+            entry.grid(row=slot_r, column=1, sticky="w", padx=4, pady=2)
+            ToolTip(entry, f"Nome do atalho {i+1} na tela de pagamento do app. Preenchido pelo discovery.")
+            lbl_tipo = ttk.Label(atalhos_frame, text="—", width=14,
+                                  font=('Segoe UI', 7), foreground="#888")
+            lbl_tipo.grid(row=slot_r, column=2, sticky="w", padx=4)
+            self._atalhos_tipo_labels.append(lbl_tipo)
+            chk = ttk.Checkbutton(atalhos_frame, variable=self._atalhos_hab_vars[i],
+                                   command=self._salvar_formas_json)
+            chk.grid(row=slot_r, column=3, padx=4)
+        r += 1
+
+        # Botões
+        atalhos_btn_frame = ttk.Frame(frame)
+        atalhos_btn_frame.grid(row=r, column=0, columnspan=3, sticky="w", padx=5, pady=(4, 2))
+        ttk.Button(atalhos_btn_frame, text="🔄 Descobrir Atalhos",
+                   command=self._forcar_redescoberta_formas).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(atalhos_btn_frame, text="🔃 Recarregar",
+                   command=self._recarregar_painel_formas).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(atalhos_btn_frame, text="📝 Abrir JSON",
+                   command=self._abrir_formas_json).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(atalhos_btn_frame, text="💾 Salvar",
+                   command=self._salvar_formas_json).pack(side=tk.LEFT)
+        r += 1
+
+        # Carrega painel após a UI estar pronta
+        self.root.after(500, self._recarregar_painel_formas)
 
         ttk.Separator(frame, orient='horizontal').grid(row=r, column=0, columnspan=3, sticky="ew", pady=15)
         r += 1
@@ -1369,6 +1785,13 @@ class TestRunnerApp:
         return False
 
     def iniciar_testes(self):
+        if self._discovery_running:
+            messagebox.showinfo(
+                "Aguarde",
+                "🔄 Mapeamento de formas POS em andamento.\n\nAguarde alguns segundos e tente novamente."
+            )
+            return
+
         # Flag para indicar se está em modo E2E Full
         self.e2e_full_mode = False
 
@@ -1512,7 +1935,38 @@ class TestRunnerApp:
         except Exception as e:
             self.root.after(0, self.escrever_log, f"[AVISO] Erro na limpeza: {e}", 'WARNING')
 
+    def _sincronizar_staging(self):
+        """Sincroniza Testes_PDV/ → staging/ antes de cada run (dev mode only)."""
+        if not _DEV_MODE or not _TESTES_PDV_DIR:
+            return
+        if not os.path.isdir(_TESTES_PDV_DIR):
+            self.escrever_log(f"[SYNC] Testes_PDV não encontrado: {_TESTES_PDV_DIR}", 'WARNING')
+            return
+
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+
+        cmd = [
+            "robocopy", _TESTES_PDV_DIR, BASE_DIR,
+            "/MIR",
+            "/XD", "__pycache__", ".git",
+            "/XF", "*.pyc", "settings.json",
+            "/NFL", "/NDL", "/NJH", "/NJS", "/NC", "/NS"
+        ]
+        result = subprocess.run(
+            cmd, startupinfo=si,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            capture_output=True
+        )
+        # robocopy: 0-7 = sucesso, 8+ = erro real
+        if result.returncode >= 8:
+            self.escrever_log(f"[SYNC] Erro robocopy (code={result.returncode})", 'WARNING')
+        else:
+            self.escrever_log("[SYNC] staging atualizado com Testes_PDV/", 'INFO')
+
     def rodar_processo(self, test_files, device_id=None, modelo=None, skip_finalize=False):
+        self._sincronizar_staging()
         # 1. Limpeza (só no modo normal, evita limpar entre devices no simultâneo)
         if self.config_vars["clean_logs"].get() and not skip_finalize:
             self._limpar_logs_antigos()
@@ -1621,29 +2075,9 @@ class TestRunnerApp:
             self.pytest_proc = subprocess.Popen(cmd, cwd=projeto_path, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                      universal_newlines=True, startupinfo=startupinfo, encoding='utf-8', errors='replace', bufsize=1)
 
-            # Buffer para processar logs em lotes (evita travar UI)
-            buffer = []
-            BUFFER_SIZE = 5  # Processa 5 linhas por vez
-
+            # Processa cada linha em tempo real via root.after (thread-safe)
             for line in self.pytest_proc.stdout:
-                buffer.append(line)
-
-                # Processa em lotes
-                if len(buffer) >= BUFFER_SIZE:
-                    # Cria cópia do buffer para processar
-                    linhas_para_processar = buffer.copy()
-                    buffer.clear()
-
-                    # Processa lote de forma síncrona (mais rápido que after)
-                    for linha in linhas_para_processar:
-                        self.processar_linha_log(linha)
-
-                    # Força atualização da UI a cada lote
-                    self.root.update_idletasks()
-
-            # Processa linhas restantes no buffer
-            for linha in buffer:
-                self.processar_linha_log(linha)
+                self.root.after(0, self.processar_linha_log, line)
 
             self.pytest_proc.wait()
             self.exit_code = self.pytest_proc.returncode
@@ -1848,6 +2282,8 @@ class TestRunnerApp:
         self.progress.stop()
         self.modo_simultaneo_ativo = False
         self.btn_run.config(state=tk.NORMAL, text="▶ RODAR NA ORDEM", bg="#007acc", command=self.iniciar_testes)
+        # Recarrega painel: se algum teste gerou/atualizou formas_pagamento.json, reflete aqui
+        self.root.after(500, self._recarregar_painel_formas)
         self.escrever_log("-" * 50, 'SYSTEM')
 
         # 1. Abre Relatório Simples (não abre em modo simultâneo — múltiplos relatórios)

@@ -84,6 +84,15 @@ class DocumentosPage(BasePage):
         logger.info(f"{LogStyle.ACAO} Clicar no botão Consultar...")
         self.ver_e_clicar_texto("Consultar")
 
+    def aguardar_resultado_consulta(self, timeout: int = 8):
+        """Aguarda lista de documentos carregar após consultar. Substitui sleep(5) fixo."""
+        logger.info(f"{LogStyle.ACAO} Aguardando resultado da consulta...")
+        if self.elemento_existe(self.LBL_VERIFICAR_QUE_DOCUMENTOS, tempo_espera=timeout):
+            logger.info(f"   {LogStyle.OK} Lista carregada")
+        else:
+            logger.info(f"   {LogStyle.FALLBACK} Sem resultados ou timeout — aguardando 3s")
+            time.sleep(3)
+
     def clicar_primeiro_documento(self):
         """Clica SEMPRE no primeiro documento da lista via ViewGroup pai clicável."""
         logger.info(f"{LogStyle.ACAO} Clicar no primeiro documento da lista...")

@@ -222,46 +222,34 @@ class TestValePresentePageResponderImpressao:
     @patch('pages.vale_presente_page.test_data')
     @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
     @patch('pages.vale_presente_page.logger')
-    @patch('pages.vale_presente_page.time')
-    def test_responder_impressao_sim_quando_imprimir_true(self, mock_time, mock_logger, mock_base_init, mock_test_data):
-        """
-        Quando imprimir=True, deve clicar no botão SIM.
-        """
+    def test_responder_impressao_sim_quando_imprimir_true(self, mock_logger, mock_base_init, mock_test_data):
+        """Quando imprimir=True, deve delegar ao event-driven com imprimir_cupom=True."""
         from pages.vale_presente_page import ValePresentePage
 
-        # Arrange
-        mock_test_data.PRINT_DIALOG_TIMEOUT = 20
+        mock_test_data.PRINT_CUPOM_VENDA = True
         page = ValePresentePage.__new__(ValePresentePage)
         page.driver = MagicMock()
-        page.clicar_se_existir = MagicMock()
+        page._aguardar_sucesso_event_driven = MagicMock()
 
-        # Act
         page.responder_impressao(imprimir=True)
 
-        # Assert
-        page.clicar_se_existir.assert_called_once_with(ValePresentePage.BTN_SIM, tempo_espera=20)
+        page._aguardar_sucesso_event_driven.assert_called_once_with(imprimir_cupom=True, timeout=45)
 
     @patch('pages.vale_presente_page.test_data')
     @patch('pages.vale_presente_page.BasePage.__init__', return_value=None)
     @patch('pages.vale_presente_page.logger')
-    @patch('pages.vale_presente_page.time')
-    def test_responder_impressao_nao_quando_imprimir_false(self, mock_time, mock_logger, mock_base_init, mock_test_data):
-        """
-        Quando imprimir=False, deve clicar no botão NÃO.
-        """
+    def test_responder_impressao_nao_quando_imprimir_false(self, mock_logger, mock_base_init, mock_test_data):
+        """Quando imprimir=False, deve delegar ao event-driven com imprimir_cupom=False."""
         from pages.vale_presente_page import ValePresentePage
 
-        # Arrange
-        mock_test_data.PRINT_DIALOG_TIMEOUT = 20
+        mock_test_data.PRINT_CUPOM_VENDA = False
         page = ValePresentePage.__new__(ValePresentePage)
         page.driver = MagicMock()
-        page.clicar_se_existir = MagicMock()
+        page._aguardar_sucesso_event_driven = MagicMock()
 
-        # Act
         page.responder_impressao(imprimir=False)
 
-        # Assert
-        page.clicar_se_existir.assert_called_once_with(ValePresentePage.BTN_NAO, tempo_espera=20)
+        page._aguardar_sucesso_event_driven.assert_called_once_with(imprimir_cupom=False, timeout=45)
 
 
 class TestValePresentePageConcluirVenda:

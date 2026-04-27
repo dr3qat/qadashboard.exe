@@ -4,6 +4,174 @@ Registro diário de alterações, correções e melhorias realizadas no projeto.
 
 ---
 
+## 2026-04-16 — Qualidade e Manutenção: Auto-Sync + Timeout + Teardown + Rerunfailures
+
+### Escopo: melhorias de infraestrutura de testes (zero risco, zero reescrita)
+
+---
+
+### P1 — app_runner.py: auto-sync staging antes de cada run
+
+- Método `_sincronizar_staging()` adicionado à classe `TestRunnerApp`
+- Executa `robocopy Testes_PDV/ staging/ /MIR` antes de cada `rodar_processo()`
+- Variáveis de módulo: `_DEV_MODE` e `_TESTES_PDV_DIR` (try/except para compatibilidade com EXE)
+- Resultado: editar apenas `Testes_PDV/` — staging nunca mais precisa ser tocado diretamente
+
+---
+
+### P2 — pytest.ini: timeout global + marker negativos
+
+- `timeout = 180` — pytest-timeout mata teste travado em 3min (Appium hang protection)
+- Marker `negativos` declarado (evitava `PytestUnknownMarkWarning` nos testes de borda)
+- Impacto: zero em unit tests (completam em <1s); salva runs E2E de travamento eterno
+
+---
+
+### P3 — requirements.txt: novos pacotes pinados
+
+- `pytest-timeout==2.3.1` — implementa `timeout = 180` do pytest.ini
+- `pytest-rerunfailures==14.0` — disponível para re-rodar flaky tests com `--reruns N`
+- Instalar: `pip install -r requirements.txt`
+
+---
+
+### P4 — conftest.py: teardown automático em driver_logado
+
+- `driver_logado` mudou de `return driver` para `yield driver` + bloco de teardown
+- Teardown: pressiona `driver.back()` até `home_page.tela_inicial_exibida()` (max 4x, timeout 2s)
+- `try/except` garante que teardown nunca interrompe o runner
+- Resultado: testes isolados — próximo teste sempre começa na home, mesmo se anterior falhou
+
+---
+
+### P5 — CLAUDE.md + docs: limpeza e atualização
+
+- Removida regra "Espelhar em staging" do checklist de smoke (item 2 → eliminado, 3-8 → 2-7)
+- Estrutura de diretórios: staging marcado como "somente leitura / auto-sincronizado"
+- §12.1 atualizado com documentação de timeout, teardown e rerunfailures
+- detalhes/README_DESENVOLVIMENTO.md: atualizado para refletir auto-sync
+
+---
+
+## 2026-04-15 — Discovery Completo de Atalhos + Dashboard UI
+
+### Escopo: mapeamento automático de todos os 8 atalhos de pagamento
+
+---
+
+### P1 — venda_page.py: descoberta completa de formas
+
+**Novos métodos:**
+- `descobrir_formas_completo()` — mapeia TODOS os cards (inclui Personalizado + parcelas POS) → salva `formas_pagamento.json`
+- `_descobrir_personalizado()` — abre bottom sheet `recycler_tipo_venda`, lê tipos_venda, clica credito para ler `recycler_plano_venda`
+- `_descobrir_parcelas_pos_credito(titulo)` — abre bottom sheet de crédito, lê parcelas, fecha
+- `selecionar_personalizado(tipo_venda, parcela=None)` — para tests usarem Personalizado
+- `_classificar_tipo_completo()` — sem exclusões (TEF/PIX incluídos no JSON)
+- `_salvar_formas_pagamento(formas)` — serializa em `formas_pagamento.json` ao lado do `settings.json`
+- `_sincronizar_settings_de_formas(formas)` — backward compat: atualiza forma_debito/credito/dinheiro no settings.json
+
+**Novos locators:**
+- `RECYCLER_TIPO_VENDA = "recycler_tipo_venda"` — lista de tipos no Personalizado
+- `BTN_FECHAR_SHEET = "btn_close"` — fecha bottom sheets
+
+**TipoForma expandido:** adicionados `PERSONALIZADO`, `TEF`, `OUTRO`
+
+---
+
+### P2 — test_data.py: carregamento do formas_pagamento.json
+
+- `_load_formas_pagamento()` — lê `formas_pagamento.json` do mesmo dir do `settings.json`
+- `TestData.FORMAS_PAGAMENTO: list` — carregado na inicialização
+- Removido: todo código `IS_CI` / GitHub Actions (projeto só roda localmente com device físico)
+
+---
+
+### P3 — Novos testes E2E
+
+**`test_discovery_completo.py`:**
+- Navega até tela de pagamento → chama `descobrir_formas_completo()` → volta sem finalizar
+- Usado pelo dashboard em auto-descoberta no startup
+
+**`test_venda_personalizado.py`:**
+- Lê `test_data.FORMAS_PAGAMENTO` em import time → gera um `pytest.param` por tipo_venda habilitado
+- Skip automático se `formas_pagamento.json` ausente ou Personalizado não habilitado
+
+---
+
+### P4 — app_runner.py: UI e auto-descoberta no startup
+
+**UI — "Atalhos de Pagamento":**
+- Substituiu seções redundantes por 1 seção com 8 slots fixos (Atalho 1–8)
+- Cada slot: Entry (nome), Label (tipo + parcelas/tipos_venda), Checkbutton (habilitado)
+- Botões: "🔄 Descobrir Atalhos", "🔃 Recarregar", "📝 Abrir JSON", "💾 Salvar"
+
+**Auto-descoberta no startup:**
+- `_verificar_autodescoberta_formas()` — checa `formas_pagamento.json` após 5s
+- Se já mapeado → mostra status verde
+- Se Appium online → dispara discovery (pytest `test_discovery_completo` em thread daemon)
+- Se Appium offline → retry a cada 10s, máximo 6× (60s), depois alerta vermelho
+- `_autodescobrir_formas_bg()` — passa credenciais reais como env vars (TEST_SERVER_IP etc.) → pytest não usa settings.json placeholder do staging
+
+**Arquivos modificados (ambas as cópias):**
+- `Testes_PDV/pages/venda_page.py` + staging
+- `Testes_PDV/test_data.py` + staging
+- `Testes_PDV/tests/e2e/vendas/test_discovery_completo.py` (novo) + staging
+- `Testes_PDV/tests/e2e/vendas/test_venda_personalizado.py` (novo) + staging
+- `Testes_PDV/tests/e2e/vendas/test_venda_pos_cred1x/2x/3x.py` (ajuste PARCELAS_CREDITO)
+- `Gerador_EXE/runner/app_runner.py`
+
+---
+
+## 2026-04-14 — Otimização de Login e Impressões
+
+### Ganho estimado: ~3-4s por teste E2E (impressões todas False)
+
+---
+
+### P1 — login_page.py: timeout de detecção reduzido
+
+**Mudança:** `esta_logado(timeout=5)` → `timeout=3` (default + chamada em `garantir_login`).
+
+**Motivo:** `esta_logado` faz 2 chamadas sequenciais de `texto_exibido`. Quando NÃO logado, desperdiçava 10s (5+5) antes de iniciar o login. Com 3s: 6s total → economiza 4s no primeiro teste da sessão.
+
+**Impacto quando já logado:** zero — `texto_exibido` retorna em ~0.5s ao encontrar o elemento.
+
+---
+
+### P2 — venda_page.py: sleep/timeout adaptativos em impressões
+
+**Mudança em `responder_impressao()`:**
+- `PRINT_CUPOM_VENDA=False`: timeout 20s → **12s**, sleep 2s → **0.5s**
+- `PRINT_CUPOM_VENDA=True`: mantém valores originais (timeout `PRINT_DIALOG_TIMEOUT`, sleep 2s)
+
+**Mudança em `responder_dialogo_cupom_troca()`:**
+- Dialog aparece + `PRINT_CUPOM_TROCA=False`: sleep 2s → **0.5s**
+- Dialog aparece + `PRINT_CUPOM_TROCA=True`: mantém sleep 2s
+
+**Motivo:** Dialog de cupom sempre aparece rapidamente. Clicar NÃO fecha o dialog instantaneamente — sleep de 2s era desperdício puro. O próximo passo (`validar_sucesso_e_concluir`) usa `aguardar_texto`, então não precisa de sleep antes.
+
+---
+
+### P3 — venda_sucesso_page.py: fast-path em processar_todas_impressoes()
+
+**Mudança:** Bloco de verificação no topo do método:
+```python
+if not (PRINT_NFCE or PRINT_DANFE or PRINT_CUPOM_TROCA or PRINT_GIFTBACK):
+    return  # pula sem verificar nenhum botão na tela
+```
+
+**Motivo:** Quando tudo desabilitado, os 4 métodos individuais já retornavam cedo, mas geravam 4 chamadas + 4 logs. O fast-path torna o comportamento explícito e mais rápido.
+
+**Arquivos modificados (ambas as cópias):**
+- `Testes_PDV/pages/login_page.py`
+- `Testes_PDV/pages/venda_page.py`
+- `Testes_PDV/pages/venda_sucesso_page.py`
+- `Gerador_EXE/output/staging/pages/login_page.py`
+- `Gerador_EXE/output/staging/pages/venda_page.py`
+- `Gerador_EXE/output/staging/pages/venda_sucesso_page.py`
+
+---
+
 ## 2026-04-10 — Refatoração de Performance e Estrutura
 
 ### Ganho estimado: ~90s por suite E2E completa

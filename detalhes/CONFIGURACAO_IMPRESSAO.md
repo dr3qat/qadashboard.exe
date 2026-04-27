@@ -34,7 +34,8 @@ O sistema de impressões permite controlar globalmente **4 tipos diferentes de i
 │  ☐ DANFE via Servidor (NF-e)                              │
 │  ☐ Cupom de Troca                                         │
 │                                                            │
-│  Timeout Diálogo (seg): [20]                              │
+│  Timeout Diálogo (seg): [20]  ← usado só quando SIM      │
+│  (quando NÃO: timeout fixo 12s, sleep 0.5s — mais rápido) │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -307,11 +308,13 @@ def test_venda_completa_com_impressoes(self, driver_logado):
 
 | Tipo | Aparece Sempre? | Posição | Se Desmarcado | Se Marcado |
 |------|----------------|---------|---------------|------------|
-| **Cupom Venda** | ✅ Sim (diálogo) | Após finalizar venda | Clica NÃO | Clica SIM |
-| **Cupom Troca (Diálogo)** | ❓ Depende do parâmetro | Antes da tela sucesso | Clica NÃO | Clica SIM |
-| **NFC-E** | ❌ Não (botão) | 1º botão (Node 12, Y:764) | Ignora botão | Clica botão + SIM |
-| **DANFE** | ❌ Não (botão) | 2º botão (Node 13, Y:876) | Ignora botão | Clica botão + OK |
-| **Cupom Troca (Botão)** | ❌ Não (botão) | 3º botão (Node 15, Y:1100) | Ignora botão | Clica botão + SIM |
+| **Cupom Venda** | ✅ Sim (diálogo) | Após finalizar venda | Clica NÃO (timeout 12s, sleep 0.5s) | Clica SIM (timeout 20s, sleep 2s) |
+| **Cupom Troca (Diálogo)** | ❓ Depende do parâmetro | Antes da tela sucesso | Clica NÃO (sleep 0.5s) | Clica SIM (sleep 2s) |
+| **NFC-E** | ❌ Não (botão) | 1º botão (Node 12, Y:764) | Ignora botão (fast-path) | Clica botão + SIM |
+| **DANFE** | ❌ Não (botão) | 2º botão (Node 13, Y:876) | Ignora botão (fast-path) | Clica botão + OK |
+| **Cupom Troca (Botão)** | ❌ Não (botão) | 3º botão (Node 15, Y:1100) | Ignora botão (fast-path) | Clica botão + SIM |
+
+> **Fast-path (2026-04-14):** Se NFC-E + DANFE + Cupom Troca + Giftback todos desmarcados → `processar_todas_impressoes()` retorna imediatamente sem verificar nenhum botão na tela.
 
 ### Ordem de Processamento (CRÍTICO)
 
@@ -342,6 +345,6 @@ Os métodos verificam automaticamente se os botões estão visíveis:
 
 ---
 
-**Última Atualização:** 2026-03-04
-**Versão do Sistema:** 2.0.21 (última compilação: 03/03/2026)
-**Versão da Documentação:** 3.0 (Ordem correta conforme XML)
+**Última Atualização:** 2026-04-14
+**Versão do Sistema:** 2.0.21
+**Versão da Documentação:** 3.1 (timeouts adaptativos + fast-path)

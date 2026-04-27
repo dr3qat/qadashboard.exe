@@ -108,7 +108,7 @@ Validar todas as funcionalidades do app de ponta a ponta.
 ### Módulos Testados
 | Subpasta | Testes | Cobertura |
 |---|---|---|
-| vendas/ | 18 | Consumidor, cliente, vale presente, bônus, cancelamento, opções item |
+| vendas/ | 19 | Consumidor, cliente, vale presente, bônus, cancelamento, opções item, POS (dinâmico) |
 | consultas/ | 7 | Estoque, documentos, borderô |
 | pedidos/ | 6 | Pedido venda, consumidor, cliente, consulta |
 | descontos/ | 6 | Desconto/acréscimo consumidor/cliente, bônus, cashback |
@@ -225,6 +225,7 @@ markers =
     estoque: Testes de estoque
     troca: Testes de troca
     bonus: Testes de bonus
+    pagamento_pos: Testes que requerem terminal POS (skip se indisponível na base)
 ```
 
 ### Executar por Marcador
@@ -289,5 +290,5 @@ pytest tests/ -v --tb=short
 
 ---
 
-**Última atualização**: 10/04/2026
+**Última atualização**: 15/04/2026
 **Versão**: 2.0.108

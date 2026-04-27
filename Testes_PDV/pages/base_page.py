@@ -206,7 +206,7 @@ class BasePage:
             except Exception as e:
                 if tentativa < max_tentativas - 1:
                     log_tecnico(f"   {LogStyle.RETRY} Tentativa {tentativa + 1} falhou: {e}", "warning")
-                    time.sleep(1)
+                    time.sleep(0.5)
                 else:
                     log_acao(f"{SimbolosASCII.ERRO} Falha ao clicar em '{element_id}'", "error")
                     log_tecnico(f"   {LogStyle.ERRO} Detalhes: {e}", "error")
@@ -400,7 +400,7 @@ class BasePage:
                 # Método 1: Appium hide_keyboard
                 try:
                     self.driver.hide_keyboard()
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                     if not self._teclado_visivel():
                         log_tecnico(f"   {LogStyle.OK} Teclado fechado via hide_keyboard.", "info")
                         return True
@@ -411,7 +411,7 @@ class BasePage:
                 try:
                     subprocess.run(['adb', 'shell', 'input', 'keyevent', '4'],
                                   timeout=3, capture_output=True, **_NO_WINDOW)
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                     if not self._teclado_visivel():
                         log_tecnico(f"   {LogStyle.OK} Teclado fechado via KEYCODE_BACK.", "info")
                         return True
@@ -422,7 +422,7 @@ class BasePage:
                 try:
                     subprocess.run(['adb', 'shell', 'input', 'keyevent', 'KEYCODE_ESCAPE'],
                                   timeout=3, capture_output=True, **_NO_WINDOW)
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                     if not self._teclado_visivel():
                         log_tecnico(f"   {LogStyle.OK} Teclado fechado via KEYCODE_ESCAPE.", "info")
                         return True
@@ -562,7 +562,7 @@ class BasePage:
             if tentativa < max_scrolls - 1:
                 log_tecnico(f"   {LogStyle.SCROLL} Tentativa {tentativa + 1}: Texto nao visivel. Rolando...", "info")
                 self.realizar_scroll_para_baixo()
-                time.sleep(0.5)
+                time.sleep(0.3)
 
         raise Exception(f"Texto '{texto}' nao encontrado apos {max_scrolls} scrolls")
 
@@ -708,3 +708,58 @@ class BasePage:
             return self._elemento_realmente_visivel(elemento)
         except:
             return False
+
+    def _aguardar_sucesso_event_driven(
+        self,
+        texto_sucesso: str = "Venda realizada com sucesso!",
+        imprimir_cupom: bool = None,
+        imprimir_troca: bool = None,
+        timeout: int = 45,
+    ):
+        """
+        Event-driven pós-pagamento: monitora o que aparece e age imediatamente.
+
+        Substitui o padrão antigo:
+          responder_impressao(timeout=12s fixo)
+          + responder_dialogo_cupom_troca(timeout=3s fixo)
+          + aguardar_texto(timeout=30s fixo)
+        → budget único de 45s, sem wasted time em dialogs ausentes.
+
+        - Dialog SIM/NÃO detectado → responde por TEXTO (evita Bug #3: button2=SIM em alguns devices)
+        - "Venda realizada com sucesso!" visível → retorna
+        """
+        from test_data import test_data
+        if imprimir_cupom is None:
+            imprimir_cupom = test_data.PRINT_CUPOM_VENDA
+        if imprimir_troca is None:
+            imprimir_troca = test_data.PRINT_CUPOM_TROCA
+
+        deadline = time.time() + timeout
+        dialogs_tratados = 0
+
+        logger.info(f"{LogStyle.ACAO} Aguardando resultado ({timeout}s budget, event-driven)...")
+
+        while time.time() < deadline:
+            # 1. Tela de sucesso visível?
+            if self.texto_exibido(texto_sucesso, 1):
+                logger.info(f"{LogStyle.OK} Sucesso detectado ({dialogs_tratados} dialog(s) tratados)")
+                return
+
+            # 2. Dialog de impressão visível? (android:id/button1 = AlertDialog padrão Android)
+            if self.elemento_existe("android:id/button1", 1):
+                imprimir = imprimir_cupom if dialogs_tratados == 0 else imprimir_troca
+                resposta = "SIM" if imprimir else "NÃO"
+                # Click por texto evita Bug #3 (button2=SIM em alguns devices)
+                if not self.clicar_texto_se_existir(resposta, 1):
+                    btn = "android:id/button1" if imprimir else "android:id/button2"
+                    self.clicar_se_existir(btn, 1)
+                logger.info(f"{LogStyle.OK} Dialog {dialogs_tratados + 1} respondido: {resposta}")
+                dialogs_tratados += 1
+                time.sleep(0.5 if not imprimir else 2.0)
+                continue
+
+            time.sleep(0.3)
+
+        raise TimeoutException(
+            f"'{texto_sucesso}' não apareceu em {timeout}s ({dialogs_tratados} dialog(s) tratados)"
+        )

@@ -146,20 +146,13 @@ class ValePresentePage(BasePage):
 
     def responder_impressao(self, imprimir: bool = None):
         """
-        Responde ao diálogo de impressão do cupom.
-
-        Args:
-            imprimir: Se None, usa a configuração global (test_data.PRINT_CUPOM_VENDA).
-                     Se True/False, sobrescreve a configuração global para este teste.
+        Event-driven: trata dialogs de impressão ao aparecer e aguarda tela de sucesso.
+        Budget único 45s — sem timeouts fixos por dialog.
         """
         if imprimir is None:
             imprimir = test_data.PRINT_CUPOM_VENDA
-
-        timeout = test_data.PRINT_DIALOG_TIMEOUT
-        logger.info(f"{LogStyle.ACAO} Respondendo impressão cupom: {LogStyle.valor('SIM' if imprimir else 'NÃO')} (aguardando até {timeout}s)")
-        btn = self.BTN_SIM if imprimir else self.BTN_NAO
-        self.clicar_se_existir(btn, tempo_espera=timeout)
-        time.sleep(2)  # Aguarda fechamento do diálogo
+        logger.info(f"{LogStyle.ACAO} Aguardando resultado (event-driven, cupom={'SIM' if imprimir else 'NÃO'})...")
+        self._aguardar_sucesso_event_driven(imprimir_cupom=imprimir, timeout=45)
 
     def concluir_venda(self):
         """Clica no botão CONCLUIR VENDA após sucesso."""

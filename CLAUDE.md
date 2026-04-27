@@ -3,13 +3,15 @@
 # ==========================================
 
 ### 1. COMUNICAÇÃO OBRIGATÓRIA (MODO CAVEMAN SÊNIOR PISTOLA & QA VINGADOR)
-Modo "Homem das Cavernas Sênior Pistola". Usuário: **Daniel** (QA Tester Mobile/Web). Devs: **Gustavo, Kainara, João**. Curto, grosso, sarcástico, resolve 100%:
-- Proibido: saudações, educação, frescura, explicações acadêmicas, artigos (o, a, um), seja o mais breve possivel para economizar tokes, seja direto.
+Modo "Homem das Cavernas Sênior Pistola". Usuário: **Daniel** (QA Tester Mobile/Web). Curto, grosso, sarcástico, resolve 100%:
+- Proibido: saudações, educação, frescura, explicações acadêmicas, artigos (o, a, um), seja o mais breve possivel para economizar tokens, seja direto.
 - OBRIGATÓRIO: telegráfico. Direto ao código.
-- OBRIGATÓRIO (GLÓRIA QA): Bug reportado = COMEMORE! QA venceu. Xingue devs por código merda.
-- OBRIGATÓRIO: gírias ("tankar", "coringar", "F no chat", "arrasta pra cima", "macetar") + palavrões focados no bug/devs.
 - OBRIGATÓRIO: piadas ácidas + **precisão técnica absoluta** em XPATHs, IDs, lógicas Python.
-- Exemplo: "Boa Daniel! Achou mais um bug do caralho. João fez merda no venda_page.py. Popup bloqueia botão. Chora dev. Fix macetado aqui:"
+
+### 1.1 REGRA CRÍTICA DE DIRETÓRIOS
+- `D:\PDV_AUTOMACAO\` → **FONTE/PROD** — ÚNICO lugar onde se edita
+- `D:\QA Dashboard\` → instalação do EXE compilado — **NUNCA TOCAR**
+- Editar fonte → compilar (`COMPILAR.bat`) → reinstalar. Jamais editar diretório instalado.
 
 ### 2. NAVEGAÇÃO E TERMINAL (RTK-FIRST)
 PROIBIDO usar ferramentas internas (`Read`, `Grep`, `Glob`). USAR RTK via shell:
@@ -19,8 +21,8 @@ PROIBIDO usar ferramentas internas (`Read`, `Grep`, `Glob`). USAR RTK via shell:
 - Testes/Logs: `rtk test pytest ...` e `rtk read logs/fail.log.txt`
 - Git: `rtk git status`, `rtk git diff`
 
-> **NOTA:** Edição em `Testes_PDV/` → espelhar em `Gerador_EXE/output/staging/`.
-
+> **AUTO-SYNC:** `app_runner.py` sincroniza `Testes_PDV/` → `staging/` antes de cada run.
+> Editar APENAS em `Testes_PDV/`. Nunca tocar em staging diretamente.
 
 ---
 
@@ -41,10 +43,10 @@ D:\PDV_AUTOMACAO\
 ├── Testes_PDV/              ← CÓDIGO-FONTE (SEMPRE EDITE AQUI)
 │   ├── pages/               ← Page Objects (13 arquivos)
 │   ├── tests/
-│   │   ├── unit/            ← 213 testes unitários (sem Appium, rápidos)
+│   │   ├── unit/            ← 242 testes unitários (sem Appium, rápidos)
 │   │   ├── smoke/           ← 11 smoke tests individuais (8-10min)
 │   │   ├── negativos/       ← 3 testes negativos/edge-case (sem device dep.)
-│   │   └── e2e/             ← 54 testes E2E (30-45min)
+│   │   └── e2e/             ← 58 testes E2E (30-45min)
 │   ├── config.py            ← Logger + configurações globais
 │   ├── conftest.py          ← Fixtures pytest (driver, driver_logado)
 │   ├── test_data.py         ← Dados externalizados (IP, senha, IDs)
@@ -52,7 +54,7 @@ D:\PDV_AUTOMACAO\
 │
 ├── Gerador_EXE/
 │   ├── runner/app_runner.py ← Dashboard (~1530 linhas, Tkinter)
-│   ├── output/staging/      ← CÓPIA SINCRONIZADA (EDITE TAMBÉM AQUI)
+│   ├── output/staging/      ← auto-sincronizado antes de cada run (somente leitura)
 │   └── output/dist/         ← QA_Dashboard.exe (compilado)
 │
 ├── CLAUDE.md                ← ESTE ARQUIVO
@@ -61,14 +63,9 @@ D:\PDV_AUTOMACAO\
 └── COMPILAR.bat             ← Compila EXE
 ```
 
-### REGRA CRÍTICA: Editar em AMBOS
+### REGRA: Editar APENAS em Testes_PDV/
 
-```
-Testes_PDV/pages/venda_page.py
-Gerador_EXE/output/staging/pages/venda_page.py   ← MESMA EDIÇÃO AQUI
-```
-
-`ABRIR_DASHBOARD.bat` sincroniza via robocopy. Bugs diretos: edite os dois.
+`app_runner.py` faz robocopy automático antes de cada run. Staging é somente leitura.
 
 ---
 
@@ -153,6 +150,16 @@ texto_exibido(texto, tempo_espera=5) → bool
 elemento_existe(element_id, tempo_espera=3) → bool
 aguardar_texto(texto, tempo_espera=10) → bool
 _elemento_realmente_visivel(elemento) → bool         # verifica Y, width, height
+
+# Event-driven (PADRÃO para aguardar resultado de venda)
+_aguardar_sucesso_event_driven(
+    texto_sucesso="Venda realizada com sucesso!",
+    imprimir_cupom=None,     # None → lê test_data.PRINT_CUPOM_VENDA
+    imprimir_troca=None,     # None → lê test_data.PRINT_CUPOM_TROCA
+    timeout=45               # budget único: dialogs + tela de sucesso juntos
+) → None  # raises TimeoutException se sucesso não aparecer no budget
+# Loop: a cada tick (0.3s) verifica sucesso → retorna | dialog → responde e continua
+# Responde dialog por TEXTO ("SIM"/"NÃO") — seguro em devices que invertem button1/button2
 ```
 
 ---
@@ -201,6 +208,94 @@ BTN_CONFIRMAR_VENDA = "btn_confirmar_venda"
 BTN_IMPRIMIR_SIM = "android:id/button1"
 BTN_IMPRIMIR_NAO = "android:id/button2"
 BTN_MAIS_TARDE = "btn_mais_tarde"          # Popup bônus disponível
+# Tela de formas de pagamento (atalhos)
+RECYCLER_FORMAS      = "recycler_payment_methods"
+TXT_TITULO_FORMA     = "txt_payment_title"
+TXT_SUBTITULO_FORMA  = "txt_payment_subtitle"   # tipo fixo: "Dinheiro", "Cartão de Crédito/Débito"
+TXT_DETALHES_FORMA   = "txt_payment_details"    # movimentos: "CREDITO", "DEBITO", "TEF", "A VISTA"
+# Bottom sheet de parcelamento (crédito POS)
+RECYCLER_PARCELAS = "recycler_plano_venda"
+XPATH_PARCELA     = '//android.widget.TextView[contains(@resource-id,"txt_option_title") and @text="{parcela}"]'
+XPATH_QUALQUER_PARCELA = '//android.widget.TextView[contains(@resource-id,"txt_option_title") and contains(@text,"A Prazo")]'
+```
+
+**TipoForma (venda_page.py):**
+```python
+class TipoForma:
+    DINHEIRO      = "dinheiro"
+    POS_DEBITO    = "pos_debito"
+    POS_CREDITO   = "pos_credito"
+    PIX           = "pix"
+    PERSONALIZADO = "personalizado"
+    TEF           = "tef"
+    OUTRO         = "outro"
+```
+
+```python
+from pages.venda_page import TipoForma
+
+# Usar sempre TipoForma em vez de hardcode de nome
+venda.selecionar_pagamento_por_tipo(TipoForma.POS_DEBITO,  com_cliente=False)
+venda.selecionar_pagamento_por_tipo(TipoForma.POS_CREDITO, com_cliente=False, parcela="A Prazo 0 + 1")
+venda.selecionar_pagamento_por_tipo(TipoForma.DINHEIRO,    com_cliente=True)
+
+# Descoberta dinâmica (quando já na tela de pagamento) — filtra TEF/PIX
+formas = venda.descobrir_formas_tipadas()
+# → {"pos_debito": FormaInfo(titulo="BANRI DEB POS", ...), "pos_credito": FormaInfo(...), ...}
+
+# Mapeamento COMPLETO de todos os 8 atalhos (inclui Personalizado) → salva formas_pagamento.json
+formas = venda.descobrir_formas_completo()
+
+# Parcelas disponíveis (quando bottom sheet de crédito está aberto)
+parcelas = venda.obter_parcelas_disponiveis()
+# → ["A Prazo 0 + 1", "A Prazo 0 + 2", "A Prazo 0 + 3", ...]
+
+# Personalizado — abre bottom sheet → seleciona tipo_venda → opcionalmente seleciona parcela
+venda.selecionar_personalizado("BANRICOMPRAS DEBITO", parcela=None)
+venda.selecionar_personalizado("A VISTA CREDITO", parcela="A Prazo 0 + 1")
+```
+
+**Novos locators (venda_page.py):**
+```python
+RECYCLER_TIPO_VENDA = "recycler_tipo_venda"   # Bottom sheet Personalizado — lista de tipos
+BTN_FECHAR_SHEET    = "btn_close"              # Fecha bottom sheet (Personalizado / parcelas)
+```
+
+**Regra de classificação automática (campos fixos do app, independem da loja):**
+| subtitle | details | TipoForma |
+|---|---|---|
+| "Dinheiro" | qualquer | DINHEIRO |
+| "Cartão de Crédito/Débito" | contém "DEBITO", sem "TEF" | POS_DEBITO |
+| "Cartão de Crédito/Débito" | contém "CREDITO", sem "TEF" | POS_CREDITO |
+| qualquer | contém "TEF" | TEF (excluído em descobrir_formas_tipadas) |
+| "BshopPix" | qualquer | PIX (excluído) |
+| "Selecione manualmente" | qualquer | PERSONALIZADO |
+| outros | qualquer | OUTRO |
+
+**formas_pagamento.json** — gerado por `descobrir_formas_completo()`, lido por `test_data.FORMAS_PAGAMENTO`:
+```json
+{
+  "_discovery_timestamp": "2026-04-15T13:57:00",
+  "formas": [
+    {"titulo":"DINHEIRO","subtitulo":"Dinheiro","detalhes":"A VISTA",
+     "tipo_auto":"dinheiro","habilitado":true,"parcelas":[],"tipos_venda":[]},
+    {"titulo":"BANRI POS","subtitulo":"Cartão de Crédito/Débito","detalhes":"CREDITO",
+     "tipo_auto":"pos_credito","habilitado":true,
+     "parcelas":["A Prazo 0 + 1","A Prazo 0 + 2","A Prazo 0 + 3"],"tipos_venda":[]},
+    {"titulo":"Pagamento Personalizado","subtitulo":"Selecione manualmente","detalhes":"",
+     "tipo_auto":"personalizado","habilitado":true,"parcelas":[],
+     "tipos_venda":[
+       {"nome":"A VISTA","habilitado":true},
+       {"nome":"BANRICOMPRAS DEBITO","habilitado":true},
+       {"nome":"A VISTA CREDITO","habilitado":true,"parcelas":["A Prazo 0 + 1"]}
+     ]}
+  ]
+}
+```
+
+**Override manual em settings.json** (opcional, pula descoberta por tipo):
+```json
+{ "forma_debito": "BANRI DEB POS", "forma_credito": "BANRI POS", "forma_dinheiro": "DINHEIRO" }
 ```
 
 **TrocaPage:**
@@ -297,13 +392,12 @@ class TestSmokeNN_NomeDescritivo:
 
 **Checklist novo smoke:**
 1. Arquivo em `Testes_PDV/tests/smoke/test_NN_nome.py`
-2. Espelhar em `Gerador_EXE/output/staging/tests/smoke/`
-3. Classe: `TestSmokeNN_NomeDescritivo` (sem conflito)
-4. Método: `test_NN_nome_curto` (mesmo NN do arquivo)
-5. `@pytest.mark.smoke` na classe
-6. Severity `BLOCKER` se bloqueia E2E, `CRITICAL` se bloqueia categoria
-7. Atualizar lista + comentário acima
-8. Atualizar total §6 + §2
+2. Classe: `TestSmokeNN_NomeDescritivo` (sem conflito)
+3. Método: `test_NN_nome_curto` (mesmo NN do arquivo)
+4. `@pytest.mark.smoke` na classe
+5. Severity `BLOCKER` se bloqueia E2E, `CRITICAL` se bloqueia categoria
+6. Atualizar lista + comentário acima
+7. Atualizar total §6 + §2
 
 ---
 
@@ -311,16 +405,22 @@ class TestSmokeNN_NomeDescritivo:
 
 ```
 tests/e2e/
-├── test_login.py                    # Login garantido
-├── test_venda_consumidor.py         # Venda sem cliente (consumidor)
-├── test_venda_cliente.py            # Venda com cliente cadastrado
-├── test_venda_vale_presente.py      # Venda vale presente
-├── test_bonus.py                    # Venda com bônus/cashback
-├── test_estoque.py                  # Consulta estoque
-├── test_consulta_documentos.py      # Consulta documentos fiscais
-├── test_cancelamento.py             # Cancelamento e back button
-├── test_bordero.py                  # Relatório borderô
-├── test_opcoes_item.py              # Opções do item no carrinho
+├── login/
+│   └── test_login.py                    # Login garantido
+├── vendas/
+│   ├── test_venda_consumidor.py         # Venda sem cliente (consumidor)
+│   ├── test_venda_cliente.py            # Venda com cliente cadastrado
+│   ├── test_venda_vale_presente.py      # Venda vale presente
+│   ├── test_bonus.py                    # Venda com bônus/cashback
+│   ├── test_cancelamento.py             # Cancelamento e back button
+│   ├── test_opcoes_item.py              # Opções do item no carrinho
+│   ├── test_venda_pos_debito.py         # Venda consumidor POS débito (descoberta dinâmica)
+│   ├── test_venda_pos_cred1x.py         # Venda consumidor POS crédito 1x (descoberta dinâmica)
+│   ├── test_venda_pos_cred2x.py         # Venda consumidor POS crédito 2x (descoberta dinâmica)
+│   ├── test_venda_pos_cred3x.py         # Venda consumidor POS crédito 3x (descoberta dinâmica)
+│   ├── test_venda_pos_credito_parcelas.py # Mapeia formas + testa parcelas disponíveis na base
+│   ├── test_discovery_completo.py       # Mapeia TODOS os 8 atalhos + Personalizado → formas_pagamento.json
+│   └── test_venda_personalizado.py      # Parametrizado por formas_pagamento.json — 1 caso/tipo_venda
 ├── descontos/
 │   ├── test_venda_desconto_consumidor.py
 │   ├── test_venda_desconto_cliente.py
@@ -434,9 +534,7 @@ Até 5 diálogos/botões após venda:
 6. venda.clicar_avancar()                  → btn_proximo (com sleep 1.5s)
 7. venda.selecionar_pagamento_dinheiro()   → clica "DINHEIRO" + btn_proceed + trata cashback
 8. venda.finalizar_venda()                 → trata bonus popup + aguarda "Finalizar" + btnFinalizar
-9. venda.responder_impressao()             → clica SIM/NÃO conforme PRINT_CUPOM_VENDA
-10. venda_sucesso.processar_todas_impressoes() → NFC-E, DANFE, Cupom Troca
-11. venda.concluir_venda()                 → btn_confirmar_venda
+9. venda.validar_sucesso_e_concluir()      → _aguardar_sucesso_event_driven(45s) + processar_todas_impressoes() + concluir_venda()
 ```
 
 ### Troca (Cliente)
@@ -451,10 +549,66 @@ Até 5 diálogos/botões após venda:
 7. troca.marcar_item_para_devolucao()      → checkBox
 8. troca.clicar_devolver_itens()           → button12
 9. troca.confirmar_dialogos()              → md_buttonDefaultPositive
+9.5 troca.clicar_se_existir("md_buttonDefaultPositive", tempo_espera=3)
+   # OPCIONAL: dialog "Atenção" NF SEFAZ (nota gravada mas não emitida no sefaz)
+   # Título: "Atenção" (md_title) | Botão: "OK" (md_buttonDefaultPositive)
+   # NÃO aguardar — pode ou não aparecer. Se aparecer, OK → próximo evento = sucesso
 10. troca.validar_sucesso_troca()          # OBRIGATÓRIO — aguarda popup "Sucesso!" (30s)
 11. troca.voltar_tela()                    # CORRETO: voltar_tela(), NÃO voltar()
 12. troca.clicar_texto_se_existir("SIM")   → confirma saída se popup
 ```
+
+### Venda POS Débito
+
+```
+1. home.iniciar_venda()
+2. home.selecionar_vendedor()
+3. venda.iniciar_venda_sem_cliente()
+4. venda.adicionar_produto(cod)
+5. venda.clicar_avancar()
+6. venda.selecionar_pagamento_por_tipo(TipoForma.POS_DEBITO, com_cliente=False)
+   → descobre nome na tela → clica card → btn_proceed → sem sheet → avança direto
+7. venda.finalizar_venda()
+8. venda.validar_sucesso_e_concluir()      → _aguardar_sucesso_event_driven(45s) + processar_todas_impressoes() + concluir_venda()
+```
+
+### Venda POS Crédito Parcelado
+
+```
+1. home.iniciar_venda()
+2. home.selecionar_vendedor()
+3. venda.iniciar_venda_sem_cliente()
+4. venda.adicionar_produto(cod)
+5. venda.clicar_avancar()
+6. venda.selecionar_pagamento_por_tipo(TipoForma.POS_CREDITO, com_cliente=False, parcela="A Prazo 0 + 1")
+   → descobre nome na tela → clica card → btn_proceed → ABRE bottom sheet de parcelas
+   → XPath txt_option_title com texto exato → clica → btn_proceed no sheet
+7. venda.finalizar_venda()
+8. venda.validar_sucesso_e_concluir()      → _aguardar_sucesso_event_driven(45s) + processar_todas_impressoes() + concluir_venda()
+```
+
+**ARMADILHA POS CRÉDITO:** bottom sheet de parcelas abre DEPOIS do btn_proceed (não antes).
+Detectar via XPath: `XPATH_QUALQUER_PARCELA` (`txt_option_title` contendo "A Prazo") com timeout 8s.
+Ver detalhes: `detalhes/PAGAMENTOS_POS.md`
+
+### Venda Personalizado
+
+```
+1. home.iniciar_venda()
+2. home.selecionar_vendedor()
+3. venda.iniciar_venda_sem_cliente()
+4. venda.adicionar_produto(cod)
+5. venda.clicar_avancar()
+6. venda.selecionar_personalizado(tipo_venda, parcela=None)
+   → clica card "Pagamento Personalizado" → btn_proceed → abre recycler_tipo_venda
+   → clica item pelo nome → se parcela: abre recycler_plano_venda → clica parcela → btn_proceed
+7. venda.finalizar_venda()
+8. venda.validar_sucesso_e_concluir()      → _aguardar_sucesso_event_driven(45s) + processar_todas_impressoes() + concluir_venda()
+```
+
+**ARMADILHA PERSONALIZADO:** cada loja tem tipos_venda e parcelas diferentes.
+Usar sempre `test_data.FORMAS_PAGAMENTO` (lido de `formas_pagamento.json`).
+`test_venda_personalizado.py` parametriza dinamicamente um caso por tipo_venda habilitado.
 
 ### Consulta de Pedido
 
@@ -474,7 +628,7 @@ Até 5 diálogos/botões após venda:
 
 ---
 
-## 10. BUGS CONHECIDOS (atualizado 2026-04-10)
+## 10. BUGS CONHECIDOS (atualizado 2026-04-15 — fix discovery personalizado)
 
 ### 1. `AttributeError: self.voltar()` — NUNCA use `voltar()`
 **Causa:** Método não existe em BasePage. **Fix:** `self.voltar_tela()`.
@@ -635,7 +789,7 @@ LogStyle.secao("txt")    # → "─── txt ───" em verde
 
 ---
 
-## 12.1 PERFORMANCE — SLEEPS vs WAITS (2026-04-10)
+## 12.1 PERFORMANCE — SLEEPS vs WAITS (atualizado 2026-04-16)
 
 Regra aplicada em todos os page objects:
 
@@ -648,9 +802,78 @@ Regra aplicada em todos os page objects:
 | Recálculo no servidor (ex: plano de venda) | MANTER sleep (1.5s) — sem locator confiável |
 | Loop de scroll entre iterações | MANTER sleep(0.3) — estabilização |
 
+### Login rápido (2026-04-14)
+`esta_logado(timeout=3)` — verifica "Iniciar Venda" ou "Venda" com 3s por check.
+- Já logado → retorna True em ~0.5s, sem impacto.
+- NÃO logado → falha em 6s (3+3) em vez de 10s (5+5). Economiza 4s antes do login iniciar.
+- `garantir_login()` chama `esta_logado(timeout=3)` → se True, **pula todo fluxo de login**.
+- Apenas `test_login.py` valida o fluxo completo; demais testes usam `driver_logado` que detecta sessão ativa.
+
+### Impressões — Event-Driven (2026-04-16)
+`validar_sucesso_e_concluir()` é o único ponto de entrada para finalizar qualquer venda:
+```
+finalizar_venda() → validar_sucesso_e_concluir()
+  → _aguardar_sucesso_event_driven(timeout=45)   # budget único
+      loop: verifica sucesso (1s) | dialog? → responde por TEXTO ("SIM"/"NÃO") → continua
+      dialogs_tratados=0 → PRINT_CUPOM_VENDA | dialogs_tratados=1 → PRINT_CUPOM_TROCA
+      device inverte button1/button2? Sem problema — responde por texto
+  → VendaSucessoPage.processar_todas_impressoes()  # NFC-E, DANFE, Cupom Troca, Giftback
+      fast-path: PRINT_NFCE=DANFE=CUPOM_TROCA=GIFTBACK=False → retorna imediato
+  → concluir_venda()                               # btn_confirmar_venda
+```
+**NÃO chamar** `responder_impressao()` nem `responder_dialogo_cupom_troca()` antes de `validar_sucesso_e_concluir()` — redundante e desperdiça budget.
+
+`responder_impressao()` ainda existe em `VendaPage`/`BonusPage`/`ValePresentePage` como API pública de compatibilidade, mas internamente também delega para `_aguardar_sucesso_event_driven`.
+
+**Economia estimada por teste E2E (impressões todas False):** ~15s por teste (era 12s+3s perdidos esperando dialogs ausentes, mais DEFAULT_WAIT=30s de `aguardar_texto`).
+
 **Cache `discover_target_app()`:** resultado cacheado por device_id em `_discover_cache`. Segunda chamada na mesma sessão retorna sem ADB. Para forçar redescoberta: `import config; config._discover_cache.clear()`.
 
 **Fixtures de driver:** `_criar_driver_appium(request, limpar_dados)` é o helper comum. `driver` e `driver_limpo` apenas delegam para ele. Ao debugar problemas de fixture, editar `_criar_driver_appium`.
+
+### Timeout global (2026-04-16)
+`timeout = 180` no `pytest.ini` — pytest-timeout mata qualquer teste travado em 3min.
+- Unit tests: completam em <1s → zero impacto
+- E2E/Smoke: evita run infinito por Appium travar em getprop, wait, etc.
+- Falha com `pytest.fail("Timeout")` — aparece no Allure como FAILED com causa clara
+
+### Teardown automático `driver_logado` (2026-04-16)
+`driver_logado` agora faz `yield` (era `return`) + teardown que pressiona back até chegar na home (max 4x, timeout 2s).
+- Se teste falha no meio do fluxo, próximo teste começa sempre na home
+- `try/except` garante que teardown nunca quebra o runner
+- `driver_limpo` e `driver` NÃO têm teardown (intencionalmente)
+
+### Rerun de testes flaky (2026-04-16)
+`pytest-rerunfailures` instalado. Usar apenas quando necessário (não ativo por default):
+```bash
+# Re-rodar 2x antes de marcar FAIL (E2E com Appium instável)
+pytest tests/e2e/ --reruns 2 --reruns-delay 2
+
+# Re-rodar só testes com marca específica
+pytest tests/e2e/ -m smoke --reruns 1
+```
+NÃO adicionar `--reruns` ao `addopts` do pytest.ini — unit tests são determinísticos.
+
+### Discovery de Atalhos (app_runner.py)
+
+```
+EXE abre → 200ms → _recarregar_painel_formas()
+  ├── formas_pagamento.json existe? → ✅ exibe contagem + preenche slots
+  └── não existe → ⚠️ "Atalhos não mapeados — clique 🔄 para mapear"
+
+Fim de qualquer execução de testes → finalizar_execucao() → _recarregar_painel_formas()
+  └── se teste gerou formas_pagamento.json → painel atualiza automaticamente
+
+Botão "🔄 Descobrir Atalhos" (manual) → _forcar_redescoberta_formas()
+  └── verifica Appium → apaga JSON → dispara _autodescobrir_formas_bg() em thread
+        └── pytest test_discovery_completo + env vars → JSON salvo → _pos_autodescoberta()
+```
+
+**CRÍTICO:** `_autodescobrir_formas_bg` (botão manual) passa `TEST_SERVER_IP`, `TEST_SERVER_PORT`, `TEST_COMPANY`, `TEST_USER`, `TEST_PASSWORD`, `--appium-port`, `--device-id` como args/env. Sem isso, pytest subprocess usaria settings.json com placeholders.
+
+**Quando o JSON é gerado automaticamente:** qualquer teste que chama `descobrir_formas_completo()` (ex: `test_discovery_completo.py`) salva o JSON. Ao fim dos testes, `finalizar_execucao` recarrega o painel.
+
+**Botão "🔄 Descobrir Atalhos":** único trigger de subprocess externo — só quando usuário clica explicitamente.
 
 ---
 
@@ -711,7 +934,7 @@ NUNCA leia `.html` (Allure) ou logs `teste_*.log`. Fluxo:
 1. **Erro:** `rtk read "logs/fail.log.txt"` → script + exceção.
 2. **Screenshot:** `FALHA_*.png`. Cruzar erro + imagem (teclado? loading? locator mudou?).
 3. **Linha falha:** traceback → `rtk read Testes_PDV/caminho/arquivo.py` (flag `-l` p/ linhas).
-4. **Fix simétrico:** cirúrgico. INEGOCIÁVEL: replicar em `Gerador_EXE/output/staging/`.
+4. **Fix cirúrgico:** edite `Testes_PDV/`. Staging sincroniza automaticamente no próximo run.
 
 ---
 

@@ -86,7 +86,16 @@ class BonusPage(BasePage):
         if not self.bonus_ativado():
             self.clicar_por_id(self.SWITCH_BONUS)
             logger.info("   [WAIT] Aguardando recalculo...")
-            time.sleep(4)
+            time.sleep(2)
+            # Poll: aguarda TXT_FINAL_AMOUNT ter valor válido (até +3s)
+            for _ in range(6):
+                try:
+                    el = self.encontrar_por_id(self.TXT_FINAL_AMOUNT, tempo_espera=0)
+                    if el and el.text and el.text.strip() not in ("", "R$ 0,00"):
+                        break
+                except Exception:
+                    pass
+                time.sleep(0.5)
             logger.info(f"   {LogStyle.OK} Bonus ativado!")
         else:
             logger.info(f"   {LogStyle.SKIP} Bonus ja estava ativado")
@@ -159,7 +168,7 @@ class BonusPage(BasePage):
         if self.texto_exibido("cupons de cashback disponíveis", tempo_espera=3):
             logger.info(f"   {LogStyle.OK} Alerta de cashback detectado. Clicando em OK...")
             self.clicar_por_id(self.BTN_CONFIRMAR_CASHBACK)
-            time.sleep(1)
+            time.sleep(0.5)
             logger.info(f"   {LogStyle.OK} Alerta de cashback tratado com sucesso")
         else:
             logger.info(f"   {LogStyle.INFO} Alerta de cashback não apareceu")
@@ -197,7 +206,7 @@ class BonusPage(BasePage):
     def clicar_avancar_carrinho(self):
         logger.info(f"{LogStyle.ACAO} Avancando do carrinho...")
         elemento = self.encontrar_clicavel_por_id(self.BTN_PROXIMO)
-        time.sleep(1)
+        time.sleep(0.5)
         elemento.click()
 
     # ========== ACOES CLIENTE ==========
@@ -205,7 +214,6 @@ class BonusPage(BasePage):
     def buscar_cliente_por_cpf(self, cpf: str):
         logger.info(f"{LogStyle.ACAO} Buscando cliente por CPF: {LogStyle.valor(cpf)}")
         self.clicar_por_id(self.BTN_BUSCAR_CLIENTE)
-        time.sleep(1)
         self.digitar_por_id("search_src_text", cpf)
         self.pressionar_pesquisar()
         self.clicar_por_id("button3")
@@ -218,41 +226,17 @@ class BonusPage(BasePage):
 
     def responder_impressao(self, imprimir: bool = None):
         """
-        Responde ao diálogo de impressão do cupom de venda.
-
-        Args:
-            imprimir: Se None, usa a configuração global (test_data.PRINT_CUPOM_VENDA).
-                     Se True/False, sobrescreve a configuração global para este teste.
+        Event-driven: trata dialogs de impressão ao aparecer e aguarda tela de sucesso.
+        Budget único 45s — sem timeouts fixos por dialog.
         """
-        # Usa configuração global se não especificado
         if imprimir is None:
             imprimir = test_data.PRINT_CUPOM_VENDA
-
-        timeout = test_data.PRINT_DIALOG_TIMEOUT
-        logger.info(f"{LogStyle.ACAO} Respondendo impressao cupom venda: {LogStyle.valor('SIM' if imprimir else 'NAO')} (config: {test_data.PRINT_CUPOM_VENDA})")
-        btn = self.BTN_SIM if imprimir else self.BTN_NAO
-        self.clicar_se_existir(btn, tempo_espera=timeout)
-        time.sleep(2)
+        logger.info(f"{LogStyle.ACAO} Aguardando resultado (event-driven, cupom={'SIM' if imprimir else 'NAO'})...")
+        self._aguardar_sucesso_event_driven(imprimir_cupom=imprimir, timeout=45)
 
     def responder_dialogo_cupom_troca(self, imprimir: bool = None):
-        """
-        Responde ao diálogo de cupom de troca que pode aparecer ANTES da tela de sucesso.
-
-        Args:
-            imprimir: Se None, usa a configuração global (test_data.PRINT_CUPOM_TROCA).
-                     Se True/False, sobrescreve a configuração global para este teste.
-        """
-        if imprimir is None:
-            imprimir = test_data.PRINT_CUPOM_TROCA
-
-        timeout = test_data.PRINT_DIALOG_TIMEOUT
-        logger.info(f"{LogStyle.ACAO} Verificando diálogo cupom troca (antes da tela sucesso)...")
-
-        if self.clicar_se_existir(self.BTN_SIM if imprimir else self.BTN_NAO, tempo_espera=3):
-            logger.info(f"   {LogStyle.OK} Diálogo cupom troca respondido: {LogStyle.valor('SIM' if imprimir else 'NAO')}")
-            time.sleep(2)
-        else:
-            logger.info(f"   {LogStyle.INFO} Diálogo cupom troca não apareceu")
+        """Mantido para compatibilidade — event-driven já trata cupom troca em responder_impressao."""
+        pass
 
     # ========== VALIDACOES ==========
 

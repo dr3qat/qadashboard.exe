@@ -37,6 +37,9 @@ python builder_pro.py
    - Todos os Testes (tests/e2e, tests/smoke, tests/unit)
 3. **Executa** o Dashboard usando o staging (simula o EXE)
 
+> **AUTO-SYNC (2026-04-16):** o Dashboard também sincroniza `Testes_PDV/ → staging/`
+> automaticamente antes de cada run de testes. Editar apenas `Testes_PDV/` — nunca tocar em staging.
+
 ---
 
 ## 📂 Estrutura de Diretórios

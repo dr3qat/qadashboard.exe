@@ -60,7 +60,7 @@ class LoginPage(BasePage):
         logger.info("--- [PRE-CONDICAO] Verificando login ---")
 
         # Verifica se ja esta logado
-        if self.esta_logado(timeout=5):
+        if self.esta_logado(timeout=3):
             logger.info("   Usuario ja esta logado!")
             return True
 
@@ -82,7 +82,7 @@ class LoginPage(BasePage):
         return True
 
     # --- Validações ---
-    def esta_logado(self, timeout: int = 5) -> bool:
+    def esta_logado(self, timeout: int = 3) -> bool:
         """Verifica se usuario esta logado."""
         return (
             self.texto_exibido("Iniciar Venda", timeout) or

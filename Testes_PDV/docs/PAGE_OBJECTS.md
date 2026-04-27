@@ -140,37 +140,66 @@ iniciar_venda_sem_cliente()
 adicionar_produto(codigo="123")
 clicar_avancar()
 
-# Pagamento
+# Pagamento — formas fixas
 selecionar_pagamento_dinheiro()
+selecionar_pagamento(nome_forma, com_cliente=True, parcela=None)
+
+# Pagamento — descoberta dinâmica (PREFERIDO para POS)
+selecionar_pagamento_por_tipo(tipo, com_cliente=True, parcela="A Prazo 0 + 1")
+descobrir_formas_tipadas()          # → {TipoForma: FormaInfo} — cacheia na sessão
+obter_parcelas_disponiveis()        # → ["A Prazo 0 + 1", ...] — sheet aberto
+
+# Finalização
 finalizar_venda()
-
-# Fluxos Completos
-executar_venda_consumidor(codigo_produto="123")
-executar_venda_cliente(id_cliente, codigo_produto)
-
-# Validações
-venda_sucesso_exibida(timeout=10)
+responder_impressao()
+responder_dialogo_cupom_troca()
 validar_sucesso_e_concluir()
 ```
 
-### Exemplo de Uso
+### Exemplo de Uso — Venda com Dinheiro
 
 ```python
 venda_page = VendaPage(driver)
-
-# Venda consumidor
-venda_page.executar_venda_consumidor(codigo_produto="456")
-venda_page.validar_sucesso_e_concluir()
-
-# Venda cliente
-venda_page.clicar_buscar_cliente()
-venda_page.selecionar_cliente("12345678900")
-venda_page.adicionar_produto("789")
+venda_page.iniciar_venda_sem_cliente()
+venda_page.adicionar_produto("123")
 venda_page.clicar_avancar()
 venda_page.selecionar_pagamento_dinheiro()
 venda_page.finalizar_venda()
-venda_page.responder_impressao(imprimir=False)
+venda_page.validar_sucesso_e_concluir()
 ```
+
+### Exemplo de Uso — Venda POS (dinâmico, qualquer base)
+
+```python
+from pages.venda_page import VendaPage, TipoForma
+
+venda_page = VendaPage(driver)
+venda_page.iniciar_venda_sem_cliente()
+venda_page.adicionar_produto("123")
+venda_page.clicar_avancar()
+
+# Débito — skip automático se não disponível na base
+nome = venda_page.selecionar_pagamento_por_tipo(TipoForma.POS_DEBITO, com_cliente=False)
+
+# Crédito com parcela
+nome = venda_page.selecionar_pagamento_por_tipo(
+    TipoForma.POS_CREDITO, com_cliente=False, parcela="A Prazo 0 + 2"
+)
+allure.dynamic.parameter("forma_pagamento", nome)
+
+venda_page.finalizar_venda()
+venda_page.validar_sucesso_e_concluir()
+```
+
+### TipoForma — Valores
+
+| Constante | Valor | Descrição |
+|---|---|---|
+| `TipoForma.DINHEIRO` | `"dinheiro"` | Pagamento em dinheiro |
+| `TipoForma.POS_DEBITO` | `"pos_debito"` | Cartão débito via POS (sem parcelamento) |
+| `TipoForma.POS_CREDITO` | `"pos_credito"` | Cartão crédito via POS (com bottom sheet de parcelas) |
+
+> Ver detalhes: `detalhes/PAGAMENTOS_POS.md`
 
 ---
 

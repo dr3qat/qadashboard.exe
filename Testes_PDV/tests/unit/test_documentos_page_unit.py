@@ -187,19 +187,18 @@ class TestDocumentosPageClicarDetalhesDocumento:
     @patch('pages.documentos_page.logger')
     @patch('pages.documentos_page.time')
     def test_clicar_detalhes_usa_encontrar_clicavel_sem_scroll(self, mock_time, mock_logger, mock_base_init):
-        """Deve usar encontrar_clicavel_por_id (sem scroll) para não fechar popup."""
+        """Deve usar XPath via driver.find_element sobre rcv_opcoes_desconto[ViewGroup[1]]."""
         from pages.documentos_page import DocumentosPage
 
         page = DocumentosPage.__new__(DocumentosPage)
         page.driver = MagicMock()
+        page._app_package = "com.test"
         mock_elem = MagicMock()
-        page.encontrar_clicavel_por_id = MagicMock(return_value=mock_elem)
+        page.driver.find_element.return_value = mock_elem
 
         page.clicar_detalhes_documento()
 
-        page.encontrar_clicavel_por_id.assert_called_once_with(
-            DocumentosPage.TXT_DETALHES_DOCUMENTO, tempo_espera=10
-        )
+        page.driver.find_element.assert_called_once()
         mock_elem.click.assert_called_once()
 
 

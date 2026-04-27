@@ -107,7 +107,7 @@ class TestLoginPageGarantirLogin:
 
         # Assert
         assert resultado is True
-        login_page.esta_logado.assert_called_once_with(timeout=5)
+        login_page.esta_logado.assert_called_once_with(timeout=3)
         # Não deve chamar o fluxo de login
         login_page.pular_telas_introducao.assert_not_called()
         login_page.configurar_conexao_se_necessario.assert_not_called()
@@ -151,7 +151,7 @@ class TestLoginPageGarantirLogin:
 
         # Assert
         assert resultado is True
-        login_page.esta_logado.assert_called_once_with(timeout=5)
+        login_page.esta_logado.assert_called_once_with(timeout=3)
         # Deve chamar todo o fluxo de login
         login_page.pular_telas_introducao.assert_called_once()
         login_page.configurar_conexao_se_necessario.assert_called_once_with(ip, porta)
